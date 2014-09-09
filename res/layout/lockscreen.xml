@@ -15,8 +15,8 @@
         android:layout_gravity="top|center_horizontal|center_vertical|clip_horizontal"
         android:layout_weight="1"
         android:paddingTop="10dp"
-        android:contentDescription="@+strings/wunderground"
-        android:src="@drawable/logo_130x80" />
+        android:contentDescription="@+strings/coxautomotive"
+        android:src="@drawable/coxautomotive" />
 
     <TextView
         android:id="@+id/locationTextView"

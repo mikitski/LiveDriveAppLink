@@ -5,6 +5,7 @@
     <string name="exit">Exit</string>
     <string name="ford">Ford</string>
     <string name="wunderground">WUnderground</string>
+    <string name="coxautomotive">Cox Automotive</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_main">MobileWeather</string>
     <string name="title_alerts">Alerts</string>
