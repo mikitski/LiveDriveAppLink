@@ -579,31 +579,6 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 	}
 	
     private void addCommands() {
-    		Vector<String> vrCommands = null;
-
-		try {
-			vrCommands = new Vector<String>(Arrays.asList("Current", "Current Conditions"));
-			proxy.addCommand(VIEW_CURRENT_CONDITIONS, "Current Conditions", vrCommands, autoIncCorrId++);
-			vrCommands = new Vector<String>(Arrays.asList("three day", "three day forecast", "3 day", "3 day forecast"));
-			proxy.addCommand(VIEW_STANDARD_FORECAST, "3-Day Forecast", vrCommands, autoIncCorrId++);
-			vrCommands = new Vector<String>(Arrays.asList("ten day", "ten day Forecast", "10 day", "10 day forecast"));
-			proxy.addCommand(VIEW_EXTENDED_FORECAST, "10-Day Forecast", vrCommands, autoIncCorrId++);
-			vrCommands = new Vector<String>(Arrays.asList("Change Units", "Units"));
-			proxy.addCommand(CHANGE_UNITS, "Change Units", vrCommands, autoIncCorrId++);
-
-	 		Choice metricChoice = new Choice();
-	 		metricChoice.setChoiceID(METRIC_CHOICE);
-	 		metricChoice.setMenuName("Metric");
-	 		metricChoice.setVrCommands(new Vector<String>(Arrays.asList("Metric")));
-	 		Choice imperialChoice = new Choice();
-	 		imperialChoice.setChoiceID(IMPERIAL_CHOICE);
-	 		imperialChoice.setMenuName("Imperial");
-	 		imperialChoice.setVrCommands(new Vector<String>(Arrays.asList("Imperial")));
-	 		proxy.createInteractionChoiceSet(new Vector<Choice>(Arrays.asList(metricChoice, imperialChoice)), CHANGE_UNITS_CHOICESET, autoIncCorrId++);
-		} catch (SyncException e) {
-			e.printStackTrace();
-			DebugTool.logError("Failed to add commands", e);
-		}
 	}
 
     /**
