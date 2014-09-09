@@ -4,7 +4,11 @@ import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Locale;
+import java.util.Random;
 import java.util.Vector;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 
 import com.ford.mobileweather.R;
 import com.ford.mobileweather.artifact.Location;
@@ -22,6 +26,7 @@ import com.ford.syncV4.proxy.rpc.enums.SpeechCapabilities;
 import com.ford.syncV4.proxy.rpc.enums.SystemAction;
 import com.ford.syncV4.proxy.rpc.enums.TextAlignment;
 import com.ford.syncV4.proxy.rpc.enums.TextFieldName;
+import com.ford.syncV4.proxy.rpc.enums.VehicleDataEventStatus;
 import com.ford.syncV4.transport.BTTransportConfig;
 import com.ford.syncV4.transport.BaseTransportConfig;
 import com.ford.syncV4.transport.TCPTransport;
@@ -41,6 +46,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
+import static java.util.concurrent.TimeUnit.*;
 
 public class AppLinkService extends Service implements IProxyListenerALM {
 
@@ -48,17 +54,23 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 	private static final int CONNECTION_TIMEOUT = 60000;
 	private static final int STOP_SERVICE_DELAY = 5000;
 
-	private static final int STANDARD_FORECAST_DAYS = 3;
-	private static final int EXTENDED_FORECAST_DAYS = 10;
     private static final int VIEW_CURRENT_CONDITIONS = 1;
 	private static final int VIEW_STANDARD_FORECAST = 2;
 	private static final int VIEW_EXTENDED_FORECAST = 3;
 
-	private static final int TIMED_SHOW_DELAY = 8000;
+	private static final int DRIVING_MODE_GOOD = 101;
+	private static final int DRIVING_MODE_SPEEDING = 102;
+	private static final int DRIVING_MODE_SLOW = 103;
+	private static final int DRIVING_MODE_RECKLESS = 104;
 
-	private static final int SHOW_CONDITIONS_ID = 101;
-	private static final int SHOW_STANDARD_FORECAST_ID = 102;
-	private static final int SHOW_EXTENDED_FORECAST_ID = 103;
+	private static Object blah = new Object(); 
+	private static int drivingMode = DRIVING_MODE_GOOD;
+
+	private static int SPEED_LIMIT = 50;
+	
+	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	
+	private Random rand = new Random();
 
 	private static final int CHANGE_UNITS = 4;
 	private static final int CHANGE_UNITS_CHOICESET = 1;
@@ -91,12 +103,6 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 	private SoftButton showConditions = null;
 	private SoftButton showStandardForecast = null;
 	private SoftButton showExtendedForecast = null;
-
-	private Boolean unitsInMetric = true;
-	private String tempUnitsShort = "C";
-	private String speedUnitsShort = "KPH";
-	private String speedUnitsFull = "kilometers per hour";
-	private String lengthUnitsFull = "millimeters";
 
 	/**
 	 * Receiver for changes in location from the app UI.
@@ -175,7 +181,7 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 		lbManager.registerReceiver(changeLocationReceiver, new IntentFilter("com.ford.mobileweather.Location"));
 		lbManager.registerReceiver(weatherConditionsReceiver, new IntentFilter("com.ford.mobileweather.WeatherConditions"));
 		lbManager.registerReceiver(forecastReceiver, new IntentFilter("com.ford.mobileweather.Forecast"));
-
+/*
 		showConditions = new SoftButton();
 		showConditions.setSoftButtonID(SHOW_CONDITIONS_ID);
 		showConditions.setText("Current");
@@ -196,14 +202,8 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 		showExtendedForecast.setType(SoftButtonType.SBT_TEXT);
 		showExtendedForecast.setIsHighlighted(false);
 		showExtendedForecast.setSystemAction(SystemAction.DEFAULT_ACTION);
+*/
 
-		unitsInMetric = true;
-		tempUnitsShort = "C";
-		speedUnitsShort = "KPH";
-		speedUnitsFull = "kilometers per hour";
-		lengthUnitsFull = "millimeters";
-
-		timedShowHandler = new Handler();
 	}
 
 	@Override
@@ -267,7 +267,7 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 		if (proxy == null) {
 			try {
 				//BaseTransportConfig transport = new BTTransportConfig();
-				BaseTransportConfig transport = new TCPTransportConfig(12345, "10.103.194.182", true);
+				BaseTransportConfig transport = new TCPTransportConfig(12345, "192.168.137.185", true);
 				proxy = new SyncProxyALM(this, "MobileWeather", false, Language.EN_US, Language.EN_US, "330533107", transport);
 			} catch (SyncException e) {
 				e.printStackTrace();
@@ -361,6 +361,10 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 
 				 	// Subscribe buttons
 				 	subscribeButtons();
+				 	
+				 	subscribeVehicleData();
+				 	
+					launchWorker();
 				}
 				// If nothing is being displayed and we're in FULL, default to current conditions
 
@@ -375,6 +379,7 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 			case HMI_NONE:				
 				 if (firstHmiNone) {
 					 getSyncSettings();
+					 
 				 }
 				 
 		            PutFile msg = new PutFile();
@@ -403,13 +408,127 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 		}
 	}
     
-    private void subscribeButtons() {
+    private void launchWorker() {
+   
+    	final Runnable sender = new Runnable() {
+    		public void run() {
+    			
+    			int currentMode = DRIVING_MODE_GOOD;
+    			
+    			synchronized (blah) {
+    				currentMode = drivingMode;
+    			}
+    			//do something
+    			switch(currentMode) {
+    			case DRIVING_MODE_GOOD:
+    				sendGoodData();
+    				break;
+    			case DRIVING_MODE_SPEEDING:
+    				sendSpeedingData();
+    				break;
+    			case DRIVING_MODE_SLOW:
+    				sendSlowData();
+    				break;
+    			case DRIVING_MODE_RECKLESS:
+    				sendRecklessData();
+    				break;
+    			}
+    		}
+    	};
+    	
+    	final ScheduledFuture handle = scheduler.scheduleAtFixedRate(sender, 10, 10, SECONDS);
+    	
+    	scheduler.schedule(new Runnable() {
+    	       public void run() { handle.cancel(true); }
+        }, 60 * 60, SECONDS);
+    	
+    };
+    
+    
+	private void sendRecklessData() {
+		float currSpeed = SPEED_LIMIT + 6 + 10 * rand.nextFloat();
+		
+		OnVehicleData vData = new OnVehicleData();
+		vData.setSpeed(Double.valueOf(currSpeed));
+		this.onOnVehicleData(vData);
+		
+	}
+
+	private void sendSlowData() {
+		float currSpeed = SPEED_LIMIT - 10 - 5 * rand.nextFloat();
+		
+		OnVehicleData vData = new OnVehicleData();
+		vData.setSpeed(Double.valueOf(currSpeed));
+		this.onOnVehicleData(vData);
+
+	}
+
+	private void sendSpeedingData() {
+		
+		float currSpeed = SPEED_LIMIT + 6 + 10 * rand.nextFloat();
+		
+		OnVehicleData vData = new OnVehicleData();
+		vData.setSpeed(Double.valueOf(currSpeed));
+		this.onOnVehicleData(vData);
+		
+	}
+
+	private void sendGoodData() {
+		
+		float currSpeed = SPEED_LIMIT + 5 - 10 * rand.nextFloat();
+		
+		OnVehicleData vData = new OnVehicleData();
+		vData.setSpeed(Double.valueOf(currSpeed));
+		this.onOnVehicleData(vData);
+		
+	};
+
+    	
+	private void subscribeButtons() {
 	 	try {
-	 		proxy.subscribeButton(ButtonName.PRESET_1, autoIncCorrId++);
+	 		proxy.subscribeButton(ButtonName.PRESET_1, autoIncCorrId++); // driving mode good
+	 		proxy.subscribeButton(ButtonName.PRESET_2, autoIncCorrId++); // driving mode speeding
+	 		proxy.subscribeButton(ButtonName.PRESET_3, autoIncCorrId++); // driving mode aggressive
+	 		proxy.subscribeButton(ButtonName.PRESET_4, autoIncCorrId++); // diving mode slow
+	 		proxy.subscribeButton(ButtonName.PRESET_5, autoIncCorrId++); // get Vehicle Data
 		} catch (SyncException e) {
 			e.printStackTrace();
 			DebugTool.logError("Failed to subscribe to buttons", e);
 		}
+    }
+    
+    private void subscribeVehicleData(){
+    	
+    	try {
+    	proxy.subscribevehicledata(true //gps, 
+    			,true //speed, 
+    			,true //rpm, 
+    			,true //fuelLevel, 
+    			,true //fuelLevel_State, 
+    			,true //instantFuelConsumption, 
+    			,true //externalTemperature, 
+    			,true //prndl, 
+    			,true //tirePressure, 
+    			,true //odometer, 
+    			,true //beltStatus, 
+    			,true //bodyInformation, 
+    			,true //deviceStatus, 
+    			,true //driverBraking, 
+    			,true //wiperStatus, 
+    			,true //headLampStatus, 
+    			,true //engineTorque, 
+    			,true //accPedalPosition, 
+    			,true //steeringWheelAngle, 
+    			,true //eCallInfo, 
+    			,true //airbagStatus, 
+    			,true //emergencyEvent, 
+    			,true //clusterModeStatus, 
+    			,true //myKey, 
+    			, autoIncCorrId++);
+    	}
+    	catch(SyncException e) {
+    		Log.e("syncexception", e.getMessage());
+    	}
     }
     
 	private void getSyncSettings() {
@@ -540,17 +659,38 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 		switch (notification.getButtonName()) {
 		    case CUSTOM_BUTTON:
 	            switch (notification.getCustomButtonName()) {
-		            case SHOW_CONDITIONS_ID:
-		                break;
-		            case SHOW_STANDARD_FORECAST_ID:
-		                break;
-		            case SHOW_EXTENDED_FORECAST_ID:
-		                break;
-		    			default:
-		    				break;
+//		            case SHOW_CONDITIONS_ID:
+//		                break;
+//		            case SHOW_STANDARD_FORECAST_ID:
+//		                break;
+//		            case SHOW_EXTENDED_FORECAST_ID:
+//		                break;
+		    		default:
+		    			break;
 	            }
+	            break;
 	        case PRESET_1:
-
+		        synchronized (blah) {
+					drivingMode = DRIVING_MODE_GOOD;
+		        }
+		        break;
+	        case PRESET_2:
+		        synchronized (blah) {
+					drivingMode = DRIVING_MODE_SPEEDING;
+		        }
+		        break;
+	        case PRESET_3:
+		        synchronized (blah) {
+					drivingMode = DRIVING_MODE_RECKLESS;
+		        }
+		        break;
+	        case PRESET_4:
+		        synchronized (blah) {
+					drivingMode = DRIVING_MODE_SLOW;
+		        }
+		        break;
+	        	
+	        case PRESET_5:
 	    	    GetVehicleData msg = new GetVehicleData();  
 	    	    msg.setCorrelationID(autoIncCorrId++);
 
@@ -579,7 +719,7 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 	    	    catch (SyncException e) {
 	    	    	Log.e("shit", "get Vehicle Data no woikie");
 	    	    }	        		
-	        		break;
+	    	    break;
 			default:
 				break;
 	    }
@@ -591,18 +731,8 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 			Integer choiceID = response.getChoiceID();
 			switch (choiceID) {
 			case METRIC_CHOICE:
-				unitsInMetric = true;
-				tempUnitsShort = "C";
-				speedUnitsShort = "KPH";
-				speedUnitsFull = "kilometers per hour";
-				lengthUnitsFull = "millimeters";
 				break;
 			case IMPERIAL_CHOICE:
-				unitsInMetric = false;
-				tempUnitsShort = "F";
-				speedUnitsShort = "MPH";
-				speedUnitsFull = "miles per hour";
-				lengthUnitsFull = "inches";
 				break;
 			}
 		}
@@ -675,6 +805,14 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 	
 	@Override
 	public void onOnVehicleData(OnVehicleData notification) {
+		try{
+			proxy.show("getVehicleData change", notification.getSpeed().toString(), TextAlignment.CENTERED, autoIncCorrId++);
+			
+		
+		}
+		catch(SyncException e) {
+			Log.e("SyncException", e.getMessage());
+		}
 		// TODO Auto-generated method stub
 	}
 
@@ -747,7 +885,7 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 	public void onGetVehicleDataResponse(GetVehicleDataResponse response) {
 		
 		try{
-		 proxy.show("vehicleData callback", response.getSpeed().toString(), TextAlignment.CENTERED, autoIncCorrId++);
+		 proxy.show("getVehicleData callback", response.getSpeed().toString(), TextAlignment.CENTERED, autoIncCorrId++);
 		 
 		}
 		catch(SyncException e) {
