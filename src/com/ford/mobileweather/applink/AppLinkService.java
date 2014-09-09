@@ -610,7 +610,7 @@ public class AppLinkService extends Service implements IProxyListenerALM {
      * Shows and speaks a welcome message
      */
     private void welcomeMessage() {
-        updateDisplay("Welcome to", "LIVEDrive");
+        updateDisplay("", "LIVE Drive");
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {

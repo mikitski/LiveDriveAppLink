@@ -27,7 +27,7 @@
     
     <application
         android:name=".app.LiveDriveApplication"
-        android:icon="@drawable/logo_ce"
+        android:icon="@drawable/car_icon"
         android:label="@string/app_name"
         android:theme="@style/AppTheme"
         android:allowBackup="true" >
