@@ -78,7 +78,7 @@ public class MainActivity extends ActivityBase implements ActionBar.TabListener 
 		ActionBar bar = getActionBar();
 		bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 		bar.addTab(bar.newTab().setText(R.string.title_stats).setTabListener(this));
-		bar.addTab(bar.newTab().setText(R.string.title_friends).setTabListener(this));
+		bar.addTab(bar.newTab().setText(R.string.title_settings).setTabListener(this));
 		bar.setSelectedNavigationItem(0);
 		
         // enable ActionBar app icon to behave as action to toggle nav drawer

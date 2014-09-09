@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">LIVEDrive</string>
+    <string name="app_name">LIVE Drive</string>
     <string name="exit">Exit</string>
     <string name="ford">Ford</string>
     <string name="wunderground">WUnderground</string>
     <string name="coxautomotive">Cox Automotive</string>
     <string name="action_settings">Settings</string>
-    <string name="title_activity_main">LIVEDrive</string>
+    <string name="title_activity_main">LIVE Drive</string>
     <string name="title_alerts">Alerts</string>
     <string name="title_stats">Stats</string>
-    <string name="title_friends">Friends</string>
+    <string name="title_settings">Settings</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     
