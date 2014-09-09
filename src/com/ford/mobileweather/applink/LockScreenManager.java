@@ -4,7 +4,7 @@ import android.content.Intent;
 
 import com.ford.mobileweather.activity.ActivityBase;
 import com.ford.mobileweather.activity.LockScreenActivity;
-import com.ford.mobileweather.app.MobileWeatherApplication;
+import com.ford.mobileweather.app.LiveDriveApplication;
 import com.ford.syncV4.proxy.rpc.enums.DriverDistractionState;
 import com.ford.syncV4.proxy.rpc.enums.HMILevel;
 
@@ -77,12 +77,12 @@ public class LockScreenManager {
 		// only show the lockscreen if main activity is currently on top
 		// else, wait until onResume() to show the lockscreen so it doesn't
 		// pop-up while a user is using another app on the phone
-		if (MobileWeatherApplication.getCurrentActivity() != null) {
-			if (((ActivityBase) MobileWeatherApplication.getCurrentActivity()).isActivityonTop() == true) {
-				Intent i = new Intent(MobileWeatherApplication.getInstance(), LockScreenActivity.class);
+		if (LiveDriveApplication.getCurrentActivity() != null) {
+			if (((ActivityBase) LiveDriveApplication.getCurrentActivity()).isActivityonTop() == true) {
+				Intent i = new Intent(LiveDriveApplication.getInstance(), LockScreenActivity.class);
 				i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 				i.addFlags(Intent.FLAG_ACTIVITY_NO_USER_ACTION);
-				MobileWeatherApplication.getInstance().startActivity(i);
+				LiveDriveApplication.getInstance().startActivity(i);
 			}
 		}
 		lockScreenUp = true;

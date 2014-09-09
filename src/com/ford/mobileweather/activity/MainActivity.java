@@ -1,7 +1,7 @@
 package com.ford.mobileweather.activity;
 
 import com.ford.mobileweather.R;
-import com.ford.mobileweather.app.MobileWeatherApplication;
+import com.ford.mobileweather.app.LiveDriveApplication;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -85,7 +85,7 @@ public class MainActivity extends ActivityBase implements ActionBar.TabListener 
     			LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     	}
     	else if ("About".equals(item)) {
-    		MobileWeatherApplication.getInstance().showAppVersion(this);
+    		LiveDriveApplication.getInstance().showAppVersion(this);
     	}
     	drawerList.setItemChecked(position, false);
         drawerLayout.closeDrawer(drawerList);
@@ -101,7 +101,7 @@ public class MainActivity extends ActivityBase implements ActionBar.TabListener 
         lbManager.registerReceiver(weatherConditionsReceiver, new IntentFilter("com.ford.mobileweather.WeatherConditions"));
         lbManager.registerReceiver(forecastReceiver, new IntentFilter("com.ford.mobileweather.Forecast"));
         
-		MobileWeatherApplication app = MobileWeatherApplication.getInstance();
+		LiveDriveApplication app = LiveDriveApplication.getInstance();
 		if (app != null) {
 			app.startServices();
 		}
@@ -217,9 +217,9 @@ public class MainActivity extends ActivityBase implements ActionBar.TabListener 
 			e.printStackTrace();
 		}
 
-		MobileWeatherApplication app = MobileWeatherApplication.getInstance();
+		LiveDriveApplication app = LiveDriveApplication.getInstance();
 		if (app != null) {
-			MobileWeatherApplication.setCurrentActivity(null);
+			LiveDriveApplication.setCurrentActivity(null);
 			app.stopServices();
 		}
 

@@ -268,7 +268,7 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 			try {
 				//BaseTransportConfig transport = new BTTransportConfig();
 				BaseTransportConfig transport = new TCPTransportConfig(12345, "192.168.137.185", true);
-				proxy = new SyncProxyALM(this, "MobileWeather", false, Language.EN_US, Language.EN_US, "330533107", transport);
+				proxy = new SyncProxyALM(this, "Cox Automotive", false, Language.EN_US, Language.EN_US, "330533107", transport);
 			} catch (SyncException e) {
 				e.printStackTrace();
 				// error creating proxy, returned proxy = null
@@ -501,30 +501,30 @@ public class AppLinkService extends Service implements IProxyListenerALM {
     	
     	try {
     	proxy.subscribevehicledata(true //gps, 
-    			,true //speed, 
-    			,true //rpm, 
-    			,true //fuelLevel, 
-    			,true //fuelLevel_State, 
-    			,true //instantFuelConsumption, 
-    			,true //externalTemperature, 
-    			,true //prndl, 
-    			,true //tirePressure, 
-    			,true //odometer, 
-    			,true //beltStatus, 
-    			,true //bodyInformation, 
-    			,true //deviceStatus, 
-    			,true //driverBraking, 
-    			,true //wiperStatus, 
-    			,true //headLampStatus, 
-    			,true //engineTorque, 
-    			,true //accPedalPosition, 
-    			,true //steeringWheelAngle, 
-    			,true //eCallInfo, 
-    			,true //airbagStatus, 
-    			,true //emergencyEvent, 
-    			,true //clusterModeStatus, 
-    			,true //myKey, 
-    			, autoIncCorrId++);
+                , true //speed,
+                , true //rpm,
+                , true //fuelLevel,
+                , true //fuelLevel_State,
+                , true //instantFuelConsumption,
+                , true //externalTemperature,
+                , true //prndl,
+                , true //tirePressure,
+                , true //odometer,
+                , true //beltStatus,
+                , true //bodyInformation,
+                , true //deviceStatus,
+                , true //driverBraking,
+                , true //wiperStatus,
+                , true //headLampStatus,
+                , true //engineTorque,
+                , true //accPedalPosition,
+                , true //steeringWheelAngle,
+                , true //eCallInfo,
+                , true //airbagStatus,
+                , true //emergencyEvent,
+                , true //clusterModeStatus,
+                , true //myKey,
+                , autoIncCorrId++);
     	}
     	catch(SyncException e) {
     		Log.e("syncexception", e.getMessage());
@@ -610,17 +610,29 @@ public class AppLinkService extends Service implements IProxyListenerALM {
      * Shows and speaks a welcome message
      */
     private void welcomeMessage() {
-	 	try {
-	 		proxy.show("Welcome to", "MobileWeather", TextAlignment.CENTERED, autoIncCorrId++);
-			proxy.speak("YOur Driving Behavio in the past 5 minutes caused you to lose 17 point on a good driver score. Consider driving slower.", autoIncCorrId++);
-			try {
-				Thread.sleep(3000);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		} catch (SyncException e) {
-			DebugTool.logError("Failed to perform welcome message", e);
-		}
+        updateDisplay("Welcome to", "LIVEDrive");
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void say(String tts){
+        try {
+//            String sample = "Your Driving Behavior in the past 5 minutes caused you to lose 17 point on a good driver score. Consider driving slower.";
+            proxy.speak(tts, autoIncCorrId++);
+        } catch (SyncException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void updateDisplay(String s1, String s2){
+        try {
+            proxy.show(s1, s2, TextAlignment.CENTERED, autoIncCorrId++);
+        } catch (SyncException e) {
+            e.printStackTrace();
+        }
     }
 
 	@Override
@@ -805,15 +817,7 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 	
 	@Override
 	public void onOnVehicleData(OnVehicleData notification) {
-		try{
-			proxy.show("getVehicleData change", notification.getSpeed().toString(), TextAlignment.CENTERED, autoIncCorrId++);
-			
-		
-		}
-		catch(SyncException e) {
-			Log.e("SyncException", e.getMessage());
-		}
-		// TODO Auto-generated method stub
+        updateDisplay("getVehicleData change", notification.getSpeed().toString());
 	}
 
 	@Override
@@ -883,14 +887,7 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 
 	@Override
 	public void onGetVehicleDataResponse(GetVehicleDataResponse response) {
-		
-		try{
-		 proxy.show("getVehicleData callback", response.getSpeed().toString(), TextAlignment.CENTERED, autoIncCorrId++);
-		 
-		}
-		catch(SyncException e) {
-			Log.e("msg", "VehicleData show");
-		}
+		updateDisplay("getVehicleData callback", response.getSpeed().toString());
 //	    Alert msg = new Alert();
 //	    msg.setCorrelationID(autoIncCorrId++);
 //

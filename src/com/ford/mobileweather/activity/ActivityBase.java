@@ -1,6 +1,6 @@
 package com.ford.mobileweather.activity;
 
-import com.ford.mobileweather.app.MobileWeatherApplication;
+import com.ford.mobileweather.app.LiveDriveApplication;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -17,7 +17,7 @@ public class ActivityBase extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		MobileWeatherApplication.setCurrentActivity(this);
+		LiveDriveApplication.setCurrentActivity(this);
 		activityOnTop = true;
 	}
 	
@@ -47,8 +47,8 @@ public class ActivityBase extends Activity {
     @Override
 	protected void onDestroy() {
 		// Set the current activity to null if no other activity has taken the foreground.
-		if (MobileWeatherApplication.getCurrentActivity() == this) {
-			MobileWeatherApplication.setCurrentActivity(null);
+		if (LiveDriveApplication.getCurrentActivity() == this) {
+			LiveDriveApplication.setCurrentActivity(null);
 		}
     	super.onDestroy();
 	}

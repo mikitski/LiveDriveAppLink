@@ -11,7 +11,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.widget.ImageView;
 
-import com.ford.mobileweather.app.MobileWeatherApplication;
+import com.ford.mobileweather.app.LiveDriveApplication;
 
 public class ImageProcessor {
 
@@ -69,7 +69,7 @@ public class ImageProcessor {
 	}
 	
 	public static Bitmap getBitmapFromResources(String imageName) {
-		Resources resources = MobileWeatherApplication.getInstance().getResources();
+		Resources resources = LiveDriveApplication.getInstance().getResources();
 		int resId = resources.getIdentifier(imageName, "drawable", "com.ford.mobileweather");
 		return BitmapFactory.decodeResource(resources, resId);
 	}

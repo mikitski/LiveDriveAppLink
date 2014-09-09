@@ -6,16 +6,15 @@ import com.ford.syncV4.proxy.SyncProxyALM;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Application;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.util.Log;
 
-public class MobileWeatherApplication extends Application {
+public class LiveDriveApplication extends Application {
 	
-	public static final String TAG = "MobileWeather";
-	private static MobileWeatherApplication instance;
+	public static final String TAG = "LIVEDrive";
+	private static LiveDriveApplication instance;
 	private static Activity currentUIActivity;
 
 	
@@ -23,11 +22,11 @@ public class MobileWeatherApplication extends Application {
 		instance = null;
 	}
 	
-	private static synchronized void setInstance(MobileWeatherApplication app) {
+	private static synchronized void setInstance(LiveDriveApplication app) {
 		instance = app;
 	}
 	
-	public static synchronized MobileWeatherApplication getInstance() {
+	public static synchronized LiveDriveApplication getInstance() {
 		return instance;
 	}
 	
@@ -42,7 +41,7 @@ public class MobileWeatherApplication extends Application {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		MobileWeatherApplication.setInstance(this);
+		LiveDriveApplication.setInstance(this);
 
 	}
 	
@@ -109,12 +108,12 @@ public class MobileWeatherApplication extends Application {
     }
 
 	public void showAppVersion(Context context) {
-		String appMessage = "MobileWeather Version Info not available";    		    		    		
+		String appMessage = "LIVEDrive Version Info not available";
 		try {
-			appMessage = "MobileWeather Version: " + 
+			appMessage = "LIVEDrive Version: " +
 						  getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
 		} catch (NameNotFoundException e) {
-			Log.d(MobileWeatherApplication.TAG, "Can't get package info", e);
+			Log.d(LiveDriveApplication.TAG, "Can't get package info", e);
 		}
 		
 		new AlertDialog.Builder(context).setTitle("App Version Information")
