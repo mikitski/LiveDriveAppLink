@@ -1,6 +1,7 @@
 package com.ford.mobileweather.vehicledata;
 
 import java.util.List;
+import java.util.Random;
 
 import com.ford.syncV4.proxy.rpc.OnVehicleData;
 
@@ -11,10 +12,27 @@ public class DriverScoreProxy {
 	private static double currentDriverScore = 73.4;
 	private static double currentMPGScore = 77.5;
 	
+	private static int SPEED_LIMIT = 50;
+	
 	
 	public static double calculateDriverScore(List<OnVehicleData> data){
 		
-		double driverScore = (double) 73.4;
+		
+		double driverScore = getDriverScore();
+		
+		for(int i = 0; i < data.size(); i++)
+		{
+			OnVehicleData item = data.get(i);
+			double currentSpeed = item.getSpeed();
+			
+			double speedDelta = Math.abs(SPEED_LIMIT - currentSpeed);
+						
+			//double newScore = Math.exp(Math.sqrt(1/speedDelta));
+			
+			double newScore = 100 * (1 - 1/(1+ Math.exp(5-speedDelta/2)));
+			
+			driverScore = (driverScore + newScore) / 2;
+		}
 		
 		synchronized (blah) {
 			currentDriverScore = driverScore;
@@ -40,7 +58,7 @@ public class DriverScoreProxy {
 		if(score < 50)
 			display = "Low";
 		else if (score > 50 && score < 75)
-			display = "Not Bad";
+			display = "Not Too Bad";
 		else 
 			display = String.valueOf(score);
 		
@@ -71,5 +89,28 @@ public class DriverScoreProxy {
 		
 		return display;
 	}
+	
+	public static String getLeaderboard(){
+		String display;
+		double score = getDriverScore();
+		
+		Random ran = new Random();
+		
+		int pos = ran.nextInt(15) + 1;
+		
+		if(score < 75)
+			display = "You don't want to know...";
+		else 
+			display = "You are 10th in your leaderboard";
+		
+		return display;
+	}
 
+	public static void fakeDriverScore(double score){
+		synchronized (blah) {
+			currentDriverScore = score;
+		}
+		
+	}
+	
 }
