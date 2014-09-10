@@ -32,25 +32,26 @@ public final class R {
         public static final int chancerain=0x7f020000;
         public static final int chancesnow=0x7f020001;
         public static final int cloudy=0x7f020002;
-        public static final int flurries=0x7f020003;
-        public static final int fog=0x7f020004;
-        public static final int ford_oval=0x7f020005;
-        public static final int hazy=0x7f020006;
-        public static final int ic_action_search=0x7f020007;
-        public static final int ic_add_location=0x7f020008;
-        public static final int ic_current_location=0x7f020009;
-        public static final int ic_drawer=0x7f02000a;
-        public static final int ic_launcher=0x7f02000b;
-        public static final int ic_settings=0x7f02000c;
-        public static final int logo_130x80=0x7f02000d;
-        public static final int logo_ce=0x7f02000e;
-        public static final int partlycloudy=0x7f02000f;
-        public static final int partlysunny=0x7f020010;
-        public static final int rain=0x7f020011;
-        public static final int sleet=0x7f020012;
-        public static final int snow=0x7f020013;
-        public static final int sunny=0x7f020014;
-        public static final int tstorms=0x7f020015;
+        public static final int coxautomotive=0x7f020003;
+        public static final int flurries=0x7f020004;
+        public static final int fog=0x7f020005;
+        public static final int ford_oval=0x7f020006;
+        public static final int hazy=0x7f020007;
+        public static final int ic_action_search=0x7f020008;
+        public static final int ic_add_location=0x7f020009;
+        public static final int ic_current_location=0x7f02000a;
+        public static final int ic_drawer=0x7f02000b;
+        public static final int ic_launcher=0x7f02000c;
+        public static final int ic_settings=0x7f02000d;
+        public static final int logo_130x80=0x7f02000e;
+        public static final int logo_ce=0x7f02000f;
+        public static final int partlycloudy=0x7f020010;
+        public static final int partlysunny=0x7f020011;
+        public static final int rain=0x7f020012;
+        public static final int sleet=0x7f020013;
+        public static final int snow=0x7f020014;
+        public static final int sunny=0x7f020015;
+        public static final int tstorms=0x7f020016;
     }
     public static final class id {
         public static final int action_settings=0x7f090014;
@@ -88,21 +89,22 @@ public final class R {
         public static final int forecast=0x7f080000;
     }
     public static final class string {
-        public static final int action_settings=0x7f050004;
+        public static final int action_settings=0x7f050005;
         public static final int app_name=0x7f050000;
-        public static final int drawer_close=0x7f05000a;
-        public static final int drawer_open=0x7f050009;
+        public static final int coxautomotive=0x7f050004;
+        public static final int drawer_close=0x7f05000b;
+        public static final int drawer_open=0x7f05000a;
         public static final int exit=0x7f050001;
         public static final int ford=0x7f050002;
-        public static final int title_activity_main=0x7f050005;
-        public static final int title_alerts=0x7f050006;
-        public static final int title_conditions=0x7f050007;
-        public static final int title_forecast=0x7f050008;
+        public static final int title_activity_main=0x7f050006;
+        public static final int title_alerts=0x7f050007;
+        public static final int title_conditions=0x7f050008;
+        public static final int title_forecast=0x7f050009;
         public static final int wunderground=0x7f050003;
     }
     public static final class strings {
+        public static final int coxautomotive=0x7f0a0000;
         public static final int ford=0x7f0a0001;
-        public static final int wunderground=0x7f0a0000;
     }
     public static final class style {
         /** 

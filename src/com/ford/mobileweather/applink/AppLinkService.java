@@ -32,6 +32,9 @@ import com.ford.syncV4.transport.BaseTransportConfig;
 import com.ford.syncV4.transport.TCPTransport;
 import com.ford.syncV4.transport.TCPTransportConfig;
 import com.ford.syncV4.util.DebugTool;
+import com.ford.mobileweather.vehicledata.VehicleDataCache;
+import com.ford.mobileweather.vehicledata.DriverScoreProxy;
+import com.ford.mobileweather.vehicledata.DriverScore;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -62,6 +65,10 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 	private static final int DRIVING_MODE_SPEEDING = 102;
 	private static final int DRIVING_MODE_SLOW = 103;
 	private static final int DRIVING_MODE_RECKLESS = 104;
+	
+	private static final int SHOW_DRIVER_ID = 10000;
+	private static final int SHOW_MPG_ID = 10010;
+	
 
 	private static Object blah = new Object(); 
 	private static int drivingMode = DRIVING_MODE_GOOD;
@@ -100,9 +107,8 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 
     private Location currentLocation = null;	// Stores the current location for weather
 
-	private SoftButton showConditions = null;
-	private SoftButton showStandardForecast = null;
-	private SoftButton showExtendedForecast = null;
+	private SoftButton showDriverScore = null;
+	private SoftButton showMPGScore = null;
 
 	/**
 	 * Receiver for changes in location from the app UI.
@@ -181,29 +187,21 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 		lbManager.registerReceiver(changeLocationReceiver, new IntentFilter("com.ford.mobileweather.Location"));
 		lbManager.registerReceiver(weatherConditionsReceiver, new IntentFilter("com.ford.mobileweather.WeatherConditions"));
 		lbManager.registerReceiver(forecastReceiver, new IntentFilter("com.ford.mobileweather.Forecast"));
-/*
-		showConditions = new SoftButton();
-		showConditions.setSoftButtonID(SHOW_CONDITIONS_ID);
-		showConditions.setText("Current");
-		showConditions.setType(SoftButtonType.SBT_TEXT);
-		showConditions.setIsHighlighted(false);
-		showConditions.setSystemAction(SystemAction.DEFAULT_ACTION);
 
-		showStandardForecast = new SoftButton();
-		showStandardForecast.setSoftButtonID(SHOW_STANDARD_FORECAST_ID);
-		showStandardForecast.setText("3-Day");
-		showStandardForecast.setType(SoftButtonType.SBT_TEXT);
-		showStandardForecast.setIsHighlighted(false);
-		showStandardForecast.setSystemAction(SystemAction.DEFAULT_ACTION);
+		showDriverScore = new SoftButton();
+		showDriverScore.setSoftButtonID(SHOW_DRIVER_ID);
+		showDriverScore.setText("Driver");
+		showDriverScore.setType(SoftButtonType.SBT_TEXT);
+		showDriverScore.setIsHighlighted(true);
+		showDriverScore.setSystemAction(SystemAction.DEFAULT_ACTION);
 
-		showExtendedForecast = new SoftButton();
-		showExtendedForecast.setSoftButtonID(SHOW_EXTENDED_FORECAST_ID);
-		showExtendedForecast.setText("10-Day");
-		showExtendedForecast.setType(SoftButtonType.SBT_TEXT);
-		showExtendedForecast.setIsHighlighted(false);
-		showExtendedForecast.setSystemAction(SystemAction.DEFAULT_ACTION);
-*/
-
+		showMPGScore = new SoftButton();
+		showMPGScore.setSoftButtonID(SHOW_MPG_ID);
+		showMPGScore.setText("MPG");
+		showMPGScore.setType(SoftButtonType.SBT_TEXT);
+		showMPGScore.setIsHighlighted(true);
+		showMPGScore.setSystemAction(SystemAction.DEFAULT_ACTION);
+		
 	}
 
 	@Override
@@ -410,7 +408,8 @@ public class AppLinkService extends Service implements IProxyListenerALM {
     
     private void launchWorker() {
    
-    	final Runnable sender = new Runnable() {
+    	final Runnable dataSender = new Runnable() {
+    		
     		public void run() {
     			
     			int currentMode = DRIVING_MODE_GOOD;
@@ -436,7 +435,18 @@ public class AppLinkService extends Service implements IProxyListenerALM {
     		}
     	};
     	
-    	final ScheduledFuture handle = scheduler.scheduleAtFixedRate(sender, 10, 10, SECONDS);
+    	final Runnable scoreCalculator = new Runnable() {
+			
+			public void run() {
+				double currentScore = DriverScoreProxy.calculateDriverScore(VehicleDataCache.getDataCacheAndClear());
+				
+				updateDisplay("Your Current Driving Score", String.valueOf(currentScore));
+			}
+		};
+    	
+    	final ScheduledFuture handle = scheduler.scheduleAtFixedRate(dataSender, 10, 10, SECONDS);
+    	
+    	scheduler.scheduleAtFixedRate(scoreCalculator, 120, 120, SECONDS);
     	
     	scheduler.schedule(new Runnable() {
     	       public void run() { handle.cancel(true); }
@@ -611,6 +621,25 @@ public class AppLinkService extends Service implements IProxyListenerALM {
      */
     private void welcomeMessage() {
         updateDisplay("Welcome to", "LIVEDrive");
+        
+	    Vector<SoftButton> currentSoftButtons = new Vector<SoftButton>();
+	    //choose the order softbuttons appear
+	    currentSoftButtons.add(showDriverScore);
+	    currentSoftButtons.add(showMPGScore);
+        
+        Show msg = new Show();
+        msg.setCorrelationID(autoIncCorrId++);
+        msg.setSoftButtons(currentSoftButtons);
+        
+        try {
+            proxy.sendRPCRequest(msg);
+        } catch (SyncException e) {
+            Log.e("SyncException",
+                    "sync exception" + e.getMessage()
+                            + e.getSyncExceptionCause());
+            e.printStackTrace();
+        }
+        
         try {
             Thread.sleep(3000);
         } catch (InterruptedException e) {
@@ -668,15 +697,21 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 
 	@Override
 	public void onOnButtonPress(OnButtonPress notification) {
+		
+		String display = "";
 		switch (notification.getButtonName()) {
 		    case CUSTOM_BUTTON:
 	            switch (notification.getCustomButtonName()) {
-//		            case SHOW_CONDITIONS_ID:
-//		                break;
-//		            case SHOW_STANDARD_FORECAST_ID:
-//		                break;
-//		            case SHOW_EXTENDED_FORECAST_ID:
-//		                break;
+		            case SHOW_DRIVER_ID:
+		            	display = DriverScoreProxy.getDriverScoreDisplay();
+		            	updateDisplay("Your Driving Score is", display);
+		            	say("Your Driving Score is " + display);
+		                break;
+		            case SHOW_MPG_ID:
+		            	display = DriverScoreProxy.getMPGScoreDisplay();
+		            	updateDisplay("Your Driving Score is", display);
+		            	say("Your MPG Score is " + display);		            	
+		                break;
 		    		default:
 		    			break;
 	            }
@@ -818,6 +853,8 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 	@Override
 	public void onOnVehicleData(OnVehicleData notification) {
         updateDisplay("getVehicleData change", notification.getSpeed().toString());
+    	VehicleDataCache.addVehicleData(notification);
+    	
 	}
 
 	@Override
