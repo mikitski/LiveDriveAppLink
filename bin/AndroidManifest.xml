@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.ford.mobileweather"
+    package="com.kbb.livedrive"
     android:versionCode="10"
     android:versionName="1.54" >
 
@@ -8,7 +8,7 @@
         android:minSdkVersion="14"
         android:targetSdkVersion="20" />
 
-    <!-- Required for weather data -->
+    <!-- Required for data -->
     <uses-permission android:name="android.permission.INTERNET" />
     <!-- Required to check if WiFi is enabled -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -17,7 +17,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     
-    <!-- Required to keep device awake during weather data processing -->
+    <!-- Required to keep device awake during data processing -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     
     <!-- Required for AppLink connection -->
@@ -33,7 +33,7 @@
         android:allowBackup="true" >
         
         <activity
-            android:name="com.ford.mobileweather.activity.MainActivity"
+            android:name="com.kbb.livedrive.activity.MainActivity"
             android:label="@string/title_activity_main"
             android:configChanges="orientation"
             android:screenOrientation="portrait" >
@@ -45,23 +45,29 @@
         </activity>
         
         <activity
-            android:name="com.ford.mobileweather.activity.LockScreenActivity"
+            android:name="com.kbb.livedrive.activity.LockScreenActivity"
             android:label="Locked"
             android:configChanges="orientation"
             android:screenOrientation="portrait" >
         </activity>
 
-        <service android:name="com.ford.mobileweather.wunderground.WUndergroundService" >
+        <service android:name="com.kbb.livedrivex.wunderground.WUndergroundService" >
         </service>
         
-        <service android:name="com.ford.mobileweather.applink.AppLinkService" >
+        <service android:name="com.kbb.livedrive.applink.AppLinkService" >
         </service>
 
-        <receiver android:name="com.ford.mobileweather.applink.AppLinkReceiver" >
+        <receiver android:name="com.kbb.livedrive.applink.AppLinkReceiver" >
             <intent-filter>
                 <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
                 <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />
             </intent-filter>
         </receiver>
+        
+        <meta-data android:name="com.google.android.gms.games.APP_ID"
+        android:value="@string/app_id" />
+  		<meta-data android:name="com.google.android.gms.version"
+   	    android:value="@integer/google_play_services_version"/>
+        
     </application>
 </manifest>

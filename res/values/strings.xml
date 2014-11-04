@@ -4,6 +4,7 @@
     <string name="app_name">LIVE Drive</string>
     <string name="exit">Exit</string>
     <string name="ford">Ford</string>
+    <string name="kbb">KBB</string>
     <string name="wunderground">WUnderground</string>
     <string name="coxautomotive">Cox Automotive</string>
     <string name="action_settings">Settings</string>
@@ -14,9 +15,12 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     
+    <string name="signin_other_error">Unknown SignIn Error</string>
+    <string name="signin_failure">SignIn Error</string>
+    
     <!-- Nav Drawer Menu Items -->
     <string-array name="nav_drawer_items">
-        <item >Update Weather</item>
+        <item >Update</item>
         <item >About</item>
     </string-array>    
 
