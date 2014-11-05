@@ -128,7 +128,8 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 
     private Location currentLocation = null;	// Stores the current location
     
-    private boolean isEmulatorMode = false;
+    private boolean isEmulatorMode = true;
+    private boolean isSimulatedData = true;
 
 	private SoftButton showDriverScore = null;
 	private SoftButton showMPGScore = null;
@@ -311,7 +312,7 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 				
 				BaseTransportConfig transport = null;
 				if(isEmulatorMode)
-					transport = new TCPTransportConfig(12345, "172.16.18.26", true);
+					transport = new TCPTransportConfig(12345, "172.16.18.21", true);
 				else 
 					transport = new BTTransportConfig();
 				proxy = new SyncProxyALM(this, "Cox Automotive", false, Language.EN_US, Language.EN_US, "566020017", transport);
@@ -481,28 +482,32 @@ public class AppLinkService extends Service implements IProxyListenerALM {
     		
     		public void run() {
     			
-    			int currentMode = DRIVING_MODE_GOOD;
+    			if(isSimulatedData)
+    			{
     			
-    			synchronized (blah) {
-    				currentMode = drivingMode;
-    			}
-    			//do something
-    			switch(currentMode) {
-    			case DRIVING_MODE_GOOD:
-    				sendGoodData();
-    				break;
-    			case DRIVING_MODE_SPEEDING:
-    				sendSpeedingData();
-    				break;
-    			case DRIVING_MODE_SLOW:
-    				sendSlowData();
-    				break;
-    			case DRIVING_MODE_RECKLESS:
-    				sendRecklessData();
-    				break;
-    			case DRIVING_MODE_RACING:
-    				sendRacingData();
-    				break;
+	    			int currentMode = DRIVING_MODE_GOOD;
+	    			
+	    			synchronized (blah) {
+	    				currentMode = drivingMode;
+	    			}
+	    			//do something
+	    			switch(currentMode) {
+	    			case DRIVING_MODE_GOOD:
+	    				sendGoodData();
+	    				break;
+	    			case DRIVING_MODE_SPEEDING:
+	    				sendSpeedingData();
+	    				break;
+	    			case DRIVING_MODE_SLOW:
+	    				sendSlowData();
+	    				break;
+	    			case DRIVING_MODE_RECKLESS:
+	    				sendRecklessData();
+	    				break;
+	    			case DRIVING_MODE_RACING:
+	    				sendRacingData();
+	    				break;
+	    			}
     			}
     		}
 
@@ -524,7 +529,7 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 
 		};
     	
-    	final ScheduledFuture handle = scheduler.scheduleAtFixedRate(dataSender, 5, 5, SECONDS);
+    	final ScheduledFuture handle = scheduler.scheduleAtFixedRate(dataSender, 15, 15, SECONDS);
     	
     	scheduler.scheduleAtFixedRate(scoreCalculator, 30, 30, SECONDS);
     	
@@ -615,30 +620,30 @@ public class AppLinkService extends Service implements IProxyListenerALM {
     private void subscribeVehicleData(){
     	
     	try {
-    	proxy.subscribevehicledata(true //gps, 
+    	proxy.subscribevehicledata(false //gps, 
                 , true //speed,
                 , true //rpm,
-                , true //fuelLevel,
-                , true //fuelLevel_State,
-                , true //instantFuelConsumption,
-                , true //externalTemperature,
-                , true //prndl,
-                , true //tirePressure,
-                , true //odometer,
-                , true //beltStatus,
-                , true //bodyInformation,
-                , true //deviceStatus,
-                , true //driverBraking,
-                , true //wiperStatus,
-                , true //headLampStatus,
-                , true //engineTorque,
-                , true //accPedalPosition,
-                , true //steeringWheelAngle,
-                , true //eCallInfo,
-                , true //airbagStatus,
-                , true //emergencyEvent,
-                , true //clusterModeStatus,
-                , true //myKey,
+                , false //fuelLevel,
+                , false //fuelLevel_State,
+                , false //instantFuelConsumption,
+                , false //externalTemperature,
+                , false //prndl,
+                , false //tirePressure,
+                , false //odometer,
+                , false //beltStatus,
+                , false //bodyInformation,
+                , false //deviceStatus,
+                , false //driverBraking,
+                , false //wiperStatus,
+                , false //headLampStatus,
+                , false //engineTorque,
+                , false //accPedalPosition,
+                , false //steeringWheelAngle,
+                , false //eCallInfo,
+                , false //airbagStatus,
+                , false //emergencyEvent,
+                , false //clusterModeStatus,
+                , false //myKey,
                 , autoIncCorrId++);
     	}
     	catch(SyncException e) {
@@ -1089,7 +1094,7 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 	@Override
 	public void onOnVehicleData(OnVehicleData vehicleData) {
         //updateDisplay("getVehicleData change", notification.getSpeed().toString());
-		Log.i("onVehicleData", "Speed: " + vehicleData.getSpeed().toString() + " rpm: " + vehicleData.getRpm().toString() );
+		//Log.i("onVehicleData", "Speed: " + vehicleData.getSpeed().toString() + " rpm: " + vehicleData.getRpm().toString() );
 		
     	VehicleDataCache.addVehicleData(vehicleData);
     	
@@ -1115,13 +1120,6 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 	private void onParked(OnVehicleData vehicleData) {
 		long driverScore = calculateDriverScore();
 		
-		if (app.mGoogleApiClient != null && app.mGoogleApiClient.isConnected()) {
-		    // Call a Play Games services API method, for example:
-		    Games.Leaderboards.submitScore(app.mGoogleApiClient, "CgkIxNLeo8UREAIQAQ", driverScore);
-		} else {
-		    // Alternative implementation (or warn user that they must
-		    // sign in to use this feature)
-		}
 	}
 
 	@Override

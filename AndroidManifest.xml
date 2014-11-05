@@ -54,9 +54,12 @@
         <service android:name="com.kbb.livedrivex.wunderground.WUndergroundService" >
         </service>
         
+        <service android:name="com.kbb.livedrive.googleplay.GooglePlayService" >
+        </service>        
+        
         <service android:name="com.kbb.livedrive.applink.AppLinkService" >
         </service>
-
+        
         <receiver android:name="com.kbb.livedrive.applink.AppLinkReceiver" >
             <intent-filter>
                 <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />

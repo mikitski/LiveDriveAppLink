@@ -3,6 +3,7 @@ package com.kbb.livedrive.app;
 import com.ford.syncV4.proxy.SyncProxyALM;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.kbb.livedrive.applink.AppLinkService;
+import com.kbb.livedrive.googleplay.GooglePlayService;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -18,8 +19,6 @@ public class LiveDriveApplication extends Application {
 	private static LiveDriveApplication instance;
 	private static Activity currentUIActivity;
 	
-	public GoogleApiClient mGoogleApiClient;
-
 	
 	static {
 		instance = null;
@@ -95,9 +94,15 @@ public class LiveDriveApplication extends Application {
     public void startServices() {
 
         startSyncProxyService();
+        startGooglPlayService();
     }
     
-    public void stopServices() {
+    private void startGooglPlayService() {
+    	Intent startIntent = new Intent(this, GooglePlayService.class);
+    	startService(startIntent);
+	}
+
+	public void stopServices() {
     	if (currentUIActivity == null) {
 
     	}

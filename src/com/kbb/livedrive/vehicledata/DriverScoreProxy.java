@@ -53,7 +53,7 @@ public class DriverScoreProxy {
 	
 	public static String getDriverScoreDisplay(){
 		String display;
-		double score = getDriverScore();
+		double score = Math.round(getDriverScore());
 		
 		if(score < 50)
 			display = "Low";

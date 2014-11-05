@@ -2,6 +2,7 @@ package com.kbb.livedrive.activity;
 
 import com.kbb.livedrive.R;
 import com.kbb.livedrive.app.LiveDriveApplication;
+import com.kbb.livedrive.googleplay.GooglePlayService;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
@@ -73,15 +74,9 @@ public class MainActivity extends ActivityBase implements
         super.onCreate(savedInstanceState);
         
         app = LiveDriveApplication.getInstance();
+        LiveDriveApplication.setCurrentActivity(this);
         
      // Create the Google Api Client with access to Plus and Games
-        app.mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(Plus.API).addScope(Plus.SCOPE_PLUS_LOGIN)
-                .addApi(Games.API).addScope(Games.SCOPE_GAMES)
-                // add other APIs and scopes here as needed
-                .build();
         
         setContentView(R.layout.activity_main);
         
@@ -89,7 +84,7 @@ public class MainActivity extends ActivityBase implements
         lbManager.registerReceiver(changeLocationReceiver, new IntentFilter("com.kbb.livedrive.Location"));
         lbManager.registerReceiver(forecastReceiver, new IntentFilter("com.kbb.livedrive.Forecast"));
         
-		
+		// 
 		if (app != null) {
 			app.startServices();
 		}
@@ -208,28 +203,7 @@ public class MainActivity extends ActivityBase implements
 	
 	@Override
 	public void onConnectionFailed(ConnectionResult connectionResult) {
-	    if (mResolvingConnectionFailure) {
-	        // already resolving
-	        return;
-	    }
 
-	    // if the sign-in button was clicked or if auto sign-in is enabled,
-	    // launch the sign-in flow
-	    if (mSignInClicked || mAutoStartSignInFlow) {
-	        mAutoStartSignInFlow = false;
-	        mSignInClicked = false;
-	        mResolvingConnectionFailure = true;
-
-	        // Attempt to resolve the connection failure using BaseGameUtils.
-	        // The R.string.signin_other_error value should reference a generic
-	        // error string in your strings.xml file, such as "There was
-	        // an issue with sign-in, please try again later."
-	        if (!BaseGameUtils.resolveConnectionFailure(this,
-	                app.mGoogleApiClient, connectionResult,
-	                RC_SIGN_IN, getString(R.string.signin_other_error))) {
-	            mResolvingConnectionFailure = false;
-	        }
-	    }
 	}
 	
 	protected void onActivityResult(int requestCode, int resultCode,
@@ -238,7 +212,9 @@ public class MainActivity extends ActivityBase implements
 	        mSignInClicked = false;
 	        mResolvingConnectionFailure = false;
 	        if (resultCode == RESULT_OK) {
-	            app.mGoogleApiClient.connect();
+	    		GooglePlayService gp = GooglePlayService.getInstance();
+	    		if(gp != null)
+	    			gp.connect();
 	        } else {
 	            // Bring up an error dialog to alert the user that sign-in
 	            // failed. The R.string.signin_failure should reference an error
@@ -267,16 +243,20 @@ public class MainActivity extends ActivityBase implements
 	@Override
 	protected void onStart() {
 		super.onStart();
-	    app.mGoogleApiClient.connect();
+//	    app.mGoogleApiClient.connect();
+		GooglePlayService gp = GooglePlayService.getInstance();
+		if(gp != null)
+			gp.connect();
 	    
 	}
 	
 	@Override
 	protected void onStop() {
 	    super.onStop();
-	    if (app.mGoogleApiClient.isConnected()) {
-	        app.mGoogleApiClient.disconnect();
-	    }
+	    
+		GooglePlayService gp = GooglePlayService.getInstance();
+		if(gp != null)
+			gp.disconnect();
 	}
 	
 	
