@@ -6,6 +6,7 @@ import com.google.android.gms.plus.Plus;
 import com.google.android.gms.*;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.example.games.basegameutils.BaseGameUtils;
+import com.google.android.gms.games.leaderboard.*;
 
 
 import com.kbb.livedrive.R;
@@ -22,9 +23,13 @@ public class GooglePlayService extends Service implements
 							GoogleApiClient.ConnectionCallbacks,
 							GoogleApiClient.OnConnectionFailedListener{
 	
+	public static final String GOOD_DRIVER_LEADERBOARD = "CgkIxNLeo8UREAIQAQ";
+
+	private static final int REQUEST_LEADERBOARD = 1977;
+
 	private static GooglePlayService instance = null;
 	
-	private GoogleApiClient mGoogleApiClient;
+	public GoogleApiClient mGoogleApiClient;
 
 	private LiveDriveApplication app; 
 	
@@ -115,7 +120,7 @@ public class GooglePlayService extends Service implements
  
 		if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
 		    // Call a Play Games services API method, for example:
-		    Games.Leaderboards.submitScore(mGoogleApiClient, "CgkIxNLeo8UREAIQAQ", driverScore);
+		    Games.Leaderboards.submitScore(mGoogleApiClient, GOOD_DRIVER_LEADERBOARD, driverScore);
 		} else {
 		    // Alternative implementation (or warn user that they must
 		    // sign in to use this feature)
@@ -139,6 +144,9 @@ public class GooglePlayService extends Service implements
 	public IBinder onBind(Intent arg0) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public void showGoodDriverLeaderboard() {
 	}
 
 }

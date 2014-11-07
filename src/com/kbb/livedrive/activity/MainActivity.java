@@ -68,17 +68,62 @@ public class MainActivity extends ActivityBase implements
         public void onReceive(Context context, Intent intent) {
         }
 	};
+
+	private CharSequence drawerTitle;
+	private String[] drawerTitles;
+	private DrawerLayout drawerLayout;
+	private ListView drawerList;
+	private ArrayAdapter<String> drawerAdapter;
+	
+	/**
+	 * Drawer item click listener that handles menu actions in the navigation drawer.
+	 */
+	private class DrawerItemClickListener implements ListView.OnItemClickListener {
+	    @Override
+	    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+	        selectItem(position);
+	    }
+	}
+	
+    private void selectItem(int position) {
+    	String item = drawerAdapter.getItem(position);
+    	
+    	if ("Update".equals(item)) {
+    		GooglePlayService svc = GooglePlayService.getInstance();
+    		startActivityForResult(Games.Leaderboards.getLeaderboardIntent(svc.mGoogleApiClient,
+    		        svc.GOOD_DRIVER_LEADERBOARD), 1977);
+
+    	}
+    	else if ("About".equals(item)) {
+    		LiveDriveApplication.getInstance().showAppVersion(this);
+    	}
+    	drawerList.setItemChecked(position, false);
+        drawerLayout.closeDrawer(drawerList);
+    }
 	
 	@Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
+        setContentView(R.layout.activity_main);
+
+        
         app = LiveDriveApplication.getInstance();
         LiveDriveApplication.setCurrentActivity(this);
         
-     // Create the Google Api Client with access to Plus and Games
+		// Init Drawer list
+        drawerTitle = getTitle();
+		drawerTitles = getResources().getStringArray(R.array.nav_drawer_items);
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerList = (ListView) findViewById(R.id.left_drawer);
+        drawerAdapter = new ArrayAdapter<String>(this, R.layout.drawer_list_item, drawerTitles);
+
+        // Set the adapter for the list view
+        drawerList.setAdapter(drawerAdapter);
+        // Set the list's click listener
+        drawerList.setOnItemClickListener(new DrawerItemClickListener());
+
         
-        setContentView(R.layout.activity_main);
         
         LocalBroadcastManager lbManager = LocalBroadcastManager.getInstance(this);
         lbManager.registerReceiver(changeLocationReceiver, new IntentFilter("com.kbb.livedrive.Location"));

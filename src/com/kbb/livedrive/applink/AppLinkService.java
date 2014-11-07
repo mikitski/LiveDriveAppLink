@@ -9,6 +9,8 @@ import java.util.Vector;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import static java.util.concurrent.TimeUnit.*;
+
 
 import com.ford.syncV4.exception.SyncException;
 import com.ford.syncV4.exception.SyncExceptionCause;
@@ -31,9 +33,11 @@ import com.ford.syncV4.transport.BaseTransportConfig;
 import com.ford.syncV4.transport.TCPTransport;
 import com.ford.syncV4.transport.TCPTransportConfig;
 import com.ford.syncV4.util.DebugTool;
+
 import com.kbb.livedrive.R;
 import com.kbb.livedrive.app.LiveDriveApplication;
 import com.kbb.livedrive.artifact.Location;
+import com.kbb.livedrive.googleplay.GooglePlayService;
 import com.kbb.livedrive.vehicledata.DriverScore;
 import com.kbb.livedrive.vehicledata.DriverScoreProxy;
 import com.kbb.livedrive.vehicledata.VehicleDataCache;
@@ -51,7 +55,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-import static java.util.concurrent.TimeUnit.*;
 
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.leaderboard.*;
@@ -128,8 +131,8 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 
     private Location currentLocation = null;	// Stores the current location
     
-    private boolean isEmulatorMode = true;
-    private boolean isSimulatedData = true;
+    private boolean isEmulatorMode = false;
+    private boolean isSimulatedData = false;
 
 	private SoftButton showDriverScore = null;
 	private SoftButton showMPGScore = null;
@@ -380,6 +383,8 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 				break;
 			case SYSCTXT_MENU:
 				break;
+//			case SYSCTXT_HMI_OBSCURED:
+//				break;
 			default:
 				return;
 		}
@@ -473,6 +478,11 @@ public class AppLinkService extends Service implements IProxyListenerALM {
     	currentScoreDisplay = score;
     	updateDisplay("Driver Score", currentScoreDisplay);
     	
+    	try{
+    		long numScore = Math.round(Double.parseDouble(score));
+    		GooglePlayService.getInstance().submitDriverScore(numScore);
+    	}
+    	catch(NumberFormatException ex) {}
     	
     }
     
@@ -620,18 +630,18 @@ public class AppLinkService extends Service implements IProxyListenerALM {
     private void subscribeVehicleData(){
     	
     	try {
-    	proxy.subscribevehicledata(false //gps, 
+    	proxy.subscribevehicledata(true //gps, 
                 , true //speed,
                 , true //rpm,
-                , false //fuelLevel,
-                , false //fuelLevel_State,
-                , false //instantFuelConsumption,
-                , false //externalTemperature,
-                , false //prndl,
-                , false //tirePressure,
-                , false //odometer,
-                , false //beltStatus,
-                , false //bodyInformation,
+                , true //fuelLevel,
+                , true //fuelLevel_State,
+                , true //instantFuelConsumption,
+                , true //externalTemperature,
+                , true //prndl,
+                , true //tirePressure,
+                , true //odometer,
+                , true //beltStatus,
+                , true //bodyInformation,
                 , false //deviceStatus,
                 , false //driverBraking,
                 , false //wiperStatus,
@@ -927,23 +937,23 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 	    	    msg.setCorrelationID(autoIncCorrId++);
 
 	    	    //Location functional group
-	    	    msg.setSpeed(false);
+	    	    msg.setSpeed(true);
 	    	    msg.setGps(true);
 
 	    	    //VechicleInfo functional group
-	    	    msg.setFuelLevel(false);
-	    	    msg.setFuelLevel_State(false);
-	    	    msg.setInstantFuelConsumption(false);
-	    	    msg.setExternalTemperature(false);
-	    	    msg.setTirePressure(false);
-	    	    msg.setOdometer(false);
-	    	    msg.setVin(false);
+	    	    msg.setFuelLevel(true);
+	    	    msg.setFuelLevel_State(true);
+	    	    msg.setInstantFuelConsumption(true);
+	    	    msg.setExternalTemperature(true);
+	    	    msg.setTirePressure(true);
+	    	    msg.setOdometer(true);
+	    	    msg.setVin(true);
 
 	    	    //DrivingCharacteristics functional group
 	    	    msg.setBeltStatus(false);                        
 	    	    msg.setDriverBraking(false);
-	    	    msg.setPrndl(false);
-	    	    msg.setRpm(false);
+	    	    msg.setPrndl(true);
+	    	    msg.setRpm(true);
 
 	    	    try{
 	    	        proxy.sendRPCRequest(msg);
