@@ -17,15 +17,11 @@ import android.widget.TextView;
 
 public class VehicleSumaryFragment extends BaseFragment {
 	private View fragmentView;
-	private TextView locationTextView;
-	private ListView forecastListView;
 //	private WeatherDataManager dataManager;
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		fragmentView = inflater.inflate(R.layout.fragment_vehicle_summary, null);
-		locationTextView = (TextView) fragmentView.findViewById(R.id.forecastLocationTextView);
-		forecastListView = (ListView) fragmentView.findViewById(R.id.forecastListView);
 		
 //		dataManager = WeatherDataManager.getInstance();
 //		if (dataManager != null) {
@@ -59,11 +55,6 @@ public class VehicleSumaryFragment extends BaseFragment {
 	}
 	
 	public void setLocation(Location location) {
-        if (location != null && location.city != null && location.state != null) {
-        	if (locationTextView != null) {
-        		locationTextView.setText(location.city + ", " + location.state);
-        	}
-        }
 	}
 	
 	public void updateForecast() {
