@@ -415,60 +415,53 @@ containing a value of this type.
         public static final int flurries=0x7f02001f;
         public static final int fog=0x7f020020;
         public static final int ford_oval=0x7f020021;
-        public static final int hazy=0x7f020022;
-        public static final int ic_action_search=0x7f020023;
-        public static final int ic_add_location=0x7f020024;
-        public static final int ic_current_location=0x7f020025;
-        public static final int ic_drawer=0x7f020026;
-        public static final int ic_launcher=0x7f020027;
-        public static final int ic_plusone_medium_off_client=0x7f020028;
-        public static final int ic_plusone_small_off_client=0x7f020029;
-        public static final int ic_plusone_standard_off_client=0x7f02002a;
-        public static final int ic_plusone_tall_off_client=0x7f02002b;
-        public static final int ic_settings=0x7f02002c;
-        public static final int logo_130x80=0x7f02002d;
-        public static final int logo_ce=0x7f02002e;
-        public static final int main_screen=0x7f02002f;
-        public static final int partlycloudy=0x7f020030;
-        public static final int partlysunny=0x7f020031;
-        public static final int powered_by_google_dark=0x7f020032;
-        public static final int powered_by_google_light=0x7f020033;
-        public static final int rain=0x7f020034;
-        public static final int sleet=0x7f020035;
-        public static final int snow=0x7f020036;
-        public static final int sunny=0x7f020037;
-        public static final int tstorms=0x7f020038;
+        public static final int fordmustang=0x7f020022;
+        public static final int hazy=0x7f020023;
+        public static final int ic_action_search=0x7f020024;
+        public static final int ic_add_location=0x7f020025;
+        public static final int ic_current_location=0x7f020026;
+        public static final int ic_drawer=0x7f020027;
+        public static final int ic_launcher=0x7f020028;
+        public static final int ic_plusone_medium_off_client=0x7f020029;
+        public static final int ic_plusone_small_off_client=0x7f02002a;
+        public static final int ic_plusone_standard_off_client=0x7f02002b;
+        public static final int ic_plusone_tall_off_client=0x7f02002c;
+        public static final int ic_settings=0x7f02002d;
+        public static final int logo_130x80=0x7f02002e;
+        public static final int logo_ce=0x7f02002f;
+        public static final int main_screen=0x7f020030;
+        public static final int partlycloudy=0x7f020031;
+        public static final int partlysunny=0x7f020032;
+        public static final int powered_by_google_dark=0x7f020033;
+        public static final int powered_by_google_light=0x7f020034;
+        public static final int rain=0x7f020035;
+        public static final int sleet=0x7f020036;
+        public static final int snow=0x7f020037;
+        public static final int sunny=0x7f020038;
+        public static final int tstorms=0x7f020039;
     }
     public static final class id {
-        public static final int action_settings=0x7f070029;
-        public static final int adjustedTemp=0x7f070020;
+        public static final int action_settings=0x7f070021;
         public static final int book_now=0x7f070010;
         public static final int buyButton=0x7f07000a;
         public static final int buy_now=0x7f07000f;
         public static final int buy_with_google=0x7f07000e;
         public static final int classic=0x7f070011;
-        public static final int conditionsIcon=0x7f07001e;
-        public static final int conditionsLocationTextView=0x7f07001d;
-        public static final int conditionsText=0x7f070021;
         public static final int content_frame=0x7f070015;
-        public static final int currentTemp=0x7f07001f;
         public static final int drawer_layout=0x7f070014;
         public static final int forecastHighTemp=0x7f07001a;
         public static final int forecastImageView=0x7f070018;
-        public static final int forecastListView=0x7f070025;
-        public static final int forecastLocationTextView=0x7f070024;
         public static final int forecastLowTemp=0x7f07001b;
         public static final int forecastPrecip=0x7f070019;
         public static final int forecastShortDayTextView=0x7f070017;
         public static final int grayscale=0x7f070012;
         public static final int holo_dark=0x7f070005;
         public static final int holo_light=0x7f070006;
-        public static final int humidity=0x7f070023;
         public static final int hybrid=0x7f070004;
-        public static final int imageView1=0x7f070026;
-        public static final int imageView2=0x7f070028;
+        public static final int imageView1=0x7f07001e;
+        public static final int imageView2=0x7f070020;
         public static final int left_drawer=0x7f070016;
-        public static final int locationTextView=0x7f070027;
+        public static final int locationTextView=0x7f07001f;
         public static final int mainImageView=0x7f07001c;
         public static final int match_parent=0x7f07000c;
         public static final int monochrome=0x7f070013;
@@ -480,7 +473,7 @@ containing a value of this type.
         public static final int selectionDetails=0x7f07000b;
         public static final int strict_sandbox=0x7f070009;
         public static final int terrain=0x7f070003;
-        public static final int windSpeed=0x7f070022;
+        public static final int webView1=0x7f07001d;
         public static final int wrap_content=0x7f07000d;
     }
     public static final class integer {
@@ -491,14 +484,15 @@ containing a value of this type.
         public static final int drawer_list_item=0x7f030001;
         public static final int forecast_list_item=0x7f030002;
         public static final int fragment_base=0x7f030003;
-        public static final int fragment_conditions=0x7f030004;
-        public static final int fragment_forecast=0x7f030005;
+        public static final int fragment_scores=0x7f030004;
+        public static final int fragment_vehicle_summary=0x7f030005;
         public static final int lockscreen=0x7f030006;
     }
     public static final class menu {
         public static final int forecast=0x7f0b0000;
     }
     public static final class string {
+        public static final int MPG_score_text=0x7f050036;
         public static final int accept=0x7f050002;
         public static final int action_settings=0x7f05002e;
         public static final int app_id=0x7f050027;
@@ -608,6 +602,7 @@ containing a value of this type.
         public static final int decline=0x7f050003;
         public static final int drawer_close=0x7f050034;
         public static final int drawer_open=0x7f050033;
+        public static final int drvier_score_text=0x7f050035;
         public static final int exit=0x7f050029;
         public static final int ford=0x7f05002a;
         public static final int gamehelper_app_misconfigured=0x7f050024;
@@ -615,8 +610,8 @@ containing a value of this type.
         public static final int gamehelper_sign_in_failed=0x7f050023;
         public static final int gamehelper_unknown_error=0x7f050026;
         public static final int kbb=0x7f05002b;
-        public static final int signin_failure=0x7f050036;
-        public static final int signin_other_error=0x7f050035;
+        public static final int signin_failure=0x7f050038;
+        public static final int signin_other_error=0x7f050037;
         public static final int store_picture_message=0x7f050001;
         public static final int store_picture_title=0x7f050000;
         public static final int title_activity_main=0x7f05002f;

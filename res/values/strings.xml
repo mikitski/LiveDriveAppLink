@@ -15,6 +15,9 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     
+    <string name="drvier_score_text">Driver Score</string>
+    <string name="MPG_score_text">MPG Score</string> 
+    
     <string name="signin_other_error">Unknown SignIn Error</string>
     <string name="signin_failure">SignIn Error</string>
     
