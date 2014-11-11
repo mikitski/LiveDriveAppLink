@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_id">602712549700</string>
+      <string name="achievement_week_over_65">CgkIxNLeo8UREAIQAg</string>
+  <string name="achievement_week_over_75">CgkIxNLeo8UREAIQAw</string>
+  <string name="achievement_two_weeks_over_65">CgkIxNLeo8UREAIQBA</string>
+  <string name="achievement_month_over_65">CgkIxNLeo8UREAIQBQ</string>
+  <string name="achievement_3_months_over_65">CgkIxNLeo8UREAIQBg</string>
+  <string name="leaderboard_good_driver">CgkIxNLeo8UREAIQAQ</string>
 </resources>

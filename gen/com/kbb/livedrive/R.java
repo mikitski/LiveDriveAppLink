@@ -441,7 +441,7 @@ containing a value of this type.
         public static final int tstorms=0x7f020039;
     }
     public static final class id {
-        public static final int action_settings=0x7f070021;
+        public static final int action_settings=0x7f070025;
         public static final int book_now=0x7f070010;
         public static final int buyButton=0x7f07000a;
         public static final int buy_now=0x7f07000f;
@@ -458,10 +458,10 @@ containing a value of this type.
         public static final int holo_dark=0x7f070005;
         public static final int holo_light=0x7f070006;
         public static final int hybrid=0x7f070004;
-        public static final int imageView1=0x7f07001e;
-        public static final int imageView2=0x7f070020;
+        public static final int imageView1=0x7f07001d;
+        public static final int imageView2=0x7f070024;
         public static final int left_drawer=0x7f070016;
-        public static final int locationTextView=0x7f07001f;
+        public static final int locationTextView=0x7f070023;
         public static final int mainImageView=0x7f07001c;
         public static final int match_parent=0x7f07000c;
         public static final int monochrome=0x7f070013;
@@ -473,7 +473,11 @@ containing a value of this type.
         public static final int selectionDetails=0x7f07000b;
         public static final int strict_sandbox=0x7f070009;
         public static final int terrain=0x7f070003;
-        public static final int webView1=0x7f07001d;
+        public static final int textView1=0x7f07001e;
+        public static final int textView2=0x7f07001f;
+        public static final int textView3=0x7f070020;
+        public static final int textView4=0x7f070021;
+        public static final int viewLeaderboard=0x7f070022;
         public static final int wrap_content=0x7f07000d;
     }
     public static final class integer {
@@ -484,19 +488,24 @@ containing a value of this type.
         public static final int drawer_list_item=0x7f030001;
         public static final int forecast_list_item=0x7f030002;
         public static final int fragment_base=0x7f030003;
-        public static final int fragment_scores=0x7f030004;
-        public static final int fragment_vehicle_summary=0x7f030005;
+        public static final int fragment_vehicle_summary=0x7f030004;
+        public static final int fragment_web_view=0x7f030005;
         public static final int lockscreen=0x7f030006;
     }
     public static final class menu {
         public static final int forecast=0x7f0b0000;
     }
     public static final class string {
-        public static final int MPG_score_text=0x7f050036;
+        public static final int MPG_score_text=0x7f05003c;
         public static final int accept=0x7f050002;
-        public static final int action_settings=0x7f05002e;
+        public static final int achievement_3_months_over_65=0x7f05002c;
+        public static final int achievement_month_over_65=0x7f05002b;
+        public static final int achievement_two_weeks_over_65=0x7f05002a;
+        public static final int achievement_week_over_65=0x7f050028;
+        public static final int achievement_week_over_75=0x7f050029;
+        public static final int action_settings=0x7f050034;
         public static final int app_id=0x7f050027;
-        public static final int app_name=0x7f050028;
+        public static final int app_name=0x7f05002e;
         /**   Text for notification shown when the Android Wear apps needs to be updated. Only shown on the wearable. [CHAR LIMIT=NONE] 
          */
         public static final int common_android_wear_notification_needs_update_text=0x7f050009;
@@ -596,33 +605,36 @@ containing a value of this type.
         /**  Long form sign-in button text [CHAR LIMIT=30] 
          */
         public static final int common_signin_button_text_long=0x7f050020;
-        public static final int coxautomotive=0x7f05002d;
+        public static final int coxautomotive=0x7f050033;
         public static final int create_calendar_message=0x7f050005;
         public static final int create_calendar_title=0x7f050004;
         public static final int decline=0x7f050003;
-        public static final int drawer_close=0x7f050034;
-        public static final int drawer_open=0x7f050033;
-        public static final int drvier_score_text=0x7f050035;
-        public static final int exit=0x7f050029;
-        public static final int ford=0x7f05002a;
+        public static final int drawer_close=0x7f05003a;
+        public static final int drawer_open=0x7f050039;
+        public static final int drvier_score_text=0x7f05003b;
+        public static final int exit=0x7f05002f;
+        public static final int ford=0x7f050030;
         public static final int gamehelper_app_misconfigured=0x7f050024;
         public static final int gamehelper_license_failed=0x7f050025;
         public static final int gamehelper_sign_in_failed=0x7f050023;
         public static final int gamehelper_unknown_error=0x7f050026;
-        public static final int kbb=0x7f05002b;
-        public static final int signin_failure=0x7f050038;
-        public static final int signin_other_error=0x7f050037;
+        public static final int kbb=0x7f050031;
+        public static final int leaderboard_good_driver=0x7f05002d;
+        public static final int leaderboard_type_driver=0x7f05003f;
+        public static final int leaderboard_type_mpg=0x7f050040;
+        public static final int signin_failure=0x7f05003e;
+        public static final int signin_other_error=0x7f05003d;
         public static final int store_picture_message=0x7f050001;
         public static final int store_picture_title=0x7f050000;
-        public static final int title_activity_main=0x7f05002f;
-        public static final int title_alerts=0x7f050030;
-        public static final int title_settings=0x7f050032;
-        public static final int title_stats=0x7f050031;
+        public static final int title_activity_main=0x7f050035;
+        public static final int title_alerts=0x7f050036;
+        public static final int title_settings=0x7f050038;
+        public static final int title_stats=0x7f050037;
         /**  Text on a placeholder buy button when Google Play services is not
          available or up-to-date 
          */
         public static final int wallet_buy_button_place_holder=0x7f050022;
-        public static final int wunderground=0x7f05002c;
+        public static final int wunderground=0x7f050032;
     }
     public static final class strings {
         public static final int coxautomotive=0x7f0c0000;

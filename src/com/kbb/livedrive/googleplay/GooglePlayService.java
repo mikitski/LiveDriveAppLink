@@ -1,12 +1,21 @@
 package com.kbb.livedrive.googleplay;
 
+import java.util.ArrayList;
+import java.util.concurrent.TimeUnit;
+
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.plus.Plus;
 import com.google.android.gms.*;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.example.games.basegameutils.BaseGameUtils;
 import com.google.android.gms.games.leaderboard.*;
+import com.google.android.gms.games.leaderboard.Leaderboards.LeaderboardMetadataResult;
+import com.google.android.gms.games.leaderboard.Leaderboards.LoadPlayerScoreResult;
+import com.google.android.gms.games.leaderboard.Leaderboards.LoadScoresResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.games.leaderboard.LeaderboardVariant;
 
 
 import com.kbb.livedrive.R;
@@ -18,12 +27,12 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 
 public class GooglePlayService extends Service implements 
 							GoogleApiClient.ConnectionCallbacks,
 							GoogleApiClient.OnConnectionFailedListener{
 	
-	public static final String GOOD_DRIVER_LEADERBOARD = "CgkIxNLeo8UREAIQAQ";
 
 	private static final int REQUEST_LEADERBOARD = 1977;
 
@@ -120,12 +129,60 @@ public class GooglePlayService extends Service implements
  
 		if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
 		    // Call a Play Games services API method, for example:
-		    Games.Leaderboards.submitScore(mGoogleApiClient, GOOD_DRIVER_LEADERBOARD, driverScore);
+		    Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_good_driver), driverScore);
 		} else {
 		    // Alternative implementation (or warn user that they must
 		    // sign in to use this feature)
 		}
 
+	}
+	
+	public void getDriverLeaderboard(){
+		
+		final ResultCallback<Leaderboards.LoadScoresResult> scoresCallback = new ResultCallback<Leaderboards.LoadScoresResult>(){
+			@Override
+			public void onResult(LoadScoresResult arg0) {
+				Leaderboard lb = arg0.getLeaderboard();
+				
+				LeaderboardScoreBuffer scoreBuffer = arg0.getScores();
+				
+				ArrayList<LeaderboardScore> scores = new ArrayList<LeaderboardScore>(scoreBuffer.getCount());
+				
+				for(int i = 0; i < scoreBuffer.getCount(); i++){
+					scores.add(scoreBuffer.get(i));
+				}
+				//TODO return LoadScoresResult results back to the UI
+			}
+		};
+		
+		final ResultCallback<LoadPlayerScoreResult> playerCallback = new ResultCallback<Leaderboards.LoadPlayerScoreResult>() {
+			
+			@Override
+			public void onResult(LoadPlayerScoreResult arg0) {
+				
+				LeaderboardScore score = arg0.getScore();
+				String scoreDisplay = score.getDisplayScore();
+				
+				//TODO return LeaderboardScore back to the UI
+			}
+		};
+		
+		try{
+			if(mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+				
+				PendingResult<LoadScoresResult> res = Games.Leaderboards.loadTopScores(mGoogleApiClient, getString(R.string.leaderboard_good_driver), LeaderboardVariant.TIME_SPAN_DAILY, LeaderboardVariant.COLLECTION_PUBLIC, 10);
+			
+				res.setResultCallback(scoresCallback);
+				
+				PendingResult<LoadPlayerScoreResult> pres =Games.Leaderboards.loadCurrentPlayerLeaderboardScore(mGoogleApiClient, getString(R.string.leaderboard_good_driver), LeaderboardVariant.TIME_SPAN_DAILY, LeaderboardVariant.COLLECTION_PUBLIC);
+				
+				pres.setResultCallback(playerCallback);
+			}
+		}
+		catch(Exception e){
+			Log.e("GooglePlayService", e.getMessage());
+		}
+		
 	}
 
 	public void connect() {

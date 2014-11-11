@@ -2,6 +2,8 @@ package com.kbb.livedrive.activity;
 
 import com.kbb.livedrive.R;
 import com.kbb.livedrive.app.LiveDriveApplication;
+import com.kbb.livedrive.fragments.WebViewFragment;
+import com.kbb.livedrive.fragments.VehicleSumaryFragment;
 import com.kbb.livedrive.googleplay.GooglePlayService;
 
 import android.app.ActionBar;
@@ -74,6 +76,8 @@ public class MainActivity extends ActivityBase implements
 	private DrawerLayout drawerLayout;
 	private ListView drawerList;
 	private ArrayAdapter<String> drawerAdapter;
+
+	private Fragment currentFragment;
 	
 	/**
 	 * Drawer item click listener that handles menu actions in the navigation drawer.
@@ -87,16 +91,34 @@ public class MainActivity extends ActivityBase implements
 	
     private void selectItem(int position) {
     	String item = drawerAdapter.getItem(position);
-    	
-    	if ("Update".equals(item)) {
-    		GooglePlayService svc = GooglePlayService.getInstance();
-    		startActivityForResult(Games.Leaderboards.getLeaderboardIntent(svc.mGoogleApiClient,
-    		        svc.GOOD_DRIVER_LEADERBOARD), 1977);
+    	Fragment fragment = null;
+    	if("Home".equals(item)){
+    		// acrivate VehicleInfo fragment
+    		fragment = new VehicleSumaryFragment();
+    	}
+    	else if("Driver Leadeboard".equals(item) || "Scores".equals(item)){
+    		
+//    		GooglePlayService svc = GooglePlayService.getInstance();
+//    		startActivityForResult(Games.Leaderboards.getLeaderboardIntent(svc.mGoogleApiClient,
+//    		        svc.GOOD_DRIVER_LEADERBOARD), 1977);    
 
+    		//acrivate Drive Leaderboards fragment
+    		fragment = new WebViewFragment();
+//    		((WebViewFragment)fragment).setLeaderboardType(getString(R.string.leaderboard_type_driver));
+    	}
+    	else if ("MPG Leadeboard".equals(item)) {
+    		fragment = new WebViewFragment();
+    		((WebViewFragment)fragment).setLeaderboardType(getString(R.string.leaderboard_type_mpg));
     	}
     	else if ("About".equals(item)) {
     		LiveDriveApplication.getInstance().showAppVersion(this);
     	}
+    	
+    	if(fragment != null){
+			currentFragment = fragment;
+			getFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();    		
+    	}
+    	
     	drawerList.setItemChecked(position, false);
         drawerLayout.closeDrawer(drawerList);
     }

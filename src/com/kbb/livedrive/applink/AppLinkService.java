@@ -39,7 +39,8 @@ import com.kbb.livedrive.app.LiveDriveApplication;
 import com.kbb.livedrive.artifact.Location;
 import com.kbb.livedrive.googleplay.GooglePlayService;
 import com.kbb.livedrive.vehicledata.DriverScore;
-import com.kbb.livedrive.vehicledata.DriverScoreProxy;
+import com.kbb.livedrive.vehicledata.DriverScoreService;
+import com.kbb.livedrive.vehicledata.IVehicleDataReceiver;
 import com.kbb.livedrive.vehicledata.VehicleDataCache;
 
 import android.app.Service;
@@ -59,7 +60,7 @@ import android.util.Log;
 import com.google.android.gms.games.Games;
 import com.google.android.gms.games.leaderboard.*;
 
-public class AppLinkService extends Service implements IProxyListenerALM {
+public class AppLinkService extends Service implements IProxyListenerALM, IVehicleDataReceiver {
 
 	// Service shutdown timing constants
 	private static final int CONNECTION_TIMEOUT = 60000;
@@ -84,15 +85,11 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 
 	private static Object blah = new Object(); 
 	private static int drivingMode = DRIVING_MODE_GOOD;
-
-	private static int SPEED_LIMIT = 50;
 	
 	private static String currentScoreDisplay = "76";
 	
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 	
-	private Random rand = new Random();
-
 	private static final int CHANGE_UNITS = 4;
 
 	private static final int NORMAL_LEAD_CHOICESET = 1;
@@ -488,40 +485,6 @@ public class AppLinkService extends Service implements IProxyListenerALM {
     
     private void launchWorker() {
    
-    	final Runnable dataSender = new Runnable() {
-    		
-    		public void run() {
-    			
-    			if(isSimulatedData)
-    			{
-    			
-	    			int currentMode = DRIVING_MODE_GOOD;
-	    			
-	    			synchronized (blah) {
-	    				currentMode = drivingMode;
-	    			}
-	    			//do something
-	    			switch(currentMode) {
-	    			case DRIVING_MODE_GOOD:
-	    				sendGoodData();
-	    				break;
-	    			case DRIVING_MODE_SPEEDING:
-	    				sendSpeedingData();
-	    				break;
-	    			case DRIVING_MODE_SLOW:
-	    				sendSlowData();
-	    				break;
-	    			case DRIVING_MODE_RECKLESS:
-	    				sendRecklessData();
-	    				break;
-	    			case DRIVING_MODE_RACING:
-	    				sendRacingData();
-	    				break;
-	    			}
-    			}
-    		}
-
-    	};
     	
     	final Runnable scoreCalculator = new Runnable() {
 			
@@ -539,8 +502,6 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 
 		};
     	
-    	final ScheduledFuture handle = scheduler.scheduleAtFixedRate(dataSender, 15, 15, SECONDS);
-    	
     	scheduler.scheduleAtFixedRate(scoreCalculator, 30, 30, SECONDS);
     	
 //    	scheduler.schedule(new Runnable() {
@@ -548,58 +509,13 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 //        }, 60 * 60, SECONDS);
     	
     };
-    
-	private void sendRacingData() {
-		float currSpeed = 80 + 10 * rand.nextFloat();
-		
-		OnVehicleData vData = new OnVehicleData();
-		vData.setSpeed(Double.valueOf(currSpeed));
-		this.onOnVehicleData(vData);
-		
-	}
-    
-	private void sendRecklessData() {
-		float currSpeed = SPEED_LIMIT + 6 + 10 * rand.nextFloat();
-		
-		OnVehicleData vData = new OnVehicleData();
-		vData.setSpeed(Double.valueOf(currSpeed));
-		this.onOnVehicleData(vData);
-		
-	}
-
-	private void sendSlowData() {
-		float currSpeed = SPEED_LIMIT - 10 - 5 * rand.nextFloat();
-		
-		OnVehicleData vData = new OnVehicleData();
-		vData.setSpeed(Double.valueOf(currSpeed));
-		this.onOnVehicleData(vData);
-
-	}
-
-	private void sendSpeedingData() {
-		
-		float currSpeed = SPEED_LIMIT + 8 + 5 * rand.nextFloat();
-		
-		OnVehicleData vData = new OnVehicleData();
-		vData.setSpeed(Double.valueOf(currSpeed));
-		this.onOnVehicleData(vData);
-		
-	}
-
-	private void sendGoodData() {
-		
-		float currSpeed = SPEED_LIMIT + 5 - 10 * rand.nextFloat();
-		
-		OnVehicleData vData = new OnVehicleData();
-		vData.setSpeed(Double.valueOf(currSpeed));
-		this.onOnVehicleData(vData);
-		
-	};
 
 	private long calculateDriverScore() {
-		long currentScore = DriverScoreProxy.calculateDriverScore(VehicleDataCache.getDataCacheAndClear());
+		long currentScore = DriverScoreService.getInstance().calculateDriverScore(VehicleDataCache.getDataCache());
 		
-		String scoreDisplay = DriverScoreProxy.getDriverScoreDisplay();
+		VehicleDataCache.clearVehicleDataCache();
+		
+		String scoreDisplay = DriverScoreService.getInstance().getDriverScoreDisplay();
 		
 		setDriverScoreDisplay(scoreDisplay);
 		
@@ -872,33 +788,33 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 		    case CUSTOM_BUTTON:
 	            switch (notification.getCustomButtonName()) {
 		            case SHOW_DRIVER_ID:
-		            	display = DriverScoreProxy.getDriverScoreDisplay();
+		            	display = DriverScoreService.getInstance().getDriverScoreDisplay();
 		            	updateDisplay("Your Driving Score is", display);
 		            	say("Your Driving Score is " + display);
 		                break;
 		            case SHOW_MPG_ID:
-		            	display = DriverScoreProxy.getMPGScoreDisplay();
+		            	display = DriverScoreService.getInstance().getMPGScoreDisplay();
 		            	updateDisplay("Your MPG Score is", display);
 		            	say("Your MPG Score is " + display);		            	
 		                break;
-		            case SHOW_LEADERBOARD_ID:
-		            	display = DriverScoreProxy.getLeaderboard();
-					 	try {
-					 		int currDrivingMode = 0;
-					        synchronized (blah) {
-					        	currDrivingMode = drivingMode;
-					        }
-					        
-					        if(currDrivingMode != DRIVING_MODE_RACING)
-					        	proxy.performInteraction("Chose a friend to check Normal Leaderboard", "Leaderboard", NORMAL_LEAD_CHOICESET, autoIncCorrId++);
-					        else 
-					        	proxy.performInteraction("Chose a friend to check Racing Leaderboard", "Leaderboard", RACING_LEAD_CHOICESET, autoIncCorrId++);
-						} catch (SyncException e) {
-							e.printStackTrace();
-							DebugTool.logError("Failed to perform interaction", e);
-						}
-
-					 	break;
+//		            case SHOW_LEADERBOARD_ID:
+//		            	display = DriverScoreService.getLeaderboard();
+//					 	try {
+//					 		int currDrivingMode = 0;
+//					        synchronized (blah) {
+//					        	currDrivingMode = drivingMode;
+//					        }
+//					        
+//					        if(currDrivingMode != DRIVING_MODE_RACING)
+//					        	proxy.performInteraction("Chose a friend to check Normal Leaderboard", "Leaderboard", NORMAL_LEAD_CHOICESET, autoIncCorrId++);
+//					        else 
+//					        	proxy.performInteraction("Chose a friend to check Racing Leaderboard", "Leaderboard", RACING_LEAD_CHOICESET, autoIncCorrId++);
+//						} catch (SyncException e) {
+//							e.printStackTrace();
+//							DebugTool.logError("Failed to perform interaction", e);
+//						}
+//
+//					 	break;
 		    		default:
 		    			break;
 	            }
@@ -1004,12 +920,11 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 			drivingMode = DRIVING_MODE_RACING;
 			updateDisplay("Driving Mode", "Racing");
 		}
-
 	}
 	
 	private void fakeDrivingScore(double score) {
-		DriverScoreProxy.fakeDriverScore(score);
-		String scoreDisplay = DriverScoreProxy.getDriverScoreDisplay();
+		DriverScoreService.getInstance().fakeDriverScore(score);
+		String scoreDisplay = DriverScoreService.getInstance().getDriverScoreDisplay();
 		
 		setDriverScoreDisplay(scoreDisplay);
 	}
@@ -1021,12 +936,12 @@ public class AppLinkService extends Service implements IProxyListenerALM {
 			String display = "";
 			switch (choiceID) {
 			case NORMAL_ME_CHOICE:
-				display = DriverScoreProxy.getLeaderboard();
-				say("Leaderboeard " + display);
+//				display = DriverScoreService.getInstance().getLeaderboard();
+				say("Leaderboard. " + display);
 				break;
 			case NORMAL_FRIEND_1_CHOICE:
-				display = DriverScoreProxy.getLeaderboard();
-				say("Leaderboard." + "CaDanceMom1974 is 10 points ahead of you");
+//				display = DriverScoreService.getLeaderboard();
+				say("Leaderboard. " + "CaDanceMom1974 is 10 points ahead of you");
 				break;
 			case NORMAL_FRIEND_2_CHOICE:
 				break;
