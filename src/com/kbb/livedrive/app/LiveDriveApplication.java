@@ -4,6 +4,8 @@ import com.ford.syncV4.proxy.SyncProxyALM;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.kbb.livedrive.applink.AppLinkService;
 import com.kbb.livedrive.googleplay.GooglePlayService;
+import com.kbb.livedrive.vehicledata.DriverScoreService;
+import com.kbb.livedrive.vehicledata.VehicleDetailsService;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -52,7 +54,6 @@ public class LiveDriveApplication extends Application {
 		super.onLowMemory();
 	}
 	    
-    
     public void startSyncProxyService() {
         // Get the local Bluetooth adapter
         //BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -95,17 +96,27 @@ public class LiveDriveApplication extends Application {
 
         startSyncProxyService();
         startGooglPlayService();
+        startDriverScoreService();
+        startVehicleDetailsService();
     }
     
-    private void startGooglPlayService() {
+    private void startVehicleDetailsService() {
+    	Intent startIntent = new Intent(this, VehicleDetailsService.class);
+    	startService(startIntent);
+	}
+
+	private void startDriverScoreService() {
+    	Intent startIntent = new Intent(this, DriverScoreService.class);
+    	startService(startIntent);		
+	}
+
+	private void startGooglPlayService() {
     	Intent startIntent = new Intent(this, GooglePlayService.class);
     	startService(startIntent);
 	}
 
 	public void stopServices() {
-    	if (currentUIActivity == null) {
-
-    	}
+    	GooglePlayService.getInstance().stopService(new Intent(this, GooglePlayService.class));
     }
 
 	public void showAppVersion(Context context) {

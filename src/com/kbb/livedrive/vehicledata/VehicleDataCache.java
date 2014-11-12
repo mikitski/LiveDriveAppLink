@@ -12,35 +12,28 @@ import com.ford.syncV4.proxy.rpc.OnVehicleData;
 
 public class VehicleDataCache {
 	
-	private static Object blah = new Object();
 	
-	public static List<OnVehicleData> dataCache = new ArrayList<OnVehicleData>();
+	public List<OnVehicleData> dataCache = new ArrayList<OnVehicleData>();
 	
-	public static void addVehicleData(OnVehicleData item){
-		synchronized (blah) {
+	public synchronized void addVehicleData(OnVehicleData item){
 			dataCache.add(item);	
-		}
-		
 	}
 	
-	public static List<OnVehicleData> getDataCache() {
-		synchronized (blah) {
+	public synchronized List<OnVehicleData> getDataCache() {
 			List<OnVehicleData> data = new ArrayList<OnVehicleData>(dataCache);
 			return data;	
-		}
 	}
 	
-	public static List<OnVehicleData> getDataCacheAndClear() {
-		synchronized (blah) {
-			List<OnVehicleData> data = new ArrayList<OnVehicleData>(dataCache);
+	public synchronized List<OnVehicleData> getDataCacheAndClear() {
+
+		List<OnVehicleData> data = new ArrayList<OnVehicleData>(dataCache);
 			
-			dataCache.clear();
+		dataCache.clear();
 			
-			return data;
-		}
+		return data;
 	}
 	
-	public static void clearVehicleDataCache(){
+	public synchronized void clearVehicleDataCache(){
 		dataCache.clear();
 	}
 	

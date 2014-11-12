@@ -14,9 +14,9 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-public class VehicleDataEmulator extends Service {
+public class VehicleDataEmulatorService extends Service {
 	
-	private static VehicleDataEmulator instance = null;
+	private static VehicleDataEmulatorService instance = null;
 	
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -36,7 +36,7 @@ public class VehicleDataEmulator extends Service {
 	private int drivingMode = DRIVING_MODE_GOOD;
 
 	
-	public static VehicleDataEmulator getInstance(){
+	public static VehicleDataEmulatorService getInstance(){
 		return instance;
 	}
 	
