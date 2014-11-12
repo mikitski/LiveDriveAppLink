@@ -1,6 +1,15 @@
 package com.kbb.livedrive.fragments;
 
 
+import java.util.ArrayList;
+
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.games.leaderboard.Leaderboard;
+import com.google.android.gms.games.leaderboard.LeaderboardScore;
+import com.google.android.gms.games.leaderboard.LeaderboardScoreBuffer;
+import com.google.android.gms.games.leaderboard.Leaderboards;
+import com.google.android.gms.games.leaderboard.Leaderboards.LoadPlayerScoreResult;
+import com.google.android.gms.games.leaderboard.Leaderboards.LoadScoresResult;
 import com.kbb.livedrive.R;
 import com.kbb.livedrive.artifact.Location;
 import com.kbb.livedrive.googleplay.GooglePlayService;
@@ -24,6 +33,68 @@ public class WebViewFragment extends BaseFragment {
 	
 	private String leaderboardType = ""; //getString(R.string.leaderboard_type_driver);
 	
+	
+	final ResultCallback<LoadPlayerScoreResult> scoresDriverScoreCallback = new ResultCallback<Leaderboards.LoadPlayerScoreResult>() {
+		
+		@Override
+		public void onResult(LoadPlayerScoreResult result) {
+			
+			LeaderboardScore score = result.getScore();
+			String scoreDisplay = score.getDisplayScore();
+						
+		}
+		
+		//TODO return Player's Driver score back to UI
+	};
+	
+	final ResultCallback<Leaderboards.LoadScoresResult> scoresDriverLeaderboardCallback = new ResultCallback<Leaderboards.LoadScoresResult>(){
+		@Override
+		public void onResult(LoadScoresResult arg0) {
+			Leaderboard lb = arg0.getLeaderboard();
+			
+			LeaderboardScoreBuffer scoreBuffer = arg0.getScores();
+			
+			ArrayList<LeaderboardScore> scores = new ArrayList<LeaderboardScore>(scoreBuffer.getCount());
+			
+			for(int i = 0; i < scoreBuffer.getCount(); i++){
+				scores.add(scoreBuffer.get(i));
+			}
+			//TODO return Driver Leaderboard back to the UI
+		}
+	};
+
+
+	final ResultCallback<LoadPlayerScoreResult> scoresMPGScoreCallback = new ResultCallback<Leaderboards.LoadPlayerScoreResult>() {
+		
+		@Override
+		public void onResult(LoadPlayerScoreResult result) {
+			
+			LeaderboardScore score = result.getScore();
+			String scoreDisplay = score.getDisplayScore();
+			
+			//TODO return Player's MPG score back to UI
+						
+		}
+	};
+	
+	final ResultCallback<Leaderboards.LoadScoresResult> scoresMPGLeaderboardCallback = new ResultCallback<Leaderboards.LoadScoresResult>(){
+		@Override
+		public void onResult(LoadScoresResult arg0) {
+			Leaderboard lb = arg0.getLeaderboard();
+			
+			LeaderboardScoreBuffer scoreBuffer = arg0.getScores();
+			
+			ArrayList<LeaderboardScore> scores = new ArrayList<LeaderboardScore>(scoreBuffer.getCount());
+			
+			for(int i = 0; i < scoreBuffer.getCount(); i++){
+				scores.add(scoreBuffer.get(i));
+			}
+			//TODO return MPG Leaderboard back to UI
+		}
+	};
+	
+	
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		fragmentView = inflater.inflate(R.layout.fragment_web_view, null);
@@ -33,7 +104,13 @@ public class WebViewFragment extends BaseFragment {
 		
 		GooglePlayService gp = GooglePlayService.getInstance();
 		
-		gp.getDriverLeaderboard();
+		gp.getDriverScore(scoresDriverScoreCallback);
+		
+		gp.getDriverLeaderboard(scoresDriverLeaderboardCallback);
+		
+		gp.getMPGScore(scoresMPGScoreCallback);
+		
+		gp.getMPGLeaderboard(scoresMPGLeaderboardCallback);
 		
 		return fragmentView;
 	}

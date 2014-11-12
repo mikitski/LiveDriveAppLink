@@ -56,6 +56,15 @@
         
         <service android:name="com.kbb.livedrive.googleplay.GooglePlayService" >
         </service>        
+
+        <service android:name="com.kbb.livedrive.vehicledata.VehicleSataEmulatorService" >
+        </service>        
+
+        <service android:name="com.kbb.livedrive.vehicledata.DriverScoreService" >
+        </service>        
+        
+        <service android:name="com.kbb.livedrive.vehicledata.VehicleDetailsService" >
+        </service>        
         
         <service android:name="com.kbb.livedrive.applink.AppLinkService" >
         </service>

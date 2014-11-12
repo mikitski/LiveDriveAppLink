@@ -128,10 +128,19 @@ public class MainActivity extends ActivityBase implements
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.activity_main);
-
         
         app = LiveDriveApplication.getInstance();
         LiveDriveApplication.setCurrentActivity(this);
+        
+		// Start Services - AppLink, GooglePlay, DriverScore
+		if (app != null) {
+			app.startServices();
+		}
+
+		Fragment fragment = new WebViewFragment();
+		getFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
+		
+		
         
 		// Init Drawer list
         drawerTitle = getTitle();
@@ -151,10 +160,6 @@ public class MainActivity extends ActivityBase implements
         lbManager.registerReceiver(changeLocationReceiver, new IntentFilter("com.kbb.livedrive.Location"));
         lbManager.registerReceiver(forecastReceiver, new IntentFilter("com.kbb.livedrive.Forecast"));
         
-		// 
-		if (app != null) {
-			app.startServices();
-		}
 
 		// Create tabs
 		ActionBar bar = getActionBar();

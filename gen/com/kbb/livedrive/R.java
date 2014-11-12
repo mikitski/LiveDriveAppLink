@@ -496,16 +496,16 @@ containing a value of this type.
         public static final int forecast=0x7f0b0000;
     }
     public static final class string {
-        public static final int MPG_score_text=0x7f05003c;
+        public static final int MPG_score_text=0x7f05003d;
         public static final int accept=0x7f050002;
         public static final int achievement_3_months_over_65=0x7f05002c;
         public static final int achievement_month_over_65=0x7f05002b;
         public static final int achievement_two_weeks_over_65=0x7f05002a;
         public static final int achievement_week_over_65=0x7f050028;
         public static final int achievement_week_over_75=0x7f050029;
-        public static final int action_settings=0x7f050034;
+        public static final int action_settings=0x7f050035;
         public static final int app_id=0x7f050027;
-        public static final int app_name=0x7f05002e;
+        public static final int app_name=0x7f05002f;
         /**   Text for notification shown when the Android Wear apps needs to be updated. Only shown on the wearable. [CHAR LIMIT=NONE] 
          */
         public static final int common_android_wear_notification_needs_update_text=0x7f050009;
@@ -605,36 +605,37 @@ containing a value of this type.
         /**  Long form sign-in button text [CHAR LIMIT=30] 
          */
         public static final int common_signin_button_text_long=0x7f050020;
-        public static final int coxautomotive=0x7f050033;
+        public static final int coxautomotive=0x7f050034;
         public static final int create_calendar_message=0x7f050005;
         public static final int create_calendar_title=0x7f050004;
         public static final int decline=0x7f050003;
-        public static final int drawer_close=0x7f05003a;
-        public static final int drawer_open=0x7f050039;
-        public static final int drvier_score_text=0x7f05003b;
-        public static final int exit=0x7f05002f;
-        public static final int ford=0x7f050030;
+        public static final int drawer_close=0x7f05003b;
+        public static final int drawer_open=0x7f05003a;
+        public static final int drvier_score_text=0x7f05003c;
+        public static final int exit=0x7f050030;
+        public static final int ford=0x7f050031;
         public static final int gamehelper_app_misconfigured=0x7f050024;
         public static final int gamehelper_license_failed=0x7f050025;
         public static final int gamehelper_sign_in_failed=0x7f050023;
         public static final int gamehelper_unknown_error=0x7f050026;
-        public static final int kbb=0x7f050031;
+        public static final int kbb=0x7f050032;
         public static final int leaderboard_good_driver=0x7f05002d;
-        public static final int leaderboard_type_driver=0x7f05003f;
-        public static final int leaderboard_type_mpg=0x7f050040;
-        public static final int signin_failure=0x7f05003e;
-        public static final int signin_other_error=0x7f05003d;
+        public static final int leaderboard_mpg=0x7f05002e;
+        public static final int leaderboard_type_driver=0x7f050040;
+        public static final int leaderboard_type_mpg=0x7f050041;
+        public static final int signin_failure=0x7f05003f;
+        public static final int signin_other_error=0x7f05003e;
         public static final int store_picture_message=0x7f050001;
         public static final int store_picture_title=0x7f050000;
-        public static final int title_activity_main=0x7f050035;
-        public static final int title_alerts=0x7f050036;
-        public static final int title_settings=0x7f050038;
-        public static final int title_stats=0x7f050037;
+        public static final int title_activity_main=0x7f050036;
+        public static final int title_alerts=0x7f050037;
+        public static final int title_settings=0x7f050039;
+        public static final int title_stats=0x7f050038;
         /**  Text on a placeholder buy button when Google Play services is not
          available or up-to-date 
          */
         public static final int wallet_buy_button_place_holder=0x7f050022;
-        public static final int wunderground=0x7f050032;
+        public static final int wunderground=0x7f050033;
     }
     public static final class strings {
         public static final int coxautomotive=0x7f0c0000;

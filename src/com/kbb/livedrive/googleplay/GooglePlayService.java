@@ -134,49 +134,17 @@ public class GooglePlayService extends Service implements
 		    // Alternative implementation (or warn user that they must
 		    // sign in to use this feature)
 		}
-
 	}
 	
-	public void getDriverLeaderboard(){
+	public void getDriverLeaderboard(ResultCallback<Leaderboards.LoadScoresResult> callback){
 		
-		final ResultCallback<Leaderboards.LoadScoresResult> scoresCallback = new ResultCallback<Leaderboards.LoadScoresResult>(){
-			@Override
-			public void onResult(LoadScoresResult arg0) {
-				Leaderboard lb = arg0.getLeaderboard();
 				
-				LeaderboardScoreBuffer scoreBuffer = arg0.getScores();
-				
-				ArrayList<LeaderboardScore> scores = new ArrayList<LeaderboardScore>(scoreBuffer.getCount());
-				
-				for(int i = 0; i < scoreBuffer.getCount(); i++){
-					scores.add(scoreBuffer.get(i));
-				}
-				//TODO return LoadScoresResult results back to the UI
-			}
-		};
-		
-		final ResultCallback<LoadPlayerScoreResult> playerCallback = new ResultCallback<Leaderboards.LoadPlayerScoreResult>() {
-			
-			@Override
-			public void onResult(LoadPlayerScoreResult arg0) {
-				
-				LeaderboardScore score = arg0.getScore();
-				String scoreDisplay = score.getDisplayScore();
-				
-				//TODO return LeaderboardScore back to the UI
-			}
-		};
-		
 		try{
 			if(mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
 				
 				PendingResult<LoadScoresResult> res = Games.Leaderboards.loadTopScores(mGoogleApiClient, getString(R.string.leaderboard_good_driver), LeaderboardVariant.TIME_SPAN_DAILY, LeaderboardVariant.COLLECTION_PUBLIC, 10);
-			
-				res.setResultCallback(scoresCallback);
+				res.setResultCallback(callback);
 				
-				PendingResult<LoadPlayerScoreResult> pres =Games.Leaderboards.loadCurrentPlayerLeaderboardScore(mGoogleApiClient, getString(R.string.leaderboard_good_driver), LeaderboardVariant.TIME_SPAN_DAILY, LeaderboardVariant.COLLECTION_PUBLIC);
-				
-				pres.setResultCallback(playerCallback);
 			}
 		}
 		catch(Exception e){
@@ -184,6 +152,69 @@ public class GooglePlayService extends Service implements
 		}
 		
 	}
+	
+	public void getDriverScore(ResultCallback<LoadPlayerScoreResult> callback) {
+		try {
+
+			PendingResult<LoadPlayerScoreResult> pres = Games.Leaderboards
+					.loadCurrentPlayerLeaderboardScore(mGoogleApiClient,
+							getString(R.string.leaderboard_good_driver),
+							LeaderboardVariant.TIME_SPAN_DAILY,
+							LeaderboardVariant.COLLECTION_PUBLIC);
+
+			pres.setResultCallback(callback);
+
+		} catch (Exception e) {
+			Log.e("GooglePlayService", e.getMessage());
+		}
+
+	}
+	
+	public void submitMPGScore(long mpgScore){
+		 
+		if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+		    // Call a Play Games services API method, for example:
+		    Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_mpg), mpgScore);
+		} else {
+		    // Alternative implementation (or warn user that they must
+		    // sign in to use this feature)
+		}
+	}		
+	
+	
+	public void getMPGLeaderboard(ResultCallback<Leaderboards.LoadScoresResult> callback){
+		
+		
+		try{
+			if(mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+				
+				PendingResult<LoadScoresResult> res = Games.Leaderboards.loadTopScores(mGoogleApiClient, getString(R.string.leaderboard_good_driver), LeaderboardVariant.TIME_SPAN_DAILY, LeaderboardVariant.COLLECTION_PUBLIC, 10);
+				res.setResultCallback(callback);
+				
+			}
+		}
+		catch(Exception e){
+			Log.e("GooglePlayService", e.getMessage());
+		}
+		
+	}
+	
+	public void getMPGScore(ResultCallback<LoadPlayerScoreResult> callback) {
+		try {
+
+			PendingResult<LoadPlayerScoreResult> pres = Games.Leaderboards
+					.loadCurrentPlayerLeaderboardScore(mGoogleApiClient,
+							getString(R.string.leaderboard_good_driver),
+							LeaderboardVariant.TIME_SPAN_DAILY,
+							LeaderboardVariant.COLLECTION_PUBLIC);
+
+			pres.setResultCallback(callback);
+
+		} catch (Exception e) {
+			Log.e("GooglePlayService", e.getMessage());
+		}
+
+	}	
 
 	public void connect() {
 
@@ -201,9 +232,6 @@ public class GooglePlayService extends Service implements
 	public IBinder onBind(Intent arg0) {
 		// TODO Auto-generated method stub
 		return null;
-	}
-
-	public void showGoodDriverLeaderboard() {
 	}
 
 }
