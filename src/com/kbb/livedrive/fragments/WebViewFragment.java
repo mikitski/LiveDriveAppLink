@@ -46,14 +46,21 @@ public class WebViewFragment extends BaseFragment {
 			
 			LeaderboardScore score = result.getScore();
 			if(score != null){
+				long rawScore = score.getRawScore();
 				String scoreDisplay = score.getDisplayScore();
+				String leaderboardPosition = score.getDisplayRank();
+				String iconUrl = score.getScoreHolderIconImageUrl();
+				String userName = score.getScoreHolderDisplayName();
+				
+				//TODO return Player's Driver score back to UI
+				
 			}
 			
-			
+						
 						
 		}
 		
-		//TODO return Player's Driver score back to UI
+
 	};
 	
 	final ResultCallback<Leaderboards.LoadScoresResult> scoresDriverLeaderboardCallback = new ResultCallback<Leaderboards.LoadScoresResult>(){
@@ -132,15 +139,18 @@ public class WebViewFragment extends BaseFragment {
 		@Override
 	    public void onPageFinished(WebView view, String url) {	
 			
-			GooglePlayService gp = GooglePlayService.getInstance();
+			if(url.contains("file:///android_asset/leaderboard.html")){
 			
-			gp.getDriverScore(scoresDriverScoreCallback);
-			
-			//gp.getDriverLeaderboard(scoresDriverLeaderboardCallback);
-			
-			//gp.getMPGScore(scoresMPGScoreCallback);
-			
-			//gp.getMPGLeaderboard(scoresMPGLeaderboardCallback);
+				GooglePlayService gp = GooglePlayService.getInstance();
+				
+				gp.getDriverScore(scoresDriverScoreCallback);
+				
+				//gp.getDriverLeaderboard(scoresDriverLeaderboardCallback);
+				
+				//gp.getMPGScore(scoresMPGScoreCallback);
+				
+				//gp.getMPGLeaderboard(scoresMPGLeaderboardCallback);
+			}
 			
 	    }
 	    

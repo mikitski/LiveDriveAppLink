@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.ford.syncV4.proxy.rpc.OnVehicleData;
+import com.kbb.livedrive.applink.AppLinkService;
 import com.kbb.livedrive.location.LocationServices;
 
 public class DriverScoreService extends Service {
@@ -58,7 +59,7 @@ public class DriverScoreService extends Service {
 		instance = this;
 		
         LocalBroadcastManager lbManager = LocalBroadcastManager.getInstance(this);
-        lbManager.registerReceiver(drivingStateReceiver, new IntentFilter("com.kbb.livedrive.AppLinkService.ACTION_VEHICLE_DRIVING_CHANGED"));
+        lbManager.registerReceiver(drivingStateReceiver, new IntentFilter(AppLinkService.ACTION_VEHICLE_DRIVING_CHANGED));
 
 	}
 	

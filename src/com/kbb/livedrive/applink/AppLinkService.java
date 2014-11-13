@@ -62,7 +62,7 @@ import com.google.android.gms.games.leaderboard.*;
 public class AppLinkService extends Service implements IProxyListenerALM,
 		IVehicleDataReceiver {
 
-	private static final String ACTION_VEHICLE_DRIVING_CHANGED = "com.kbb.applink.AppLinkService.ACTION_VEHICLE_DRIVING_CHANGED";
+	public static final String ACTION_VEHICLE_DRIVING_CHANGED = "com.kbb.applink.AppLinkService.ACTION_VEHICLE_DRIVING_CHANGED";
 	
 	// Service shutdown timing constants
 	private static final int CONNECTION_TIMEOUT = 30000;
@@ -337,7 +337,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 				BaseTransportConfig transport = null;
 				
 				if (isEmulatorMode)
-					transport = new TCPTransportConfig(12345, "192.168.1.6", true);
+					transport = new TCPTransportConfig(12345, "172.16.18.4", true);
 				else
 					transport = new BTTransportConfig();
 				proxy = new SyncProxyALM(this, "Cox Automotive", false, Language.EN_US, Language.EN_US, "566020017", transport);
