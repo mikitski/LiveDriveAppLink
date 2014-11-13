@@ -14,7 +14,10 @@ public class DriverScoreService extends Service {
 	private static DriverScoreService instance = null;
 		
 	private static double currentDriverScore = 73.4;
+	private static double previousDriverScore = 73.4;
+	
 	private static double currentMPGScore = 77.5;
+	private static double previousMPGScore = 77.5;
 	
 	private static int SPEED_LIMIT = 50;
 	private static int AVG_MPG = 25;
