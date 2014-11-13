@@ -153,7 +153,7 @@ public class GooglePlayService extends Service implements
 		try{
 			if(mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
 				
-				PendingResult<LoadScoresResult> res = Games.Leaderboards.loadTopScores(mGoogleApiClient, getString(R.string.leaderboard_good_driver), LeaderboardVariant.TIME_SPAN_DAILY, LeaderboardVariant.COLLECTION_PUBLIC, 10);
+				PendingResult<LoadScoresResult> res = Games.Leaderboards.loadTopScores(mGoogleApiClient, getString(R.string.leaderboard_good_driver), LeaderboardVariant.TIME_SPAN_ALL_TIME, LeaderboardVariant.COLLECTION_PUBLIC, 10);
 				res.setResultCallback(callback);
 				
 			}
@@ -176,7 +176,7 @@ public class GooglePlayService extends Service implements
 				PendingResult<LoadPlayerScoreResult> pres = Games.Leaderboards
 						.loadCurrentPlayerLeaderboardScore(mGoogleApiClient,
 								getString(R.string.leaderboard_good_driver),
-								LeaderboardVariant.TIME_SPAN_DAILY,
+								LeaderboardVariant.TIME_SPAN_ALL_TIME,
 								LeaderboardVariant.COLLECTION_PUBLIC);
 	
 				pres.setResultCallback(callback);
@@ -207,7 +207,7 @@ public class GooglePlayService extends Service implements
 		try{
 			if(mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
 				
-				PendingResult<LoadScoresResult> res = Games.Leaderboards.loadTopScores(mGoogleApiClient, getString(R.string.leaderboard_good_driver), LeaderboardVariant.TIME_SPAN_DAILY, LeaderboardVariant.COLLECTION_PUBLIC, 10);
+				PendingResult<LoadScoresResult> res = Games.Leaderboards.loadTopScores(mGoogleApiClient, getString(R.string.leaderboard_good_driver), LeaderboardVariant.TIME_SPAN_ALL_TIME, LeaderboardVariant.COLLECTION_PUBLIC, 10);
 				res.setResultCallback(callback);
 				
 			}
@@ -224,7 +224,7 @@ public class GooglePlayService extends Service implements
 			PendingResult<LoadPlayerScoreResult> pres = Games.Leaderboards
 					.loadCurrentPlayerLeaderboardScore(mGoogleApiClient,
 							getString(R.string.leaderboard_good_driver),
-							LeaderboardVariant.TIME_SPAN_DAILY,
+							LeaderboardVariant.TIME_SPAN_ALL_TIME,
 							LeaderboardVariant.COLLECTION_PUBLIC);
 
 			pres.setResultCallback(callback);

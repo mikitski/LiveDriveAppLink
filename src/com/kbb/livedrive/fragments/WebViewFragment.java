@@ -45,7 +45,11 @@ public class WebViewFragment extends BaseFragment {
 		public void onResult(LoadPlayerScoreResult result) {
 			
 			LeaderboardScore score = result.getScore();
-			String scoreDisplay = score.getDisplayScore();
+			if(score != null){
+				String scoreDisplay = score.getDisplayScore();
+			}
+			
+			
 						
 		}
 		
@@ -132,11 +136,11 @@ public class WebViewFragment extends BaseFragment {
 			
 			gp.getDriverScore(scoresDriverScoreCallback);
 			
-			gp.getDriverLeaderboard(scoresDriverLeaderboardCallback);
+			//gp.getDriverLeaderboard(scoresDriverLeaderboardCallback);
 			
-			gp.getMPGScore(scoresMPGScoreCallback);
+			//gp.getMPGScore(scoresMPGScoreCallback);
 			
-			gp.getMPGLeaderboard(scoresMPGLeaderboardCallback);
+			//gp.getMPGLeaderboard(scoresMPGLeaderboardCallback);
 			
 	    }
 	    

@@ -14,7 +14,14 @@ public class VehicleDetails {
 	
 	public static VehicleDetails createDummy() {
 		// TODO Auto-generated method stub
-		return null;
+		
+		VehicleDetails dummy = new VehicleDetails();
+		
+		dummy.setCityMPG(27);
+		dummy.setHwyMPG(34);
+		
+		return dummy;
+		
 	}
 	
 
