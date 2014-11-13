@@ -136,7 +136,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 	private Location currentLocation = null; // Stores the current location
 
-	private boolean isEmulatorMode = true;
+	private boolean isEmulatorMode = false;
 	private boolean isSimulatedData = false;
 
 	private SoftButton showDriverScore = null;

@@ -53,6 +53,17 @@ public class LiveDriveApplication extends Application {
 	public void onLowMemory() {
 		super.onLowMemory();
 	}
+	
+    public void startServices() {
+
+        startSyncProxyService();
+        
+        startGooglPlayService();
+        
+        startDriverScoreService();
+        
+        startVehicleDetailsService();
+    }	
 	    
     public void startSyncProxyService() {
         // Get the local Bluetooth adapter
@@ -63,8 +74,8 @@ public class LiveDriveApplication extends Application {
 		//{
 			//if ((btAdapter.isEnabled() && btAdapter.getBondedDevices().isEmpty() == false)) 
 			//{
-	        	Intent startIntent = new Intent(this, AppLinkService.class);
-	        	startService(startIntent);
+	        	Intent syncProxyIntent = new Intent(this, AppLinkService.class);
+	        	startService(syncProxyIntent);
 			//}
 		//}
 	}
@@ -91,28 +102,20 @@ public class LiveDriveApplication extends Application {
 			serviceInstance.stopService();
 		}
 	}
-    
-    public void startServices() {
-
-        startSyncProxyService();
-        startGooglPlayService();
-        startDriverScoreService();
-        startVehicleDetailsService();
-    }
-    
+        
     private void startVehicleDetailsService() {
-    	Intent startIntent = new Intent(this, VehicleDetailsService.class);
-    	startService(startIntent);
+    	Intent vehicleDetailsIntent = new Intent(this, VehicleDetailsService.class);
+    	startService(vehicleDetailsIntent);
 	}
 
 	private void startDriverScoreService() {
-    	Intent startIntent = new Intent(this, DriverScoreService.class);
-    	startService(startIntent);		
+    	Intent driverScoreIntent = new Intent(this, DriverScoreService.class);
+    	startService(driverScoreIntent);		
 	}
 
-	private void startGooglPlayService() {
-    	Intent startIntent = new Intent(this, GooglePlayService.class);
-    	startService(startIntent);
+	public void startGooglPlayService() {
+    	Intent googlePlayIntent = new Intent(this, GooglePlayService.class);
+    	startService(googlePlayIntent);
 	}
 
 	public void stopServices() {

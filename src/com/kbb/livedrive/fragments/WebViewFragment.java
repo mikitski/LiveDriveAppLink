@@ -1,6 +1,7 @@
 package com.kbb.livedrive.fragments;
 
 
+
 import java.util.ArrayList;
 
 import com.google.android.gms.common.api.ResultCallback;
@@ -11,6 +12,7 @@ import com.google.android.gms.games.leaderboard.Leaderboards;
 import com.google.android.gms.games.leaderboard.Leaderboards.LoadPlayerScoreResult;
 import com.google.android.gms.games.leaderboard.Leaderboards.LoadScoresResult;
 import com.kbb.livedrive.R;
+import com.kbb.livedrive.app.LiveDriveApplication;
 import com.kbb.livedrive.artifact.Location;
 import com.kbb.livedrive.googleplay.GooglePlayService;
 //import com.kbb.livedrive.adapter.ForecastListAdapter;
@@ -21,7 +23,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebChromeClient;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -33,6 +37,7 @@ public class WebViewFragment extends BaseFragment {
 	
 	private String leaderboardType = ""; //getString(R.string.leaderboard_type_driver);
 	
+	private boolean viewLoadFinished = false;
 	
 	final ResultCallback<LoadPlayerScoreResult> scoresDriverScoreCallback = new ResultCallback<Leaderboards.LoadPlayerScoreResult>() {
 		
@@ -97,21 +102,15 @@ public class WebViewFragment extends BaseFragment {
 	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		
 		fragmentView = inflater.inflate(R.layout.fragment_web_view, null);
 	
 		leaderboardView = (WebView) fragmentView.findViewById(R.id.viewLeaderboard);
+		leaderboardView.getSettings().setJavaScriptEnabled(true);
+		leaderboardView.setWebViewClient(Client);
+		
 		leaderboardView.loadUrl("file:///android_asset/leaderboard.html");
-		
-		GooglePlayService gp = GooglePlayService.getInstance();
-		
-		gp.getDriverScore(scoresDriverScoreCallback);
-		
-		gp.getDriverLeaderboard(scoresDriverLeaderboardCallback);
-		
-		gp.getMPGScore(scoresMPGScoreCallback);
-		
-		gp.getMPGLeaderboard(scoresMPGLeaderboardCallback);
-		
+				
 		return fragmentView;
 	}
 
@@ -122,5 +121,28 @@ public class WebViewFragment extends BaseFragment {
 	public void setLeaderboardType(String type){
 		leaderboardType = type;
 	}
+	
+	final WebViewClient Client = new WebViewClient () {
+		
+
+		@Override
+	    public void onPageFinished(WebView view, String url) {	
+			
+			GooglePlayService gp = GooglePlayService.getInstance();
+			
+			gp.getDriverScore(scoresDriverScoreCallback);
+			
+			gp.getDriverLeaderboard(scoresDriverLeaderboardCallback);
+			
+			gp.getMPGScore(scoresMPGScoreCallback);
+			
+			gp.getMPGLeaderboard(scoresMPGLeaderboardCallback);
+			
+	    }
+	    
+	    
+	};
+	
+
 	
 }

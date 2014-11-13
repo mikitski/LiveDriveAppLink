@@ -62,14 +62,25 @@ public class GooglePlayService extends Service implements
         	.addApi(Games.API).addScope(Games.SCOPE_GAMES)
         // add other APIs and scopes here as needed
         	.build();
+        
+        Log.i("GooglePlayService", "started");
 
 		
 	};
 	
 	@Override
+	public int onStartCommand(Intent intent, int flags, int startId) {
+		
+		mGoogleApiClient.connect();
+		
+		return super.onStartCommand(intent, flags, startId);
+	}
+	
+	@Override
 	public void onStart(Intent intent, int startId) {
 	    mGoogleApiClient.connect();
 	};
+
 	
 	@Override
 	public boolean stopService(Intent name) {
@@ -156,17 +167,25 @@ public class GooglePlayService extends Service implements
 	public void getDriverScore(ResultCallback<LoadPlayerScoreResult> callback) {
 		try {
 
-			PendingResult<LoadPlayerScoreResult> pres = Games.Leaderboards
-					.loadCurrentPlayerLeaderboardScore(mGoogleApiClient,
-							getString(R.string.leaderboard_good_driver),
-							LeaderboardVariant.TIME_SPAN_DAILY,
-							LeaderboardVariant.COLLECTION_PUBLIC);
+			if(mGoogleApiClient != null){
+				
+				if(!mGoogleApiClient.isConnected()){
+					mGoogleApiClient.connect();
+				}
+				
+				PendingResult<LoadPlayerScoreResult> pres = Games.Leaderboards
+						.loadCurrentPlayerLeaderboardScore(mGoogleApiClient,
+								getString(R.string.leaderboard_good_driver),
+								LeaderboardVariant.TIME_SPAN_DAILY,
+								LeaderboardVariant.COLLECTION_PUBLIC);
+	
+				pres.setResultCallback(callback);
 
-			pres.setResultCallback(callback);
-
+			}
 		} catch (Exception e) {
 			Log.e("GooglePlayService", e.getMessage());
 		}
+		
 
 	}
 	
