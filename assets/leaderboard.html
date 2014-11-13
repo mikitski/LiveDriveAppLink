@@ -13,7 +13,9 @@
 
       d3.select("svg").remove();
 
-      d3.select("body").append("svg").attr("width", 600).attr("height", 600);
+      var svg = d3.select("body").append("svg").attr("width", 760).attr("height", 760);
+
+      svg.append("image").attr("xlink:href", "MeterRing.svg").attr("width", "720").attr("height", "720").attr("x", 24).attr("y", 24);
 
       var data = [outerScore, (100-outerScore)];
       var pie = d3.layout.pie();
@@ -26,15 +28,15 @@
 
 
       var arc = d3.svg.arc();
-      arc.innerRadius(function(d) { return 222; });
-      arc.outerRadius(function(d) { return 272; });
+      arc.innerRadius(function(d) { return 310; });
+      arc.outerRadius(function(d) { return 380; });
       console.log(arc(pieResults[0]));
 
       // blue = rgba(85, 138, 208, 0.78)
       d3.select("svg").selectAll("g.arc")
         .data(pieResults)
         .enter()
-        .append("g").attr("class", "arc").attr("transform", "translate(272, 272) rotate(210)")
+        .append("g").attr("class", "arc").attr("transform", "translate(380, 380) rotate(210)")
         .append("path")
         .attr("fill", function(d,i) 
                       {  
@@ -69,6 +71,8 @@
       d3.select("svg").append("text").attr("transform", "translate(176,392)").text("Driver Score").attr("style", "font-family:Arial; font-size: 34px");
 
     }
+
+    draw(75, 80);
     </script>
   </body>
 </html>
