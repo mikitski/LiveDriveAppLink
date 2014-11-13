@@ -8,6 +8,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.games.leaderboard.Leaderboard;
 import com.google.android.gms.games.leaderboard.LeaderboardScore;
 import com.google.android.gms.games.leaderboard.LeaderboardScoreBuffer;
+import com.google.android.gms.games.leaderboard.LeaderboardVariantRef;
 import com.google.android.gms.games.leaderboard.Leaderboards;
 import com.google.android.gms.games.leaderboard.Leaderboards.LoadPlayerScoreResult;
 import com.google.android.gms.games.leaderboard.Leaderboards.LoadScoresResult;
@@ -53,11 +54,12 @@ public class WebViewFragment extends BaseFragment {
 				String userName = score.getScoreHolderDisplayName();
 				
 				//TODO return Player's Driver score back to UI
-				
+				// this is for the Leaderboard page and other some elements on the score page
 			}
 			
-						
-						
+			// TODO, use real score
+			leaderboardView.loadUrl("javascript:draw(75,80);");
+									
 		}
 		
 

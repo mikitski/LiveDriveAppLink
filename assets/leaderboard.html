@@ -1,8 +1,74 @@
+<!doctype html>
 <html>
-<head>
+  <head>
+    <meta charset=utf-8>
+    <style>
+    </style>
+    <script src="d3.min.js"></script>
+  </head>
+  <body>
+    <script>
 
-</head>
-<body>
-Leaderboards
-</body>
-</hmtl>
+    function draw(innerScore, outerScore) {
+
+      d3.select("svg").remove();
+
+      d3.select("body").append("svg").attr("width", 600).attr("height", 600);
+
+      var data = [outerScore, (100-outerScore)];
+      var pie = d3.layout.pie();
+      pie.startAngle(0);
+      pie.endAngle(2*Math.PI - (Math.PI/3));
+      var pieResults = pie(data);
+
+    // 70, 4, 57
+    // view creative cloud for exact dimensions
+
+
+      var arc = d3.svg.arc();
+      arc.innerRadius(function(d) { return 222; });
+      arc.outerRadius(function(d) { return 272; });
+      console.log(arc(pieResults[0]));
+
+      // blue = rgba(85, 138, 208, 0.78)
+      d3.select("svg").selectAll("g.arc")
+        .data(pieResults)
+        .enter()
+        .append("g").attr("class", "arc").attr("transform", "translate(272, 272) rotate(210)")
+        .append("path")
+        .attr("fill", function(d,i) 
+                      {  
+                         if (i == 0) { return d3.rgb(85, 138, 208).toString() }
+                         return d3.rgb(199,199,199).toString();
+                      })
+        .attr("d", arc);
+
+
+      var data2 = [innerScore, (100-innerScore)];
+      var pieResults2 = pie(data2);
+      var arcInner = d3.svg.arc();
+      arcInner.innerRadius(function(d) { return 182; });
+      arcInner.outerRadius(function(d) { return 220; });
+
+      // green = rgba(0, 156, 26, 0.78)
+
+      d3.select("svg").selectAll("g.arcInner")
+        .data(pieResults2)
+        .enter()
+        .append("g").attr("class", "arcInner").attr("transform", "translate(272, 272) rotate(210)")
+        .append("path")
+        .attr("fill", function(d,i) 
+                      {  
+                         if (i == 0) { return d3.rgb(0, 156, 26).toString() }
+                         return d3.rgb(199,199,199).toString();
+                      })
+        .attr("d", arcInner);
+
+
+      d3.select("svg").append("text").attr("transform", "translate(155,342)").text(innerScore).attr("style", "font-family:Arial; font-size: 212px");
+      d3.select("svg").append("text").attr("transform", "translate(176,392)").text("Driver Score").attr("style", "font-family:Arial; font-size: 34px");
+
+    }
+    </script>
+  </body>
+</html>
