@@ -514,37 +514,17 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 	private void subscribeButtons() {
 		try {
-			proxy.subscribeButton(ButtonName.PRESET_1, autoIncCorrId++); // driving
-																			// mode
-																			// good
-			proxy.subscribeButton(ButtonName.PRESET_2, autoIncCorrId++); // driving
-																			// mode
-																			// speeding
-			proxy.subscribeButton(ButtonName.PRESET_3, autoIncCorrId++); // driving
-																			// mode
-																			// aggressive
-			proxy.subscribeButton(ButtonName.PRESET_4, autoIncCorrId++); // diving
-																			// mode
-																			// slow
-			proxy.subscribeButton(ButtonName.PRESET_5, autoIncCorrId++); // get
-																			// Vehicle
-																			// Data
+			proxy.subscribeButton(ButtonName.PRESET_1, autoIncCorrId++); // driving mode good
+			proxy.subscribeButton(ButtonName.PRESET_2, autoIncCorrId++); // driving mode speeding
+			proxy.subscribeButton(ButtonName.PRESET_3, autoIncCorrId++); // driving mode aggressive
+			proxy.subscribeButton(ButtonName.PRESET_4, autoIncCorrId++); // diving mode slow
+			proxy.subscribeButton(ButtonName.PRESET_5, autoIncCorrId++); // get Vehicle Data
 
-			proxy.subscribeButton(ButtonName.PRESET_6, autoIncCorrId++); // get
-																			// Vehicle
-																			// Data
-			proxy.subscribeButton(ButtonName.PRESET_7, autoIncCorrId++); // get
-																			// Vehicle
-																			// Data
-			proxy.subscribeButton(ButtonName.PRESET_8, autoIncCorrId++); // get
-																			// Vehicle
-																			// Data
-			proxy.subscribeButton(ButtonName.PRESET_9, autoIncCorrId++); // get
-																			// Vehicle
-																			// Data
-			proxy.subscribeButton(ButtonName.PRESET_0, autoIncCorrId++); // get
-																			// Vehicle
-																			// Data
+			proxy.subscribeButton(ButtonName.PRESET_6, autoIncCorrId++); // get Vehicle Data
+			proxy.subscribeButton(ButtonName.PRESET_7, autoIncCorrId++); // get Vehicle Data
+			proxy.subscribeButton(ButtonName.PRESET_8, autoIncCorrId++); // get Vehicle Data
+			proxy.subscribeButton(ButtonName.PRESET_9, autoIncCorrId++); // get Vehicle Data
+			proxy.subscribeButton(ButtonName.PRESET_0, autoIncCorrId++); // get Vehicle Data
 
 		} catch (SyncException e) {
 			e.printStackTrace();
