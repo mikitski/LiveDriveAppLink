@@ -62,6 +62,8 @@ import com.google.android.gms.games.leaderboard.*;
 public class AppLinkService extends Service implements IProxyListenerALM,
 		IVehicleDataReceiver {
 
+	public static final String ACTION_VEHICLE_DRIVING_CHANGED = "com.kbb.applink.AppLinkService.ACTION_VEHICLE_DRIVING_CHANGED";
+	
 	// Service shutdown timing constants
 	private static final int CONNECTION_TIMEOUT = 30000;
 	private static final int STOP_SERVICE_DELAY = 5000;
@@ -136,7 +138,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 	private Location currentLocation = null; // Stores the current location
 
-	private boolean isEmulatorMode = false;
+	private boolean isEmulatorMode = true;
 	private boolean isSimulatedData = false;
 
 	private SoftButton showDriverScore = null;
@@ -148,6 +150,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 	private LiveDriveApplication app;
 
 	private OnVehicleData prevVehicleData;
+	private int prevDataLogSeconds;
 
 	private boolean isMoving = false;
 
@@ -182,7 +185,6 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 		showLeaderboard = new SoftButton();
 		showLeaderboard.setSoftButtonID(SHOW_LEADERBOARD_ID);
-		showLeaderboard.setText("Leaderboard");
 		showLeaderboard.setType(SoftButtonType.SBT_TEXT);
 		showLeaderboard.setIsHighlighted(true);
 		showLeaderboard.setSystemAction(SystemAction.DEFAULT_ACTION);
@@ -333,13 +335,13 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 			try {
 
 				BaseTransportConfig transport = null;
+				
 				if (isEmulatorMode)
-					transport = new TCPTransportConfig(12345,
-							"192.168.101.104", true);
+					transport = new TCPTransportConfig(12345, "172.16.18.4", true);
 				else
 					transport = new BTTransportConfig();
-				proxy = new SyncProxyALM(this, "Cox Automotive", false,
-						Language.EN_US, Language.EN_US, "566020017", transport);
+				proxy = new SyncProxyALM(this, "Cox Automotive", false, Language.EN_US, Language.EN_US, "566020017", transport);
+				
 			} catch (SyncException e) {
 				e.printStackTrace();
 				if (proxy == null) {
@@ -418,8 +420,8 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 			return;
 		}
 
-		LockScreenManager.setHMILevelState(notification.getHmiLevel());
-		LockScreenManager.updateLockScreen();
+		//LockScreenManager.setHMILevelState(notification.getHmiLevel());
+		//LockScreenManager.updateLockScreen();
 
 		switch (notification.getHmiLevel()) {
 		case HMI_FULL:
@@ -534,16 +536,14 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 	};
 
-	private long calculateDriverScore() {
-		long currentScore = DriverScoreService.getInstance()
-				.calculateDriverScore();
+	private void calculateDriverScore() {
+		
+		DriverScoreService.getInstance().calculateScores();
 
-		String scoreDisplay = DriverScoreService.getInstance()
-				.getDriverScoreDisplay();
+		String scoreDisplay = DriverScoreService.getInstance().getDriverScoreDisplay();
 
 		setDriverScoreDisplay(scoreDisplay);
 
-		return currentScore;
 	}
 
 	private void subscribeButtons() {
@@ -1082,31 +1082,19 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		boolean stateChange = false;
 
 		if (prevVehicleData != null) {
-			if (vehicleData.getAirbagStatus() != prevVehicleData
-					.getAirbagStatus()
-					|| vehicleData.getBeltStatus() != prevVehicleData
-							.getBeltStatus()
-					|| vehicleData.getBodyInformation() != prevVehicleData
-							.getBodyInformation()
-					|| vehicleData.getClusterModeStatus() != prevVehicleData
-							.getClusterModeStatus()
-					|| vehicleData.getDeviceStatus() != prevVehicleData
-							.getDeviceStatus()
-					|| vehicleData.getDriverBraking() != prevVehicleData
-							.getDriverBraking()
-					|| vehicleData.getECallInfo() != prevVehicleData
-							.getECallInfo()
-					|| vehicleData.getEmergencyEvent() != prevVehicleData
-							.getEmergencyEvent()
-					|| vehicleData.getFuelLevel_State() != prevVehicleData
-							.getFuelLevel_State()
-					|| vehicleData.getHeadLampStatus() != prevVehicleData
-							.getHeadLampStatus()
+			if (vehicleData.getAirbagStatus() != prevVehicleData.getAirbagStatus()
+					|| vehicleData.getBeltStatus() != prevVehicleData.getBeltStatus()
+					//|| vehicleData.getBodyInformation() != prevVehicleData.getBodyInformation()
+					|| vehicleData.getClusterModeStatus() != prevVehicleData.getClusterModeStatus()
+					|| vehicleData.getDeviceStatus() != prevVehicleData.getDeviceStatus()
+					|| vehicleData.getDriverBraking() != prevVehicleData.getDriverBraking()
+					|| vehicleData.getECallInfo() != prevVehicleData.getECallInfo()
+					|| vehicleData.getEmergencyEvent() != prevVehicleData.getEmergencyEvent()
+					|| vehicleData.getFuelLevel_State() != prevVehicleData.getFuelLevel_State()
+					|| vehicleData.getHeadLampStatus() != prevVehicleData.getHeadLampStatus()
 					|| vehicleData.getPrndl() != prevVehicleData.getPrndl()
-					|| vehicleData.getTirePressure() != prevVehicleData
-							.getTirePressure()
-					|| vehicleData.getWiperStatus() != prevVehicleData
-							.getWiperStatus()) {
+					|| vehicleData.getTirePressure() != prevVehicleData.getTirePressure()
+					|| vehicleData.getWiperStatus() != prevVehicleData.getWiperStatus()) {
 
 				
 				onVehicleDataStateChange();
@@ -1131,8 +1119,11 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		prevVehicleData = vehicleData;
 
 		if (stateChange
-				|| (isMoving && (vehicleData.getGps().getUtcSeconds() - prevVehicleData.getGps().getUtcSeconds()) >= LOG_INTERVAL)) {
+				|| (isMoving && (Math.abs(vehicleData.getGps().getUtcSeconds() - prevDataLogSeconds) >= LOG_INTERVAL))) {
+			
+			prevDataLogSeconds = vehicleData.getGps().getUtcSeconds();
 			DriverScoreService.getInstance().addVehicleData(vehicleData);
+			
 		}
 
 	}
@@ -1144,12 +1135,23 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 	private void onStartDriving(OnVehicleData vehicleData) {
 
-		DriverScoreService.getInstance().startTrip();
+		Intent intent = new Intent(ACTION_VEHICLE_DRIVING_CHANGED);
+		intent.putExtra("drivingState", "DRIVING");
+		intent.putExtra("odometer", vehicleData.getOdometer());
+		sendBroadcast(intent);
+
+		//DriverScoreService.getInstance().startTrip(vehicleData);
 
 	}
 
 	private void onParked(OnVehicleData vehicleData) {
-		DriverScoreService.getInstance().endTrip();
+		
+		Intent intent = new Intent(ACTION_VEHICLE_DRIVING_CHANGED);
+		intent.putExtra("drivingState", "PARKED");
+		intent.putExtra("odometer", vehicleData.getOdometer());
+		sendBroadcast(intent);
+		
+		//DriverScoreService.getInstance().endTrip(vehicleData);
 
 	}
 

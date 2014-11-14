@@ -1,2 +1,9 @@
 bin
 gen
+gen/com/google/android/gms/R.java
+
+gen/com/google/example/games/basegameutils/R.java
+
+gen/com/google/android/gms/R.java
+
+gen/com/kbb/livedrive/R.java

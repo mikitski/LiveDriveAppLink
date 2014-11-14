@@ -8,6 +8,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.games.leaderboard.Leaderboard;
 import com.google.android.gms.games.leaderboard.LeaderboardScore;
 import com.google.android.gms.games.leaderboard.LeaderboardScoreBuffer;
+import com.google.android.gms.games.leaderboard.LeaderboardVariantRef;
 import com.google.android.gms.games.leaderboard.Leaderboards;
 import com.google.android.gms.games.leaderboard.Leaderboards.LoadPlayerScoreResult;
 import com.google.android.gms.games.leaderboard.Leaderboards.LoadScoresResult;
@@ -51,11 +52,23 @@ public class WebViewFragment extends BaseFragment {
 		public void onResult(LoadPlayerScoreResult result) {
 			
 			LeaderboardScore score = result.getScore();
-			String scoreDisplay = score.getDisplayScore();
-						
+			if(score != null){
+				long rawScore = score.getRawScore();
+				String scoreDisplay = score.getDisplayScore();
+				String leaderboardPosition = score.getDisplayRank();
+				String iconUrl = score.getScoreHolderIconImageUrl();
+				String userName = score.getScoreHolderDisplayName();
+				
+				//TODO return Player's Driver score back to UI
+				// this is for the Leaderboard page and other some elements on the score page
+			}
+			
+			// TODO, use real score
+			leaderboardView.loadUrl("javascript:draw(75,80);");
+									
 		}
 		
-		//TODO return Player's Driver score back to UI
+
 	};
 	
 	final ResultCallback<Leaderboards.LoadScoresResult> scoresDriverLeaderboardCallback = new ResultCallback<Leaderboards.LoadScoresResult>(){
@@ -159,23 +172,19 @@ public class WebViewFragment extends BaseFragment {
 		@Override
 	    public void onPageFinished(WebView view, String url) {	
 			
-			GooglePlayService gp = GooglePlayService.getInstance();
-	
-			/*
-			gp.getDriverScore(scoresDriverScoreCallback);
+			if(url.contains("file:///android_asset/leaderboard.html")){
 			
-			gp.getDriverLeaderboard(scoresDriverLeaderboardCallback);
-			
-			gp.getMPGScore(scoresMPGScoreCallback);
-			
-			gp.getMPGLeaderboard(scoresMPGLeaderboardCallback);
-			*/
-			
+				GooglePlayService gp = GooglePlayService.getInstance();
+				
+				gp.getDriverScore(scoresDriverScoreCallback);
+				
+				//gp.getDriverLeaderboard(scoresDriverLeaderboardCallback);
+				
+				//gp.getMPGScore(scoresMPGScoreCallback);
+				
+				//gp.getMPGLeaderboard(scoresMPGLeaderboardCallback);
+			}
 	    }
-	    
-	    
 	};
-	
-
 	
 }
