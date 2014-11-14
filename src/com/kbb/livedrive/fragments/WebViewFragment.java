@@ -62,10 +62,7 @@ public class WebViewFragment extends BaseFragment {
 			
 			// TODO, use real score
 			leaderboardView.loadUrl("javascript:draw(75,80);");
-									
 		}
-		
-
 	};
 	
 	final ResultCallback<Leaderboards.LoadScoresResult> scoresDriverLeaderboardCallback = new ResultCallback<Leaderboards.LoadScoresResult>(){
@@ -155,7 +152,6 @@ public class WebViewFragment extends BaseFragment {
 	
 	final WebViewClient Client = new WebViewClient () {
 		
-
 		@Override
 	    public void onPageFinished(WebView view, String url) {	
 			

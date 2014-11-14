@@ -87,7 +87,8 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 	private static Object blah = new Object();
 	private static int drivingMode = DRIVING_MODE_GOOD;
 
-	private static String currentScoreDisplay = "76";
+	private static String currentDriverScoreDisplay = "76";
+	private static String currentMPGScoreDisplay = "76";
 
 	private static final int CHANGE_UNITS = 4;
 
@@ -161,10 +162,10 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 		LocalBroadcastManager lbManager = LocalBroadcastManager
 				.getInstance(this);
-		lbManager.registerReceiver(changeLocationReceiver, new IntentFilter(
-				"com.kbb.livedrive.Location"));
-		lbManager.registerReceiver(forecastReceiver, new IntentFilter(
-				"com.kbb.livedrive.Forecast"));
+		lbManager.registerReceiver(changeLocationReceiver, new IntentFilter("com.kbb.livedrive.Location"));
+		lbManager.registerReceiver(forecastReceiver, new IntentFilter("com.kbb.livedrive.Forecast"));
+		
+		lbManager.registerReceiver(scoreChangedReceiver, new IntentFilter(DriverScoreService.ACTION_SCORE_CHANGED));
 
 		showDriverScore = new SoftButton();
 		showDriverScore.setSoftButtonID(SHOW_DRIVER_ID);
@@ -279,6 +280,18 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 		}
 	};
+	
+	//receiver to handle vehicle score changes
+	final BroadcastReceiver scoreChangedReceiver = new BroadcastReceiver(){
+		public void onReceive(android.content.Context context, Intent intent) {
+			
+			long driverScore = intent.getLongExtra("driverScore", 50);
+			long mpgScore = intent.getLongExtra("mpgScore", 50);
+			
+			//TODO call java script to update the score display on the screen
+		};
+	};
+
 
 	/**
 	 * Runnable that stops this service if there hasn't been a connection to
@@ -334,7 +347,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 				BaseTransportConfig transport = null;
 				
 				if (isEmulatorMode)
-					transport = new TCPTransportConfig(12345, "172.16.18.4", true);
+					transport = new TCPTransportConfig(12345, "192.168.5.233", true);
 				else
 					transport = new BTTransportConfig();
 				proxy = new SyncProxyALM(this, "Cox Automotive", false, Language.EN_US, Language.EN_US, "566020017", transport);
@@ -470,7 +483,6 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 			try {
 				proxy.sendRPCRequest(msg);
 			} catch (SyncException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 			break;
@@ -479,14 +491,14 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		}
 	}
 
-	private void setDriverScoreDisplay(String score) {
+	private void setDriverScoreDisplay(String driverScore, String mpgScore) {
 		try {
-			if (score == "Low" && currentScoreDisplay != "Low") {
+			if (driverScore == "Low" && currentDriverScoreDisplay != "Low") {
 				proxy.alert(
 						"Your recent driving pattern lead to loosing 5 sponts on your Driving Score leaderboeard",
 						true, autoIncCorrId++);
 			}
-			if (currentScoreDisplay == "Low" && score != "Low") {
+			if (currentDriverScoreDisplay == "Low" && driverScore != "Low") {
 				proxy.alert(
 						"Your driving is improving! You gained 15 spots on you Driving Score eaderboard",
 						true, autoIncCorrId++);
@@ -495,24 +507,8 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 			Log.e("SyncException", e.getMessage());
 		}
 
-		currentScoreDisplay = score;
-		updateDisplay("Driver Score", currentScoreDisplay);
-
-		try {
-			long numScore = Math.round(Double.parseDouble(score));
-			GooglePlayService.getInstance().submitDriverScore(numScore);
-		} catch (NumberFormatException ex) {
-		}
-
-	}
-
-	private void calculateDriverScore() {
-		
-		DriverScoreService.getInstance().calculateScores();
-
-		String scoreDisplay = DriverScoreService.getInstance().getDriverScoreDisplay();
-
-		setDriverScoreDisplay(scoreDisplay);
+		currentDriverScoreDisplay = driverScore;
+		updateDisplay("Driver Score. ", currentDriverScoreDisplay);
 
 	}
 
@@ -949,7 +945,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		
 		String scoreDisplay = DriverScoreService.getInstance().getDriverScoreDisplay();
 
-		setDriverScoreDisplay(scoreDisplay);
+		setDriverScoreDisplay(scoreDisplay, currentMPGScoreDisplay);
 	}
 
 	@Override
@@ -977,54 +973,54 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 	@Override
 	public void onListFilesResponse(ListFilesResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onError(String info, Exception e) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onGenericResponse(GenericResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onAddCommandResponse(AddCommandResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onAddSubMenuResponse(AddSubMenuResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onCreateInteractionChoiceSetResponse(
 			CreateInteractionChoiceSetResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onAlertResponse(AlertResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onDeleteCommandResponse(DeleteCommandResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onDeleteInteractionChoiceSetResponse(
 			DeleteInteractionChoiceSetResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onDeleteSubMenuResponse(DeleteSubMenuResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
@@ -1037,7 +1033,6 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 			proxy.sendRPCRequest(msg);
 		} catch (SyncException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -1099,7 +1094,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 	}
 
 	private void onVehicleDataStateChange() {
-		// TODO Auto-generated method stub
+		
 
 	}
 
@@ -1128,53 +1123,53 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 	@Override
 	public void onResetGlobalPropertiesResponse(
 			ResetGlobalPropertiesResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onSetGlobalPropertiesResponse(
 			SetGlobalPropertiesResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onSetMediaClockTimerResponse(SetMediaClockTimerResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onShowResponse(ShowResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onSpeakResponse(SpeakResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onOnButtonEvent(OnButtonEvent notification) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onSubscribeButtonResponse(SubscribeButtonResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onUnsubscribeButtonResponse(UnsubscribeButtonResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onOnPermissionsChange(OnPermissionsChange notification) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onOnTBTClientState(OnTBTClientState notification) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
@@ -1192,7 +1187,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 	@Override
 	public void onUnsubscribeVehicleDataResponse(
 			UnsubscribeVehicleDataResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
@@ -1205,82 +1200,82 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 	@Override
 	public void onReadDIDResponse(ReadDIDResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onGetDTCsResponse(GetDTCsResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onPerformAudioPassThruResponse(
 			PerformAudioPassThruResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onEndAudioPassThruResponse(EndAudioPassThruResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onOnAudioPassThru(OnAudioPassThru notification) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onDeleteFileResponse(DeleteFileResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onSetAppIconResponse(SetAppIconResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onScrollableMessageResponse(ScrollableMessageResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onChangeRegistrationResponse(ChangeRegistrationResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onSetDisplayLayoutResponse(SetDisplayLayoutResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onOnLanguageChange(OnLanguageChange notification) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onSliderResponse(SliderResponse response) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onEncodedSyncPDataResponse(EncodedSyncPDataResponse arg0) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onOnEncodedSyncPData(OnEncodedSyncPData arg0) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onOnSyncPData(OnSyncPData arg0) {
-		// TODO Auto-generated method stub
+		
 	}
 
 	@Override
 	public void onSyncPDataResponse(SyncPDataResponse arg0) {
-		// TODO Auto-generated method stub
+		
 	}
 }

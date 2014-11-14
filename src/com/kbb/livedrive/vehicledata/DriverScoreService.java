@@ -18,13 +18,14 @@ import android.util.Log;
 
 import com.ford.syncV4.proxy.rpc.OnVehicleData;
 import com.kbb.livedrive.applink.AppLinkService;
+import com.kbb.livedrive.googleplay.GooglePlayService;
 import com.kbb.livedrive.location.LocationServices;
 
 public class DriverScoreService extends Service {
 	
 	private static DriverScoreService instance = null;
 	
-	private static String ACTION_SCORE_CHANGED = "com.kbb.livedrive.DriverScoreService.ACTION_SCORE_CHANGED";
+	public static String ACTION_SCORE_CHANGED = "com.kbb.livedrive.DriverScoreService.ACTION_SCORE_CHANGED";
 		
 	private static double currentDriverScore = 73.4;
 	private static double previousDriverScore = 73.4;
@@ -92,7 +93,6 @@ public class DriverScoreService extends Service {
 		return currentMPGScore;
 	}
 	
-	
 	private synchronized void setMPGScore(double score){
 		currentMPGScore = score;
 	}
@@ -119,7 +119,7 @@ public class DriverScoreService extends Service {
 		double mpgScore = getRawMPGScore();
 		
 		try{
-			driverScore = calculateDriverScoreExternal(data);
+			//driverScore = calculateDriverScoreExternalV2(data);
 			mpgScore = calculateMPGScoreExternal(data);
 		}
 		catch(Exception e){
@@ -201,43 +201,54 @@ public class DriverScoreService extends Service {
 
 	private double calculateMPGScoreExternal(List<OnVehicleData> data) {
 		
-		LocationServices loc = LocationServices.getInstance();
-		VehicleDetails currentVehicle = new VehicleDetailsService().getCurrent();
+		double mpgScore = getRawMPGScore();
 		
-		OnVehicleData lastData = data.get(data.size() - 1);
+		try{
 		
-		double currLat= lastData.getGps().getLatitudeDegrees();
-		double currLong= lastData.getGps().getLongitudeDegrees();
-		
-		int sliceDistance = lastData.getOdometer() - data.get(0).getOdometer();
-		
-		long tripMiles = tripStartOdometer + sliceDistance;
-		
-		String roadClass = loc.getCurrentRoadClass(currLat, currLong);
-		
-		double currMpgScore = 0;
-		
-		for(int i = 0; i < data.size(); i++){
-			currMpgScore += data.get(i).getInstantFuelConsumption();
+			LocationServices loc = LocationServices.getInstance();
+			VehicleDetails currentVehicle = new VehicleDetailsService().getCurrent();
+			
+			OnVehicleData lastData = data.get(data.size() - 1);
+			
+			double currLat= lastData.getGps().getLatitudeDegrees();
+			double currLong= lastData.getGps().getLongitudeDegrees();
+			
+			int sliceStartOdometer = data.get(0).getOdometer();
+			int sliceEndOdometer = lastData.getOdometer();
+			
+			int sliceDistance = sliceEndOdometer - sliceStartOdometer;
+			
+			long tripOdometer = sliceEndOdometer - tripStartOdometer;
+			
+			String roadClass = loc.getCurrentRoadClass(currLat, currLong);
+			
+			double currMpgScore = 0;
+			
+			for(int i = 0; i < data.size(); i++){
+				currMpgScore += data.get(i).getInstantFuelConsumption();
+			}
+			
+			currMpgScore = currMpgScore / data.size();
+			
+				
+			if(roadClass == "Highway"){			
+				tripHwyMiles += sliceDistance;
+				
+				currMpgScore += currMpgScore / currentVehicle.getHwyMPG(); // * sliceDistance/tripMiles;
+			}
+			else{
+				
+				tripCityMiles += sliceDistance;
+				
+				currMpgScore += currMpgScore / currentVehicle.getCityMPG(); // * sliceDistance/tripMiles;
+				
+			}
+			
+			mpgScore = (currMpgScore * sliceDistance + mpgScore * sliceStartOdometer) / tripOdometer;
+		} 
+		catch(Exception ex){
+			Log.e("calculateMPGScoreExternal", ex.getMessage());
 		}
-		
-		currMpgScore = currMpgScore / data.size();
-		
-			
-		if(roadClass == "Highway"){			
-			tripHwyMiles += sliceDistance;
-			
-			currMpgScore += currMpgScore / currentVehicle.getHwyMPG(); // * sliceDistance/tripMiles;
-		}
-		else{
-			
-			tripCityMiles += sliceDistance;
-			
-			currMpgScore += currMpgScore / currentVehicle.getCityMPG(); // * sliceDistance/tripMiles;
-			
-		}
-		
-		double mpgScore = getRawMPGScore() + 100 * currMpgScore;
 		
 		return mpgScore;		
 	}
@@ -273,7 +284,6 @@ public class DriverScoreService extends Service {
 
 	@Override
 	public IBinder onBind(Intent arg0) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 	
@@ -313,8 +323,17 @@ public class DriverScoreService extends Service {
 		if(calculatorHandle != null){
 			
 			calculatorHandle.cancel(true);
-			
 		}
+		
+		calculateScores();
+		
+		long mpgScore = getMPGScore();
+		long driverScore = getDriverScore();
+		
+		GooglePlayService gp = GooglePlayService.getInstance();
+		
+		gp.submitDriverScore(driverScore);
+		gp.submitMPGScore(mpgScore);
 		
 		isMoving = false;
 		

@@ -4,6 +4,7 @@ import com.kbb.livedrive.R;
 import com.kbb.livedrive.applink.AppLinkService;
 import com.kbb.livedrive.artifact.Location;
 import com.kbb.livedrive.googleplay.GooglePlayService;
+import com.kbb.livedrive.vehicledata.DriverScoreService;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -25,7 +26,7 @@ public class LockScreenActivity extends Activity {
 	
 	private WebView lockscreenView;
 	
-	final BroadcastReceiver ScoreChangedReceiver = new BroadcastReceiver(){
+	final BroadcastReceiver scoreChangedReceiver = new BroadcastReceiver(){
 		public void onReceive(android.content.Context context, Intent intent) {
 			
 			long driverScore = intent.getLongExtra("driverScore", 50);
@@ -48,7 +49,7 @@ public class LockScreenActivity extends Activity {
 		LockScreenActivity.instance = this;
 
 		LocalBroadcastManager lbManager = LocalBroadcastManager.getInstance(this);
-        lbManager.registerReceiver(ScoreChangedReceiver, new IntentFilter(AppLinkService.ACTION_VEHICLE_DRIVING_CHANGED));
+        lbManager.registerReceiver(scoreChangedReceiver, new IntentFilter(DriverScoreService.ACTION_SCORE_CHANGED));
 
 		
     }

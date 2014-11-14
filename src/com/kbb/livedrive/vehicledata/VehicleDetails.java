@@ -13,7 +13,6 @@ public class VehicleDetails {
 	
 	
 	public static VehicleDetails createDummy() {
-		// TODO Auto-generated method stub
 		
 		VehicleDetails dummy = new VehicleDetails();
 		

@@ -97,7 +97,7 @@ public class GooglePlayService extends Service implements
 
 	@Override
 	public void onConnectionFailed(ConnectionResult connectionResult) {
-		// TODO Auto-generated method stub
+		
 		
 	    if (mResolvingConnectionFailure) {
 	        // already resolving
@@ -126,13 +126,13 @@ public class GooglePlayService extends Service implements
 
 	@Override
 	public void onConnected(Bundle arg0) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 
 	@Override
 	public void onConnectionSuspended(int arg0) {
-		// TODO Auto-generated method stub
+		
 		
 	}
 	
@@ -146,7 +146,7 @@ public class GooglePlayService extends Service implements
 		    // sign in to use this feature)
 		}
 	}
-	
+		
 	public void getDriverLeaderboard(ResultCallback<Leaderboards.LoadScoresResult> callback){
 		
 				
@@ -199,7 +199,7 @@ public class GooglePlayService extends Service implements
 		    // sign in to use this feature)
 		}
 	}		
-	
+
 	
 	public void getMPGLeaderboard(ResultCallback<Leaderboards.LoadScoresResult> callback){
 		
@@ -249,7 +249,7 @@ public class GooglePlayService extends Service implements
 
 	@Override
 	public IBinder onBind(Intent arg0) {
-		// TODO Auto-generated method stub
+		
 		return null;
 	}
 

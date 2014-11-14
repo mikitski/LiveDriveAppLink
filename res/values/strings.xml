@@ -27,9 +27,10 @@
     <!-- Nav Drawer Menu Items -->
     <string-array name="nav_drawer_items">
         <item >Home</item>
-        <item >Scores</item>
+        <item >Vehicle</item>
         <item >Driver Leadeboard</item>
         <item >MPG Leadeboard</item>
+        <item >Reset</item>
         <item >About</item>
     </string-array>    
 

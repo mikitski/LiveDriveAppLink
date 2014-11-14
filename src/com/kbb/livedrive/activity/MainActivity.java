@@ -96,22 +96,25 @@ public class MainActivity extends ActivityBase implements
     	String item = drawerAdapter.getItem(position);
     	Fragment fragment = null;
     	if("Home".equals(item)){
-    		// acrivate VehicleInfo fragment
+    		fragment = new WebViewFragment();
+
+    	}
+    	else if ("Vehicle".equals(item)) {
     		fragment = new VehicleSumaryFragment();
     	}
-    	else if("Driver Leadeboard".equals(item) || "Scores".equals(item)){
+    	else if("Driver Leadeboard".equals(item)){
     		
-//    		GooglePlayService svc = GooglePlayService.getInstance();
-//    		startActivityForResult(Games.Leaderboards.getLeaderboardIntent(svc.mGoogleApiClient,
-//    		        svc.GOOD_DRIVER_LEADERBOARD), 1977);    
+    		GooglePlayService svc = GooglePlayService.getInstance();
+    		startActivityForResult(Games.Leaderboards.getLeaderboardIntent(svc.mGoogleApiClient,getString(R.string.leaderboard_good_driver)), 1977);    
 
-    		//acrivate Drive Leaderboards fragment
-    		fragment = new WebViewFragment();
-//    		((WebViewFragment)fragment).setLeaderboardType(getString(R.string.leaderboard_type_driver));
     	}
     	else if ("MPG Leadeboard".equals(item)) {
-    		fragment = new WebViewFragment();
-    		((WebViewFragment)fragment).setLeaderboardType(getString(R.string.leaderboard_type_mpg));
+    		GooglePlayService svc = GooglePlayService.getInstance();
+    		startActivityForResult(Games.Leaderboards.getLeaderboardIntent(svc.mGoogleApiClient,getString(R.string.leaderboard_mpg)), 1978);    
+    	
+    	}
+    	else if ("Reset".equals(item)){
+    		AppLinkService.getInstance().reset();
     	}
     	else if ("About".equals(item)) {
     		LiveDriveApplication.getInstance().showAppVersion(this);
