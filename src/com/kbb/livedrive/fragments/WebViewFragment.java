@@ -21,12 +21,21 @@ import com.kbb.livedrive.googleplay.GooglePlayService;
 //import com.kbb.livedrive.weather.DayForecast;
 //import com.kbb.livedrive.weather.WeatherDataManager;
 
+import android.content.Context;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
+import android.view.Display;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -36,12 +45,15 @@ import android.widget.TextView;
 
 public class WebViewFragment extends BaseFragment {
 	private View fragmentView;
-	
+
+	private TextView mTextView;
 	private WebView leaderboardView; 
 	
 	private String leaderboardType = ""; //getString(R.string.leaderboard_type_driver);
 	
 	private boolean viewLoadFinished = false;
+	
+	private final double PIC_WIDTH = 1920;
 	
 	final ResultCallback<LoadPlayerScoreResult> scoresDriverScoreCallback = new ResultCallback<Leaderboards.LoadPlayerScoreResult>() {
 		
@@ -61,7 +73,7 @@ public class WebViewFragment extends BaseFragment {
 			}
 			
 			// TODO, use real score
-			leaderboardView.loadUrl("javascript:draw(75,80);");
+			leaderboardView.loadUrl("javascript:drawDriverScore(75,80);");
 		}
 	};
 	
@@ -106,6 +118,7 @@ public class WebViewFragment extends BaseFragment {
 			String scoreDisplay = score.getDisplayScore();
 			
 			//TODO return Player's MPG score back to UI
+			leaderboardView.loadUrl("javascript:drawMpgScore(65,80);");
 						
 		}
 	};
@@ -133,13 +146,47 @@ public class WebViewFragment extends BaseFragment {
 		
 		fragmentView = inflater.inflate(R.layout.fragment_web_view, null);
 	
-		leaderboardView = (WebView) fragmentView.findViewById(R.id.viewLeaderboard);
+        mTextView = (TextView) fragmentView.findViewById(R.id.textview);
+        mTextView.setText(getTextViewLabel());
+        
+		leaderboardView = (WebView) fragmentView.findViewById(R.id.scoreswebview);
 		leaderboardView.getSettings().setJavaScriptEnabled(true);
 		leaderboardView.setWebViewClient(Client);
 		
+		leaderboardView.setPadding(0, 0, 0, 0);
+		leaderboardView.setInitialScale(getScale());
+
 		leaderboardView.loadUrl("file:///android_asset/leaderboard.html");
 						
 		return fragmentView;
+	}
+	
+	private int getScale(){
+	    Double val = new Double(PIC_WIDTH)/new Double(PIC_WIDTH);
+	    val = val * 100d;
+	    return val.intValue();
+	}
+
+	private CharSequence getTextViewLabel() {
+		//android:text="LadiesMan217|2014 Ford Flex Limited"
+        String driverName = "LadiesMan217";
+        String vehicleName = "2014 Ford Flex Limited";
+        		
+        SpannableString span1 = new SpannableString(driverName);
+        SpannableString span2 = new SpannableString(vehicleName);
+
+        span1.setSpan(
+        		new RelativeSizeSpan(1.0f),  0, driverName.length(), 0);
+        span1.setSpan(
+        		new ForegroundColorSpan(Color.parseColor("#1155A5")), 
+        		0, driverName.length(), 0);
+
+        span2.setSpan(
+        		new RelativeSizeSpan(0.75f),  0, vehicleName.length(), 0);
+        span2.setSpan(new ForegroundColorSpan(Color.BLACK), 
+        		0, vehicleName.length(), 0);	
+        
+        return TextUtils.concat(span1, "\n", span2);
 	}
 
 	public String getLeaderboardType (){
@@ -163,16 +210,11 @@ public class WebViewFragment extends BaseFragment {
 				
 				//gp.getDriverLeaderboard(scoresDriverLeaderboardCallback);
 				
-				//gp.getMPGScore(scoresMPGScoreCallback);
+				gp.getMPGScore(scoresMPGScoreCallback);
 				
 				//gp.getMPGLeaderboard(scoresMPGLeaderboardCallback);
 			}
-			
 	    }
-	    
-	    
 	};
-	
-
 	
 }

@@ -4,11 +4,12 @@ import com.kbb.livedrive.R;
 import com.kbb.livedrive.app.LiveDriveApplication;
 import com.kbb.livedrive.applink.AppLinkService;
 import com.kbb.livedrive.fragments.WebViewFragment;
-import com.kbb.livedrive.fragments.VehicleSumaryFragment;
+import com.kbb.livedrive.fragments.VehicleSummaryFragment;
 import com.kbb.livedrive.googleplay.GooglePlayService;
 
 import android.app.ActionBar;
 import android.app.ActionBar.Tab;
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentTransaction;
 import android.content.BroadcastReceiver;
@@ -16,6 +17,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
@@ -28,6 +30,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.android.gms.*;
 import com.google.android.gms.common.ConnectionResult;
@@ -100,7 +103,8 @@ public class MainActivity extends ActivityBase implements
 
     	}
     	else if ("Vehicle".equals(item)) {
-    		fragment = new VehicleSumaryFragment();
+    		// acrivate VehicleInfo fragment
+    		fragment = new VehicleSummaryFragment();
     	}
     	else if("Driver Leadeboard".equals(item)){
     		
@@ -146,8 +150,6 @@ public class MainActivity extends ActivityBase implements
 		Fragment fragment = new WebViewFragment();
 		getFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
 		
-		
-        
 		// Init Drawer list
         drawerTitle = getTitle();
 		drawerTitles = getResources().getStringArray(R.array.nav_drawer_items);
@@ -159,26 +161,32 @@ public class MainActivity extends ActivityBase implements
         drawerList.setAdapter(drawerAdapter);
         // Set the list's click listener
         drawerList.setOnItemClickListener(new DrawerItemClickListener());
-
-        
         
         LocalBroadcastManager lbManager = LocalBroadcastManager.getInstance(this);
         lbManager.registerReceiver(changeLocationReceiver, new IntentFilter("com.kbb.livedrive.Location"));
         lbManager.registerReceiver(forecastReceiver, new IntentFilter("com.kbb.livedrive.Forecast"));
 		
         
-
 		// Create tabs
 		ActionBar bar = getActionBar();
 		bar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-		bar.addTab(bar.newTab().setText(R.string.title_stats).setTabListener(this));
-		bar.addTab(bar.newTab().setText(R.string.title_settings).setTabListener(this));
-		bar.setSelectedNavigationItem(0);
+		bar.addTab(bar.newTab()
+				.setText(R.string.title_scores)
+				.setTabListener(new TabListener<WebViewFragment>(
+						this, getText(R.string.title_scores).toString(), WebViewFragment.class)));
+
+		bar.addTab(bar.newTab()
+				.setText(R.string.title_vehicle)
+				.setTabListener(new TabListener<VehicleSummaryFragment>(
+						this, getText(R.string.title_vehicle).toString(), VehicleSummaryFragment.class)));
+
+		if (savedInstanceState != null) {
+			bar.setSelectedNavigationItem(savedInstanceState.getInt("tab", 0));
+		}
 		
         // enable ActionBar app icon to behave as action to toggle nav drawer
         getActionBar().setDisplayHomeAsUpEnabled(true);
         getActionBar().setHomeButtonEnabled(true);
-
     }
 
     @Override
@@ -338,6 +346,51 @@ public class MainActivity extends ActivityBase implements
 			gp.disconnect();
 	}
 	
-	
+    public static class TabListener<T extends Fragment> implements ActionBar.TabListener {
+        private final Activity mActivity;
+        private final String mTag;
+        private final Class<T> mClass;
+        private final Bundle mArgs;
+        private Fragment mFragment;
 
+        public TabListener(Activity activity, String tag, Class<T> clz) {
+            this(activity, tag, clz, null);
+        }
+
+        public TabListener(Activity activity, String tag, Class<T> clz, Bundle args) {
+            mActivity = activity;
+            mTag = tag;
+            mClass = clz;
+            mArgs = args;
+
+            // Check to see if we already have a fragment for this tab, probably
+            // from a previously saved state.  If so, deactivate it, because our
+            // initial state is that a tab isn't shown.
+            mFragment = mActivity.getFragmentManager().findFragmentByTag(mTag);
+            if (mFragment != null && !mFragment.isDetached()) {
+                FragmentTransaction ft = mActivity.getFragmentManager().beginTransaction();
+                ft.hide(mFragment);
+                ft.commit();
+            }
+        }
+
+        public void onTabSelected(Tab tab, FragmentTransaction ft) {
+            if (mFragment == null) {
+                mFragment = Fragment.instantiate(mActivity, mClass.getName(), mArgs);
+                ft.add(android.R.id.content, mFragment, mTag);
+            } else {
+                ft.show(mFragment);
+            }
+        }
+
+        public void onTabUnselected(Tab tab, FragmentTransaction ft) {
+            if (mFragment != null) {
+                ft.hide(mFragment);
+            }
+        }
+
+        public void onTabReselected(Tab tab, FragmentTransaction ft) {
+            //Toast.makeText(mActivity, "Reselected!", Toast.LENGTH_SHORT).show();
+        }
+    }	
 }
