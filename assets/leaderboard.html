@@ -48,7 +48,7 @@
     </div>       
     <script>
 
-function drawDriverScore(innerScore, outerScore) {     
+function drawDriverScore(innerScore, outerScore, rank) {     
   var driverScore = document.getElementById("driver_score");
   console.log(driverScore);
       
@@ -107,6 +107,12 @@ function drawDriverScore(innerScore, outerScore) {
   d3.select(driverScore).select("svg").append("text").attr("transform", "translate(260,420)").text(innerScore).attr("style", "font-family:Arial; font-size: 212px; font-weight: 400;");
   d3.select(driverScore).select("svg").append("text").attr("transform", "translate(272,464)").text("Driver Score").attr("style", "font-family:Arial; font-size: 34px");
       
+  svg.append("image")
+     .attr("xlink:href", "Driver_Marker 1.svg")
+     .attr("width", "220").attr("height", "280")
+     .attr("x", 293).attr("y", 513);
+
+  d3.select(driverScore).select("svg").append("text").attr("transform", "translate(442,715)").text(rank).attr("style", "font-family:Arial; font-size: 43px;");
 }
       
       
@@ -180,7 +186,7 @@ function drawDriverScore(innerScore, outerScore) {
       }      
 
 
-      drawDriverScore(55, 66);
+      drawDriverScore(55, 66, 10);
       drawMpgScore(60, 70);
     </script>
   </body>
