@@ -14,13 +14,16 @@ import com.google.android.gms.games.leaderboard.Leaderboards.LoadPlayerScoreResu
 import com.google.android.gms.games.leaderboard.Leaderboards.LoadScoresResult;
 import com.kbb.livedrive.R;
 import com.kbb.livedrive.app.LiveDriveApplication;
+import com.kbb.livedrive.applink.AppLinkService;
 import com.kbb.livedrive.artifact.Location;
 import com.kbb.livedrive.googleplay.GooglePlayService;
 //import com.kbb.livedrive.adapter.ForecastListAdapter;
 //import com.kbb.livedrive.weather.DayForecast;
 //import com.kbb.livedrive.weather.WeatherDataManager;
 
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,9 +78,24 @@ public class WebViewFragment extends BaseFragment {
 			ArrayList<LeaderboardScore> scores = new ArrayList<LeaderboardScore>(scoreBuffer.getCount());
 			
 			for(int i = 0; i < scoreBuffer.getCount(); i++){
-				scores.add(scoreBuffer.get(i));
+				
+				LeaderboardScore score = scoreBuffer.get(i);
+				if(score != null){
+					
+					long rawScore = score.getRawScore();
+					String scoreDisplay = score.getDisplayScore();
+					String leaderboardPosition = score.getDisplayRank();
+					String iconUrl = score.getScoreHolderIconImageUrl();
+					String userName = score.getScoreHolderDisplayName();
+					
+					scores.add(score);
+				}
+				
+				//TODO return Driver Leaderboard back to the UI
+				// this is for the leaderboard table
+				
 			}
-			//TODO return Driver Leaderboard back to the UI
+			
 		}
 	};
 
@@ -123,7 +141,7 @@ public class WebViewFragment extends BaseFragment {
 		leaderboardView.setWebViewClient(Client);
 		
 		leaderboardView.loadUrl("file:///android_asset/leaderboard.html");
-				
+						
 		return fragmentView;
 	}
 

@@ -2,6 +2,7 @@ package com.kbb.livedrive.activity;
 
 import com.kbb.livedrive.R;
 import com.kbb.livedrive.app.LiveDriveApplication;
+import com.kbb.livedrive.applink.AppLinkService;
 import com.kbb.livedrive.fragments.WebViewFragment;
 import com.kbb.livedrive.fragments.VehicleSumaryFragment;
 import com.kbb.livedrive.googleplay.GooglePlayService;
@@ -19,6 +20,7 @@ import android.os.Bundle;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -60,6 +62,7 @@ public class MainActivity extends ActivityBase implements
         public void onReceive(Context context, Intent intent) {
         }
 	};
+	
 		
 	/**
 	 * Receiver for changes in location from the app UI.
@@ -159,6 +162,7 @@ public class MainActivity extends ActivityBase implements
         LocalBroadcastManager lbManager = LocalBroadcastManager.getInstance(this);
         lbManager.registerReceiver(changeLocationReceiver, new IntentFilter("com.kbb.livedrive.Location"));
         lbManager.registerReceiver(forecastReceiver, new IntentFilter("com.kbb.livedrive.Forecast"));
+		
         
 
 		// Create tabs

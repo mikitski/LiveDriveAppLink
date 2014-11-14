@@ -61,9 +61,6 @@
         </service>        
 
         <service android:name="com.kbb.livedrive.vehicledata.DriverScoreService" >
-			<intent-filter>
-			    <action android:name="com.kbb.applink.AppLinkService.ACTION_VEHICLE_DRIVING_CHANGED"/>
-			</intent-filter>
         </service>        
         
         <service android:name="com.kbb.livedrive.vehicledata.VehicleDetailsService" >
