@@ -20,15 +20,18 @@ import com.kbb.livedrive.googleplay.GooglePlayService;
 //import com.kbb.livedrive.weather.DayForecast;
 //import com.kbb.livedrive.weather.WeatherDataManager;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -45,6 +48,8 @@ public class WebViewFragment extends BaseFragment {
 	private String leaderboardType = ""; //getString(R.string.leaderboard_type_driver);
 	
 	private boolean viewLoadFinished = false;
+	
+	private final double PIC_WIDTH = 1920;
 	
 	final ResultCallback<LoadPlayerScoreResult> scoresDriverScoreCallback = new ResultCallback<Leaderboards.LoadPlayerScoreResult>() {
 		
@@ -64,7 +69,7 @@ public class WebViewFragment extends BaseFragment {
 			}
 			
 			// TODO, use real score
-			leaderboardView.loadUrl("javascript:draw(75,80);");
+			leaderboardView.loadUrl("javascript:drawDriverScore(75,80);");
 									
 		}
 		
@@ -97,6 +102,7 @@ public class WebViewFragment extends BaseFragment {
 			String scoreDisplay = score.getDisplayScore();
 			
 			//TODO return Player's MPG score back to UI
+			leaderboardView.loadUrl("javascript:drawMpgScore(65,80);");
 						
 		}
 	};
@@ -131,9 +137,18 @@ public class WebViewFragment extends BaseFragment {
 		leaderboardView.getSettings().setJavaScriptEnabled(true);
 		leaderboardView.setWebViewClient(Client);
 		
+		leaderboardView.setPadding(0, 0, 0, 0);
+		leaderboardView.setInitialScale(getScale());
+
 		leaderboardView.loadUrl("file:///android_asset/leaderboard.html");
 				
 		return fragmentView;
+	}
+	
+	private int getScale(){
+	    Double val = new Double(PIC_WIDTH)/new Double(PIC_WIDTH);
+	    val = val * 100d;
+	    return val.intValue();
 	}
 
 	private CharSequence getTextViewLabel() {
@@ -180,7 +195,7 @@ public class WebViewFragment extends BaseFragment {
 				
 				//gp.getDriverLeaderboard(scoresDriverLeaderboardCallback);
 				
-				//gp.getMPGScore(scoresMPGScoreCallback);
+				gp.getMPGScore(scoresMPGScoreCallback);
 				
 				//gp.getMPGLeaderboard(scoresMPGLeaderboardCallback);
 			}
