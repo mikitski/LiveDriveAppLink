@@ -347,7 +347,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 				BaseTransportConfig transport = null;
 				
 				if (isEmulatorMode)
-					transport = new TCPTransportConfig(12345, "192.168.5.233", true);
+					transport = new TCPTransportConfig(12345, "172.16.18.4", true);
 				else
 					transport = new BTTransportConfig();
 				proxy = new SyncProxyALM(this, "Cox Automotive", false, Language.EN_US, Language.EN_US, "566020017", transport);

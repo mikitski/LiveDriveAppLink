@@ -82,7 +82,7 @@ public class WebViewFragment extends BaseFragment {
 			//return Player's Driver score back to UI
 			leaderboardView.loadUrl(String.format("javascript:drawDriverScore(%s,%s,%s);", previousScoreDisplay, scoreDisplay, leaderboardPosition));
 			
-			//TODO call javascript with player details for MPG leaderboard
+			//TODO call javascript with player details for Driver leaderboard
 			
 		}
 	};

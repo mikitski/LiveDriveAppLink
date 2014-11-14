@@ -26,7 +26,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     
     <application
-        android:name=".app.LiveDriveApplication"
+        android:name="com.kbb.livedrive.app.LiveDriveApplication"
         android:icon="@drawable/live_drive_logo"
         android:theme="@style/AppTheme"
         android:allowBackup="true" >
