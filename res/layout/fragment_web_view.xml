@@ -1,16 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="fill"
     android:orientation="vertical" >
 
-    <WebView
-        android:id="@+id/viewLeaderboard"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-         />
+            
+    <TextView
+        android:id="@+id/textview"
+        android:layout_width="fill_parent"
+        android:layout_height="66dp"
+        android:background="@drawable/blue_flex_bar"
+        android:padding="15dp"
+        android:textSize="16sp"
+        android:textStyle="bold" >
 
-</RelativeLayout>
+        </TextView>
+    
+	<WebView
+        android:id="@+id/scoreswebview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        /> 
+</LinearLayout>

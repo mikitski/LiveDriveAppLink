@@ -19,7 +19,12 @@ import com.kbb.livedrive.googleplay.GooglePlayService;
 //import com.kbb.livedrive.weather.DayForecast;
 //import com.kbb.livedrive.weather.WeatherDataManager;
 
+import android.graphics.Color;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.TextUtils;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,7 +37,8 @@ import android.widget.TextView;
 
 public class WebViewFragment extends BaseFragment {
 	private View fragmentView;
-	
+
+	private TextView mTextView;
 	private WebView leaderboardView; 
 	
 	private String leaderboardType = ""; //getString(R.string.leaderboard_type_driver);
@@ -105,13 +111,38 @@ public class WebViewFragment extends BaseFragment {
 		
 		fragmentView = inflater.inflate(R.layout.fragment_web_view, null);
 	
-		leaderboardView = (WebView) fragmentView.findViewById(R.id.viewLeaderboard);
+        mTextView = (TextView) fragmentView.findViewById(R.id.textview);
+        mTextView.setText(getTextViewLabel());
+        
+		leaderboardView = (WebView) fragmentView.findViewById(R.id.scoreswebview);
 		leaderboardView.getSettings().setJavaScriptEnabled(true);
 		leaderboardView.setWebViewClient(Client);
 		
 		leaderboardView.loadUrl("file:///android_asset/leaderboard.html");
 				
 		return fragmentView;
+	}
+
+	private CharSequence getTextViewLabel() {
+		//android:text="LadiesMan217|2014 Ford Flex Limited"
+        String driverName = "LadiesMan217";
+        String vehicleName = "2014 Ford Flex Limited";
+        		
+        SpannableString span1 = new SpannableString(driverName);
+        SpannableString span2 = new SpannableString(vehicleName);
+
+        span1.setSpan(
+        		new RelativeSizeSpan(1.0f),  0, driverName.length(), 0);
+        span1.setSpan(
+        		new ForegroundColorSpan(Color.parseColor("#1155A5")), 
+        		0, driverName.length(), 0);
+
+        span2.setSpan(
+        		new RelativeSizeSpan(0.75f),  0, vehicleName.length(), 0);
+        span2.setSpan(new ForegroundColorSpan(Color.BLACK), 
+        		0, vehicleName.length(), 0);	
+        
+        return TextUtils.concat(span1, "\n", span2);
 	}
 
 	public String getLeaderboardType (){
@@ -129,7 +160,8 @@ public class WebViewFragment extends BaseFragment {
 	    public void onPageFinished(WebView view, String url) {	
 			
 			GooglePlayService gp = GooglePlayService.getInstance();
-			
+	
+			/*
 			gp.getDriverScore(scoresDriverScoreCallback);
 			
 			gp.getDriverLeaderboard(scoresDriverLeaderboardCallback);
@@ -137,6 +169,7 @@ public class WebViewFragment extends BaseFragment {
 			gp.getMPGScore(scoresMPGScoreCallback);
 			
 			gp.getMPGLeaderboard(scoresMPGLeaderboardCallback);
+			*/
 			
 	    }
 	    

@@ -16,7 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class VehicleSumaryFragment extends BaseFragment {
+public class VehicleSummaryFragment extends BaseFragment {
 	private View fragmentView;
 	
 	@Override
