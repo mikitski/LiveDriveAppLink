@@ -27,16 +27,13 @@ public class DriverScoreService extends Service {
 	
 	public static String ACTION_SCORE_CHANGED = "com.kbb.livedrive.DriverScoreService.ACTION_SCORE_CHANGED";
 		
-	private static double currentDriverScore = 73.4;
-	private static double previousDriverScore = 73.4;
+	private static double currentDriverScore = 50;
+	private static double previousDriverScore = 50;
 	
-	private static double currentMPGScore = 77.5;
-	private static double previousMPGScore = 77.5;
+	private static double currentMPGScore = 50;
+	private static double previousMPGScore = 50;
 	
 	private boolean isMoving = false;
-	
-	private static int SPEED_LIMIT = 50;
-	private static int AVG_MPG = 25;
 	
 	private VehicleDataCache cache = new VehicleDataCache();
 
@@ -105,7 +102,15 @@ public class DriverScoreService extends Service {
 		return Math.max(Math.round(getRawMPGScore()), 50);
 		
 	}	
+	
+	public synchronized long getPreviousDriverScore(){
+		return Math.max(Math.round(previousDriverScore), 50);
+	}
 
+	public synchronized long getMPGDriverScore(){
+		return Math.max(Math.round(previousMPGScore), 50);
+	}
+	
 	public void addVehicleData(OnVehicleData data){
 		cache.addVehicleData(data);
 	}
@@ -147,7 +152,7 @@ public class DriverScoreService extends Service {
 			OnVehicleData item = data.get(i);
 			double currentSpeed = item.getSpeed();
 			
-			double speedDelta = Math.abs(SPEED_LIMIT - currentSpeed);
+			double speedDelta = Math.abs(50 - currentSpeed);
 						
 			//double newScore = Math.exp(Math.sqrt(1/speedDelta));
 			
