@@ -1,7 +1,9 @@
 package com.kbb.livedrive.activity;
 
 import com.kbb.livedrive.R;
+import com.kbb.livedrive.applink.AppLinkService;
 import com.kbb.livedrive.artifact.Location;
+import com.kbb.livedrive.googleplay.GooglePlayService;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -10,11 +12,29 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.AttributeSet;
+import android.util.Log;
+import android.view.View;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.TextView;
 
 
 public class LockScreenActivity extends Activity {
 	private static LockScreenActivity instance;
+	
+	private WebView lockscreenView;
+	
+	final BroadcastReceiver ScoreChangedReceiver = new BroadcastReceiver(){
+		public void onReceive(android.content.Context context, Intent intent) {
+			
+			long driverScore = intent.getLongExtra("driverScore", 50);
+			long mpgScore = intent.getLongExtra("mpgScore", 50);
+			
+			//TODO call java script to update the score display on the screen
+		};
+	};
+
 
 
 	static {
@@ -27,6 +47,22 @@ public class LockScreenActivity extends Activity {
         setContentView(R.layout.lockscreen);
 		LockScreenActivity.instance = this;
 
+		LocalBroadcastManager lbManager = LocalBroadcastManager.getInstance(this);
+        lbManager.registerReceiver(ScoreChangedReceiver, new IntentFilter(AppLinkService.ACTION_VEHICLE_DRIVING_CHANGED));
+
+		
+    }
+    
+    @Override
+    public View onCreateView(String name, Context context, AttributeSet attrs) {
+    	
+    	lockscreenView = (WebView) findViewById(R.id.lockscreenView);
+    	lockscreenView.getSettings().setJavaScriptEnabled(true);
+    	lockscreenView.setWebViewClient(Client);
+		
+    	lockscreenView.loadUrl("file:///android_asset/lockscreen.html");
+    	    	
+    	return super.onCreateView(name, context, attrs);
     }
 
     // Disable back button on lockscreens
@@ -47,5 +83,15 @@ public class LockScreenActivity extends Activity {
     public static LockScreenActivity getInstance() {
     	return instance;
     }
+    
+    
+	final WebViewClient Client = new WebViewClient () {
+
+		@Override
+	    public void onPageFinished(WebView view, String url) {	
+			
+			
+	    }
+	};
 
 }

@@ -89,9 +89,6 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 	private static String currentScoreDisplay = "76";
 
-	private final ScheduledExecutorService scheduler = Executors
-			.newScheduledThreadPool(1);
-
 	private static final int CHANGE_UNITS = 4;
 
 	private static final int NORMAL_LEAD_CHOICESET = 1;
@@ -437,7 +434,6 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 				subscribeVehicleData();
 
-				launchWorker();
 
 			}
 			// If nothing is being displayed and we're in FULL, default to
@@ -509,32 +505,6 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		}
 
 	}
-
-	private void launchWorker() {
-
-		final Runnable scoreCalculator = new Runnable() {
-
-			public void run() {
-
-				int currentDrivingMode = 0;
-				synchronized (blah) {
-					currentDrivingMode = drivingMode;
-				}
-
-				if (currentDrivingMode != DRIVING_MODE_RACING) {
-					calculateDriverScore();
-				}
-			}
-
-		};
-
-		scheduler.scheduleAtFixedRate(scoreCalculator, 30, 30, SECONDS);
-
-		// scheduler.schedule(new Runnable() {
-		// public void run() { handle.cancel(true); }
-		// }, 60 * 60, SECONDS);
-
-	};
 
 	private void calculateDriverScore() {
 		
@@ -1138,7 +1108,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		Intent intent = new Intent(ACTION_VEHICLE_DRIVING_CHANGED);
 		intent.putExtra("drivingState", "DRIVING");
 		intent.putExtra("odometer", vehicleData.getOdometer());
-		sendBroadcast(intent);
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
 		//DriverScoreService.getInstance().startTrip(vehicleData);
 
@@ -1149,7 +1119,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		Intent intent = new Intent(ACTION_VEHICLE_DRIVING_CHANGED);
 		intent.putExtra("drivingState", "PARKED");
 		intent.putExtra("odometer", vehicleData.getOdometer());
-		sendBroadcast(intent);
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 		
 		//DriverScoreService.getInstance().endTrip(vehicleData);
 
