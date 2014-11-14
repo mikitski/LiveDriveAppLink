@@ -17,6 +17,7 @@ import com.kbb.livedrive.app.LiveDriveApplication;
 import com.kbb.livedrive.applink.AppLinkService;
 import com.kbb.livedrive.artifact.Location;
 import com.kbb.livedrive.googleplay.GooglePlayService;
+import com.kbb.livedrive.vehicledata.DriverScoreService;
 //import com.kbb.livedrive.adapter.ForecastListAdapter;
 //import com.kbb.livedrive.weather.DayForecast;
 //import com.kbb.livedrive.weather.WeatherDataManager;
@@ -60,20 +61,29 @@ public class WebViewFragment extends BaseFragment {
 		@Override
 		public void onResult(LoadPlayerScoreResult result) {
 			
+			String scoreDisplay = "50";
+			String previousScoreDisplay = "50";
+			String leaderboardPosition = "0";
+			
 			LeaderboardScore score = result.getScore();
+			
 			if(score != null){
-				long rawScore = score.getRawScore();
-				String scoreDisplay = score.getDisplayScore();
-				String leaderboardPosition = score.getDisplayRank();
-				String iconUrl = score.getScoreHolderIconImageUrl();
-				String userName = score.getScoreHolderDisplayName();
+				scoreDisplay = score.getDisplayScore();
+				leaderboardPosition = score.getDisplayRank();
 				
-				//TODO return Player's Driver score back to UI
-				// this is for the Leaderboard page and other some elements on the score page
+				long rawScore = score.getRawScore();
+				
+				String iconUrl = score.getScoreHolderIconImageUrl();
+				String userName = score.getScoreHolderDisplayName();				
 			}
 			
-			// TODO, use real score
-			leaderboardView.loadUrl("javascript:drawDriverScore(75,80);");
+			previousScoreDisplay = String.valueOf(DriverScoreService.getInstance().getPreviousDriverScore());
+
+			//return Player's Driver score back to UI
+			leaderboardView.loadUrl(String.format("javascript:drawDriverScore(%s,%s,%s);", previousScoreDisplay, scoreDisplay, leaderboardPosition));
+			
+			//TODO call javascript with player details for MPG leaderboard
+			
 		}
 	};
 	
@@ -114,11 +124,28 @@ public class WebViewFragment extends BaseFragment {
 		@Override
 		public void onResult(LoadPlayerScoreResult result) {
 			
-			LeaderboardScore score = result.getScore();
-			String scoreDisplay = score.getDisplayScore();
+			String scoreDisplay = "50";
+			String previousScoreDisplay = "50";
+			String leaderboardPosition = "0";
 			
-			//TODO return Player's MPG score back to UI
-			leaderboardView.loadUrl("javascript:drawMpgScore(65,80);");
+			LeaderboardScore score = result.getScore();
+			if(score != null){
+				scoreDisplay = score.getDisplayScore();
+				leaderboardPosition = score.getDisplayRank();
+				
+				long rawScore = score.getRawScore();
+				
+				String iconUrl = score.getScoreHolderIconImageUrl();
+				String userName = score.getScoreHolderDisplayName();
+
+			}
+			
+			previousScoreDisplay = String.valueOf(DriverScoreService.getInstance().getPreviousDriverScore());
+
+			//return Player's MPG score back to UI
+			leaderboardView.loadUrl(String.format("javascript:drawMpgScore(%s,%s,%s);", previousScoreDisplay, scoreDisplay, leaderboardPosition));
+			
+			//TODO call javascript with player details for MPG leaderboard
 						
 		}
 	};
@@ -133,7 +160,18 @@ public class WebViewFragment extends BaseFragment {
 			ArrayList<LeaderboardScore> scores = new ArrayList<LeaderboardScore>(scoreBuffer.getCount());
 			
 			for(int i = 0; i < scoreBuffer.getCount(); i++){
-				scores.add(scoreBuffer.get(i));
+				
+				LeaderboardScore score = scoreBuffer.get(i);
+				if(score != null){
+
+					long rawScore = score.getRawScore();
+					String scoreDisplay = score.getDisplayScore();
+					String leaderboardPosition = score.getDisplayRank();
+					String iconUrl = score.getScoreHolderIconImageUrl();
+					String userName = score.getScoreHolderDisplayName();
+					
+					scores.add(scoreBuffer.get(i));
+				}
 			}
 			//TODO return MPG Leaderboard back to UI
 		}
