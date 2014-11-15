@@ -23,6 +23,7 @@ import com.ford.syncV4.proxy.rpc.enums.Language;
 import com.ford.syncV4.proxy.rpc.enums.PRNDL;
 import com.ford.syncV4.proxy.rpc.enums.SoftButtonType;
 import com.ford.syncV4.proxy.rpc.enums.SpeechCapabilities;
+import com.ford.syncV4.proxy.rpc.enums.SyncDisconnectedReason;
 import com.ford.syncV4.proxy.rpc.enums.SystemAction;
 import com.ford.syncV4.proxy.rpc.enums.TextAlignment;
 import com.ford.syncV4.proxy.rpc.enums.TextFieldName;
@@ -36,11 +37,11 @@ import com.ford.syncV4.util.DebugTool;
 import com.kbb.livedrive.R;
 import com.kbb.livedrive.app.LiveDriveApplication;
 import com.kbb.livedrive.artifact.Location;
+import com.kbb.livedrive.emulator.IVehicleDataReceiver;
+import com.kbb.livedrive.emulator.VehicleDataEmulatorService;
 import com.kbb.livedrive.googleplay.GooglePlayService;
 import com.kbb.livedrive.vehicledata.DriverScoreService;
-import com.kbb.livedrive.vehicledata.IVehicleDataReceiver;
 import com.kbb.livedrive.vehicledata.VehicleDataCache;
-import com.kbb.livedrive.vehicledata.VehicleDataEmulatorService;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -137,7 +138,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 	private Location currentLocation = null; // Stores the current location
 
 	private boolean isEmulatorMode = true;
-	private boolean isSimulatedData = false;
+	private boolean isSimulatedData = true;
 
 	private SoftButton showDriverScore = null;
 	private SoftButton showMPGScore = null;
@@ -160,12 +161,12 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 		app = LiveDriveApplication.getInstance();
 
-		LocalBroadcastManager lbManager = LocalBroadcastManager
-				.getInstance(this);
+		LocalBroadcastManager lbManager = LocalBroadcastManager.getInstance(this);
 		lbManager.registerReceiver(changeLocationReceiver, new IntentFilter("com.kbb.livedrive.Location"));
 		lbManager.registerReceiver(forecastReceiver, new IntentFilter("com.kbb.livedrive.Forecast"));
 		
 		lbManager.registerReceiver(scoreChangedReceiver, new IntentFilter(DriverScoreService.ACTION_SCORE_CHANGED));
+		lbManager.registerReceiver(emulatedDatadReceiver, new IntentFilter(VehicleDataEmulatorService.ACTION_EMULATED_DATA));
 
 		showDriverScore = new SoftButton();
 		showDriverScore.setSoftButtonID(SHOW_DRIVER_ID);
@@ -223,8 +224,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		}
 
 		if (isSimulatedData) {
-			Intent emulatorIntent = new Intent(this,
-					VehicleDataEmulatorService.class);
+			Intent emulatorIntent = new Intent(this,VehicleDataEmulatorService.class);
 			this.startService(emulatorIntent);
 		}
 
@@ -242,10 +242,13 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		LockScreenManager.clearLockScreen();
 		instance = null;
 		try {
-			LocalBroadcastManager lbManager = LocalBroadcastManager
-					.getInstance(this);
+			
+			LocalBroadcastManager lbManager = LocalBroadcastManager.getInstance(this);
 			lbManager.unregisterReceiver(changeLocationReceiver);
 			lbManager.unregisterReceiver(forecastReceiver);
+			lbManager.unregisterReceiver(scoreChangedReceiver);
+			lbManager.unregisterReceiver(emulatedDatadReceiver);
+			
 		} catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		}
@@ -291,6 +294,36 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 			//TODO call java script to update the score display on the screen
 		};
 	};
+	
+	//receiver to handle vehicle score changes
+	final BroadcastReceiver emulatedDatadReceiver = new BroadcastReceiver(){
+		public void onReceive(android.content.Context context, Intent intent) {
+
+			OnVehicleData data = new OnVehicleData();
+			
+			data.setSpeed(intent.getDoubleExtra("Speed", 0));
+			
+			PRNDL prndl = PRNDL.valueOf(intent.getStringExtra("Prndl"));
+			data.setPrndl(prndl);
+			
+			GPSData gps = new GPSData();			
+			gps.setLatitudeDegrees(intent.getDoubleExtra("LatitudeDegrees",0));
+			gps.setLongitudeDegrees(intent.getDoubleExtra("LongitudeDegrees",0));
+			gps.setUtcYear(intent.getIntExtra("UtcYear",0));
+			gps.setUtcMonth(intent.getIntExtra("UtcMonth",0));
+			gps.setUtcDay(intent.getIntExtra("UtcDay",0));
+			gps.setUtcHours(intent.getIntExtra("UtcHours",0));
+			gps.setUtcMinutes(intent.getIntExtra("UtcMinutes",0));
+			gps.setUtcSeconds(intent.getIntExtra("UtcSeconds",0));
+			gps.setSpeed(intent.getDoubleExtra("Speed", 0));
+			
+			data.setGps(gps);
+			
+			onOnVehicleData(data);
+			
+		};
+	};
+	
 
 
 	/**
@@ -347,7 +380,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 				BaseTransportConfig transport = null;
 				
 				if (isEmulatorMode)
-					transport = new TCPTransportConfig(12345, "172.16.18.4", true);
+					transport = new TCPTransportConfig(12345, "192.168.101.115", true);
 				else
 					transport = new BTTransportConfig();
 				proxy = new SyncProxyALM(this, "Cox Automotive", false, Language.EN_US, Language.EN_US, "566020017", transport);
@@ -393,18 +426,19 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		}
 	}
 
-	@Override
-	public void onProxyClosed(String info, Exception e) {
-		LockScreenManager.setHMILevelState(null);
-		LockScreenManager.clearLockScreen();
-		firstHmiNone = true;
-
-		if ((((SyncException) e).getSyncExceptionCause() != SyncExceptionCause.SYNC_PROXY_CYCLED)) {
-			if (((SyncException) e).getSyncExceptionCause() != SyncExceptionCause.BLUETOOTH_DISABLED) {
-				reset();
-			}
-		}
-	}
+	
+//	@Override
+//	public void onProxyClosed(String info, Exception e) {
+//		LockScreenManager.setHMILevelState(null);
+//		LockScreenManager.clearLockScreen();
+//		firstHmiNone = true;
+//
+//		if ((((SyncException) e).getSyncExceptionCause() != SyncExceptionCause.SYNC_PROXY_CYCLED)) {
+//			if (((SyncException) e).getSyncExceptionCause() != SyncExceptionCause.BLUETOOTH_DISABLED) {
+//				reset();
+//			}
+//		}
+//	}
 
 	@Override
 	public void onOnHMIStatus(OnHMIStatus notification) {
@@ -430,8 +464,8 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 			return;
 		}
 
-		//LockScreenManager.setHMILevelState(notification.getHmiLevel());
-		//LockScreenManager.updateLockScreen();
+		LockScreenManager.setHMILevelState(notification.getHmiLevel());
+		LockScreenManager.updateLockScreen();
 
 		switch (notification.getHmiLevel()) {
 		case HMI_FULL:
@@ -549,16 +583,6 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 					, true // bodyInformation,
 					, false // deviceStatus,
 					, false // driverBraking,
-					, false // wiperStatus,
-					, false // headLampStatus,
-					, false // engineTorque,
-					, false // accPedalPosition,
-					, false // steeringWheelAngle,
-					, false // eCallInfo,
-					, false // airbagStatus,
-					, false // emergencyEvent,
-					, false // clusterModeStatus,
-					, false // myKey,
 					, autoIncCorrId++);
 		} catch (SyncException e) {
 			Log.e("syncexception", e.getMessage());
@@ -822,18 +846,14 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 			}
 			break;
 		case PRESET_1:
-			synchronized (blah) {
-				drivingMode = DRIVING_MODE_GOOD;
-			}
 
-			updateDisplay("Driving Mode", "Good Driver");
+			VehicleDataEmulatorService.getInstance().loadTrack(1);
+			
 			break;
 		case PRESET_2:
-			synchronized (blah) {
-				drivingMode = DRIVING_MODE_SPEEDING;
-			}
-
-			updateDisplay("Driving Mode", "Speeding");
+			
+			VehicleDataEmulatorService.getInstance().loadTrack(2);
+			
 			break;
 		case PRESET_3:
 			synchronized (blah) {
@@ -1025,6 +1045,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		// + " rpm: " + vehicleData.getRpm().toString() );
 
 		boolean stateChange = false;
+		
 
 		if (prevVehicleData != null) {
 			if (vehicleData.getAirbagStatus() != prevVehicleData.getAirbagStatus()
@@ -1064,7 +1085,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		prevVehicleData = vehicleData;
 
 		if (stateChange
-				|| (isMoving && (Math.abs(vehicleData.getGps().getUtcSeconds() - prevDataLogSeconds) >= LOG_INTERVAL))) {
+				|| (vehicleData.getSpeed() != null && (Math.abs(vehicleData.getGps().getUtcSeconds() - prevDataLogSeconds) >= LOG_INTERVAL))) {
 			
 			prevDataLogSeconds = vehicleData.getGps().getUtcSeconds();
 			DriverScoreService.getInstance().addVehicleData(vehicleData);
@@ -1240,22 +1261,51 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 	}
 
 	@Override
-	public void onEncodedSyncPDataResponse(EncodedSyncPDataResponse arg0) {
+	public void onDiagnosticMessageResponse(DiagnosticMessageResponse arg0) {
+		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void onOnEncodedSyncPData(OnEncodedSyncPData arg0) {
+	public void onOnHashChange(OnHashChange arg0) {
+		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void onOnSyncPData(OnSyncPData arg0) {
+	public void onOnKeyboardInput(OnKeyboardInput arg0) {
+		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void onSyncPDataResponse(SyncPDataResponse arg0) {
+	public void onOnLockScreenNotification(OnLockScreenStatus arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onOnSystemRequest(OnSystemRequest arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onOnTouchEvent(OnTouchEvent arg0) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onProxyClosed(String arg0, Exception arg1,
+			SyncDisconnectedReason arg2) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void onSystemRequestResponse(SystemRequestResponse arg0) {
+		// TODO Auto-generated method stub
 		
 	}
 }

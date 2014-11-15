@@ -44,6 +44,7 @@ public class LockScreenActivity extends Activity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+    	
         super.onCreate(savedInstanceState);
         setContentView(R.layout.lockscreen);
 		LockScreenActivity.instance = this;
@@ -51,17 +52,17 @@ public class LockScreenActivity extends Activity {
 		LocalBroadcastManager lbManager = LocalBroadcastManager.getInstance(this);
         lbManager.registerReceiver(scoreChangedReceiver, new IntentFilter(DriverScoreService.ACTION_SCORE_CHANGED));
 
+    	lockscreenView = (WebView) findViewById(R.id.lockscreenView);
+    	lockscreenView.getSettings().setJavaScriptEnabled(true);
+    	lockscreenView.setWebViewClient(Client);
+		
+    	lockscreenView.loadUrl("file:///android_asset/lockscreen.html");
 		
     }
     
     @Override
     public View onCreateView(String name, Context context, AttributeSet attrs) {
     	
-    	lockscreenView = (WebView) findViewById(R.id.lockscreenView);
-    	lockscreenView.getSettings().setJavaScriptEnabled(true);
-    	lockscreenView.setWebViewClient(Client);
-		
-    	lockscreenView.loadUrl("file:///android_asset/lockscreen.html");
     	    	
     	return super.onCreateView(name, context, attrs);
     }

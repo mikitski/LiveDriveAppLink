@@ -27,11 +27,11 @@ public class DriverScoreService extends Service {
 	
 	public static String ACTION_SCORE_CHANGED = "com.kbb.livedrive.DriverScoreService.ACTION_SCORE_CHANGED";
 		
-	private static double currentDriverScore = 50;
-	private static double previousDriverScore = 50;
+	private double currentDriverScore = 50;
+	private double previousDriverScore = 50;
 	
-	private static double currentMPGScore = 50;
-	private static double previousMPGScore = 50;
+	private double currentMPGScore = 50;
+	private double previousMPGScore = 50;
 	
 	private boolean isMoving = false;
 	
@@ -214,11 +214,13 @@ public class DriverScoreService extends Service {
 			VehicleDetails currentVehicle = new VehicleDetailsService().getCurrent();
 			
 			OnVehicleData lastData = data.get(data.size() - 1);
+			OnVehicleData firstData = data.get(0);
+			
 			
 			double currLat= lastData.getGps().getLatitudeDegrees();
 			double currLong= lastData.getGps().getLongitudeDegrees();
 			
-			int sliceStartOdometer = data.get(0).getOdometer();
+			int sliceStartOdometer = firstData.getOdometer();
 			int sliceEndOdometer = lastData.getOdometer();
 			
 			int sliceDistance = sliceEndOdometer - sliceStartOdometer;

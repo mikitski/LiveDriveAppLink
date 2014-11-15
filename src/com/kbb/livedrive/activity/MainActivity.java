@@ -98,6 +98,7 @@ public class MainActivity extends ActivityBase implements
     private void selectItem(int position) {
     	String item = drawerAdapter.getItem(position);
     	Fragment fragment = null;
+    	
     	if("Home".equals(item)){
     		fragment = new WebViewFragment();
 

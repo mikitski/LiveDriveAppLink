@@ -26,7 +26,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     
     <application
-        android:name="com.kbb.livedrive.app.LiveDriveApplication"
+        android:name=".app.LiveDriveApplication"
         android:icon="@drawable/live_drive_logo"
         android:theme="@style/AppTheme"
         android:allowBackup="true" >
@@ -50,13 +50,13 @@
             android:screenOrientation="portrait" >
         </activity>
 
-        <service android:name="com.kbb.livedrivex.wunderground.WUndergroundService" >
+        <service android:name="com.kbb.livedrive.wunderground.WUndergroundService" >
         </service>
         
         <service android:name="com.kbb.livedrive.googleplay.GooglePlayService" >
         </service>        
 
-        <service android:name="com.kbb.livedrive.vehicledata.VehicleDataEmulatorService" >
+        <service android:name="com.kbb.livedrive.emulator.VehicleDataEmulatorService" >
         </service>        
 
         <service android:name="com.kbb.livedrive.vehicledata.DriverScoreService" >
@@ -75,10 +75,8 @@
             </intent-filter>
         </receiver>
         
-        <meta-data android:name="com.google.android.gms.games.APP_ID"
-        android:value="@string/app_id" />
-  		<meta-data android:name="com.google.android.gms.version"
-   	    android:value="@integer/google_play_services_version"/>
+        <meta-data android:name="com.google.android.gms.games.APP_ID" android:value="@string/app_id" />
+  		<meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
         
     </application>
 </manifest>
