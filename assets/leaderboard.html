@@ -9,6 +9,29 @@
           width: 80%;
           height: 80%
       }
+      .wheelBlue {
+        fill: rgba(85, 138, 208, 0.78);
+      }
+      .wheelGreen {
+        fill: rgba(0, 156, 26, 0.78);
+      }
+      .wheelRed {
+        fill: rgba(205, 32, 39, 0.78);
+      }
+      @font-face {
+        font-family: 'OpenSans';
+        src: url("OpenSans-Regular.ttf") format("truetype");
+      }
+      text.textRed {
+        font-family: OpenSans; 
+        font-size: 270px; 
+        fill: rgba(205, 32, 39, 0.78);
+      }
+      text.textGreen {
+        font-family: OpenSans; 
+        font-size: 270px; 
+        fill: rgba(0, 156, 26, 0.78);
+      }
     </style>
     <link rel="stylesheet" type="text/css" href="./jcarousel.responsive.css">
     <script src="d3.min.js"></script>
@@ -52,6 +75,8 @@ function drawDriverScore(innerScore, outerScore, rank) {
   var driverScore = document.getElementById("driver_score");
   console.log(driverScore);
       
+  var didScoreGoDown = outerScore - innerScore > 0;
+
   d3.select(driverScore).select("svg").remove();
   var svg = d3.select(driverScore).append("svg")
               .attr("width", 760).attr("height", 760);
@@ -80,7 +105,7 @@ function drawDriverScore(innerScore, outerScore, rank) {
     .append("path")
     .attr("fill", function(d,i) 
       {  
-        if (i == 0) { return d3.rgb(85, 138, 208).toString() }
+        if (i == 0) { return d3.rgb(85, 138, 208).toString(); }
         return d3.rgb(199,199,199).toString();
       })
     .attr("d", arc);
@@ -99,13 +124,20 @@ function drawDriverScore(innerScore, outerScore, rank) {
     .append("path")
     .attr("fill", function(d,i) 
       {  
-        if (i == 0) { return d3.rgb(0, 156, 26).toString() }
+        if (i == 0) { 
+	  if (didScoreGoDown) {	
+	    return d3.rgb(255, 0, 0).toString();	    
+	  }
+          else {
+	    return d3.rgb(0, 156, 26).toString();					 
+          }
+	}
         return d3.rgb(199,199,199).toString();
       })
     .attr("d", arcInner);
       
-  d3.select(driverScore).select("svg").append("text").attr("transform", "translate(260,420)").text(innerScore).attr("style", "font-family:Arial; font-size: 212px; font-weight: 400;");
-  d3.select(driverScore).select("svg").append("text").attr("transform", "translate(272,464)").text("Driver Score").attr("style", "font-family:Arial; font-size: 34px");
+  d3.select(driverScore).select("svg").append("text").attr("transform", "translate(240,470)").text(innerScore).classed(didScoreGoDown?"textRed":"textGreen", true);
+  d3.select(driverScore).select("svg").append("text").attr("transform", "translate(263,530)").text("Driver Score").attr("style", "font-family:Arial; font-size: 44px");
       
   svg.append("image")
      .attr("xlink:href", "Driver_Marker 1.svg")
@@ -114,9 +146,6 @@ function drawDriverScore(innerScore, outerScore, rank) {
 
   d3.select(driverScore).select("svg").append("text").attr("transform", "translate(442,715)").text(rank).attr("style", "font-family:Arial; font-size: 43px;");
 }
-      
-      
-      
       
       
       
@@ -186,7 +215,7 @@ function drawDriverScore(innerScore, outerScore, rank) {
       }      
 
 
-      drawDriverScore(55, 66, 10);
+      drawDriverScore(79, 76, 10);
       drawMpgScore(60, 70);
     </script>
   </body>
