@@ -318,13 +318,13 @@ public class MainActivity extends ActivityBase implements
 
 	@Override
 	public void onConnected(Bundle arg0) {
-		// TODO Auto-generated method stub
+
 		
 	}
 
 	@Override
 	public void onConnectionSuspended(int arg0) {
-		// TODO Auto-generated method stub
+
 		
 	}
 	

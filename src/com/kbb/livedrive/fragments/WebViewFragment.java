@@ -140,7 +140,7 @@ public class WebViewFragment extends BaseFragment {
 
 			}
 			
-			previousScoreDisplay = String.valueOf(DriverScoreService.getInstance().getPreviousDriverScore());
+			previousScoreDisplay = String.valueOf(DriverScoreService.getInstance().getPreviousMPGScore());
 
 			//return Player's MPG score back to UI
 			leaderboardView.loadUrl(String.format("javascript:drawMpgScore(%s,%s,%s);", previousScoreDisplay, scoreDisplay, leaderboardPosition));

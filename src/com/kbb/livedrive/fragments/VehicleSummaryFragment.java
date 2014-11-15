@@ -46,7 +46,7 @@ public class VehicleSummaryFragment extends BaseFragment {
 			
 			if(url.contains("file:///android_asset/vehicleSummary.html")){
 				
-				//TODO get ald load vehicle details into webView
+				//TODO get and load vehicle details into webView
 			
 			}
 			
@@ -58,13 +58,13 @@ public class VehicleSummaryFragment extends BaseFragment {
 	
 	@Override
 	public void onAttach(Activity activity) {
-		// TODO Auto-generated method stub
+
 		super.onAttach(activity);
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
+
 		super.onCreate(savedInstanceState);
 	}
 	

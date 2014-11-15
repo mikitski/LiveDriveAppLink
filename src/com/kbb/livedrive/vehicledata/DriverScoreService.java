@@ -26,6 +26,8 @@ public class DriverScoreService extends Service {
 	private static DriverScoreService instance = null;
 	
 	public static String ACTION_SCORE_CHANGED = "com.kbb.livedrive.DriverScoreService.ACTION_SCORE_CHANGED";
+	public static String ACTION_RT_MPG_SCORE_CHANGED = "com.kbb.livedrive.DriverScoreService.ACTION_RT_MPG_SCORE_CHANGED";
+	public static String ACTION_RT_DRIVER_SCORE_CHANGED = "com.kbb.livedrive.DriverScoreService.ACTION_RT_DRIVER_SCORE_CHANGED";
 		
 	private double currentDriverScore = 50;
 	private double previousDriverScore = 50;
@@ -37,11 +39,11 @@ public class DriverScoreService extends Service {
 	
 	private VehicleDataCache cache = new VehicleDataCache();
 
-	private long tripStartOdometer = 0;
-	private long tripEndOdometer = 0;
+	private int tripStartOdometer = 0;
+	private int tripEndOdometer = 0;
 	
-	private long tripHwyMiles = 0;
-	private long tripCityMiles = 0;
+	private int tripHwyMiles = 0;
+	private int tripCityMiles = 0;
 	
 	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 
@@ -50,7 +52,7 @@ public class DriverScoreService extends Service {
 		public void onReceive(android.content.Context context, Intent intent) {
 			
 			String drivingState = intent.getStringExtra("drivingState");
-			long odometer = intent.getLongExtra("odometer", 0);
+			int odometer = intent.getIntExtra("odometer", 0);
 			if("DRIVING".equals(drivingState)){
 				startTrip(odometer);
 			}
@@ -107,13 +109,35 @@ public class DriverScoreService extends Service {
 		return Math.max(Math.round(previousDriverScore), 50);
 	}
 
-	public synchronized long getMPGDriverScore(){
+	public synchronized long getPreviousMPGScore(){
 		return Math.max(Math.round(previousMPGScore), 50);
 	}
 	
 	public void addVehicleData(OnVehicleData data){
 		cache.addVehicleData(data);
 	}
+	
+	private void notifyScoresChanged() {
+		Intent intent = new Intent(ACTION_SCORE_CHANGED);
+		intent.putExtra("driverScore", getDriverScore());
+		intent.putExtra("mpgScore", getMPGScore());
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+	}
+	
+	private void notifyRealTimeMPGScoreChanged(long mpgScore){
+		Intent intent = new Intent(ACTION_RT_MPG_SCORE_CHANGED);
+		intent.putExtra("mpgScore", mpgScore);
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+	}
+	
+	private void notifyRealTimeDriverScoreChanged(long driverScore){
+		Intent intent = new Intent(ACTION_RT_DRIVER_SCORE_CHANGED);
+		intent.putExtra("mpgScore", driverScore);
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+
+	}
+	
+
 
 	public void calculateScores(){
 
@@ -135,11 +159,7 @@ public class DriverScoreService extends Service {
 		setMPGScore(mpgScore);
 
 		
-		Intent intent = new Intent(ACTION_SCORE_CHANGED);
-		intent.putExtra("driverScore", getDriverScore());
-		intent.putExtra("mpgScore", getMPGScore());
-		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-
+		notifyScoresChanged();
 
 	}
 	
@@ -211,7 +231,7 @@ public class DriverScoreService extends Service {
 		try{
 		
 			LocationServices loc = LocationServices.getInstance();
-			VehicleDetails currentVehicle = new VehicleDetailsService().getCurrent();
+			VehicleDetails currentVehicle = VehicleDetailsService.getInstance().getCurrent();
 			
 			OnVehicleData lastData = data.get(data.size() - 1);
 			OnVehicleData firstData = data.get(0);
@@ -225,39 +245,48 @@ public class DriverScoreService extends Service {
 			
 			int sliceDistance = sliceEndOdometer - sliceStartOdometer;
 			
-			long tripOdometer = sliceEndOdometer - tripStartOdometer;
+			int sliceStartTripDistance = Math.max(sliceStartOdometer - tripStartOdometer, 0);
+			
+			long tripDistance = sliceEndOdometer - tripStartOdometer;
 			
 			String roadClass = loc.getCurrentRoadClass(currLat, currLong);
 			
-			double currMpgScore = 0;
+			double avgFuelConsumption = 0;
 			
 			for(int i = 0; i < data.size(); i++){
-				currMpgScore += data.get(i).getInstantFuelConsumption();
+				avgFuelConsumption += data.get(i).getInstantFuelConsumption();
 			}
 			
-			currMpgScore = currMpgScore / data.size();
+			avgFuelConsumption = avgFuelConsumption / data.size();
 			
+			double realTimeMpgScore = 0;
 				
 			if(roadClass == "Highway"){			
 				tripHwyMiles += sliceDistance;
 				
-				currMpgScore += currMpgScore / currentVehicle.getHwyMPG(); // * sliceDistance/tripMiles;
+				realTimeMpgScore = avgFuelConsumption / currentVehicle.getHwyMPG(); // * sliceDistance/tripMiles;
 			}
 			else{
 				
 				tripCityMiles += sliceDistance;
 				
-				currMpgScore += currMpgScore / currentVehicle.getCityMPG(); // * sliceDistance/tripMiles;
+				realTimeMpgScore = avgFuelConsumption / currentVehicle.getCityMPG(); // * sliceDistance/tripMiles;
 				
 			}
 			
-			mpgScore = (currMpgScore * sliceDistance + mpgScore * sliceStartOdometer) / tripOdometer;
+			realTimeMpgScore = Math.min(realTimeMpgScore * 100, 96);
+			
+			notifyRealTimeMPGScoreChanged(Math.round(realTimeMpgScore));
+			
+			//TODO send realtime MPG score change notificaton
+			
+			mpgScore = (realTimeMpgScore * sliceDistance + mpgScore * sliceStartTripDistance) / tripDistance;
 		} 
 		catch(Exception ex){
 			Log.e("calculateMPGScoreExternal", ex.getMessage());
 		}
 		
-		return mpgScore;		
+		return Math.min(mpgScore, 100);		
 	}
 	
 	public String getDriverScoreDisplay(){
@@ -307,23 +336,25 @@ public class DriverScoreService extends Service {
 	private ScheduledFuture<?> calculatorHandle;
 
 
-	public void startTrip(long odometer) {
-		
-		
-		tripStartOdometer = odometer;
+	public void startTrip(int odometer) {
+
+		//TODO convert current score to lifetime score (previous score is lifetime)
 		previousDriverScore = currentDriverScore;
 		previousMPGScore = currentMPGScore;
+
 		
+		tripStartOdometer = odometer;
+
 		if(calculatorHandle == null || calculatorHandle.isDone() ||calculatorHandle.isCancelled() ){
 			
-			calculatorHandle = scheduler.scheduleAtFixedRate(scoreCalculator, 60, 60, SECONDS);
+			calculatorHandle = scheduler.scheduleAtFixedRate(scoreCalculator, 30, 30, SECONDS);
 			
 		}
 		
 		isMoving = true;
 	}
 
-	public void endTrip(long odometer) {
+	public void endTrip(int odometer) {
 		
 		tripEndOdometer = odometer;
 		

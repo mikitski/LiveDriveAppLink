@@ -8,6 +8,18 @@ import android.os.IBinder;
 
 public class VehicleDetailsService extends Service {
 	
+	
+	private static VehicleDetailsService instance;
+	
+	static{
+		instance = null;
+	}
+
+	public static VehicleDetailsService getInstance(){
+		return instance;
+	}
+	
+	
 	private VehicleDetails currentVehicle;
 	
 	public VehicleDetails getCurrent(){
@@ -21,20 +33,14 @@ public class VehicleDetailsService extends Service {
 	
 	@Override
 	public void onCreate() {
+		instance = this;
 		
 		super.onCreate();
 	}
 	
-	public void getVehilceDetails(VehicleDetailsCallback callback){
-		
-		if(callback != null){
-			callback.onResult(getCurrent());
-		}
-	}
-
 	@Override
 	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
+
 		return null;
 	}
 }

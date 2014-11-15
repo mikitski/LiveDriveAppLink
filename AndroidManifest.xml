@@ -65,6 +65,9 @@
         <service android:name="com.kbb.livedrive.vehicledata.VehicleDetailsService" >
         </service>        
         
+        <service android:name="com.kbb.livedrive.location.LocationServices">
+        </service>
+        
         <service android:name="com.kbb.livedrive.applink.AppLinkService" >
         </service>
         

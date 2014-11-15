@@ -118,20 +118,15 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 	private SyncProxyALM proxy = null;
 	private Handler handler = null;
 
-	private Language currentSyncLanguage = null; // Stores the current language
-													// of the SYNC module
-	private Language currentHmiLanguage = null; // Stores the current language
-												// of the display
+	private Language currentSyncLanguage = null; // Stores the current language of the SYNC module
+	private Language currentHmiLanguage = null; // Stores the current language of the display
 	private boolean firstHmiNone = true;
-	private DisplayType displayType = null; // Keeps track of the HMI display
-											// type
-	private boolean graphicsSupported = false; // Keeps track of whether
-												// graphics are supported on the
-												// display
+	private OnHMIStatus currentHMIStatus;
+	private DisplayType displayType = null; // Keeps track of the HMI display type
+	private boolean graphicsSupported = false; // Keeps track of whether graphics are supported on the display
 	private int numberOfTextFields = 2;
 	private int lengthOfTextFields = 40;
-	private Vector<TextField> textFields = null; // Keeps track of the text
-													// fields supported
+	private Vector<TextField> textFields = null; // Keeps track of the text fields supported
 
 	private Handler timedShowHandler = null;
 
@@ -291,7 +286,10 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 			long driverScore = intent.getLongExtra("driverScore", 50);
 			long mpgScore = intent.getLongExtra("mpgScore", 50);
 			
-			//TODO call java script to update the score display on the screen
+			String driverScoreDisplay = DriverScoreService.getInstance().getDriverScoreDisplay();
+			String mpgScoreDisplay = DriverScoreService.getInstance().getMPGScoreDisplay();
+			
+			setDriverScoreDisplay(driverScoreDisplay, mpgScoreDisplay);
 		};
 	};
 	
@@ -301,10 +299,15 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 			OnVehicleData data = new OnVehicleData();
 			
+			
 			data.setSpeed(intent.getDoubleExtra("Speed", 0));
 			
 			PRNDL prndl = PRNDL.valueOf(intent.getStringExtra("Prndl"));
 			data.setPrndl(prndl);
+			
+			data.setOdometer(intent.getIntExtra("Odometer", 0));
+			
+			data.setInstantFuelConsumption(intent.getDoubleExtra("InstantFuelConsumption", 0));
 			
 			GPSData gps = new GPSData();			
 			gps.setLatitudeDegrees(intent.getDoubleExtra("LatitudeDegrees",0));
@@ -442,6 +445,9 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 	@Override
 	public void onOnHMIStatus(OnHMIStatus notification) {
+		
+		currentHMIStatus = notification;
+		
 		switch (notification.getSystemContext()) {
 		case SYSCTXT_MAIN:
 			break;
@@ -463,15 +469,18 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		default:
 			return;
 		}
-
-		LockScreenManager.setHMILevelState(notification.getHmiLevel());
-		LockScreenManager.updateLockScreen();
+		
+		//LockScreenManager.setHMILevelState(notification.getHmiLevel());
+		//LockScreenManager.updateLockScreen();
 
 		switch (notification.getHmiLevel()) {
 		case HMI_FULL:
 			if (notification.getFirstRun()) {
 				// Perform welcome
 				welcomeMessage();
+				
+				//register soft buttons
+				setNormalModeButtons();
 
 				// Add commands
 				addCommands();
@@ -542,7 +551,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		}
 
 		currentDriverScoreDisplay = driverScore;
-		updateDisplay("Driver Score. ", currentDriverScoreDisplay);
+		updateDisplay("Driver Score ", currentDriverScoreDisplay);
 
 	}
 
@@ -723,7 +732,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		// choose the order softbuttons appear
 		currentSoftButtons.add(showDriverScore);
 		currentSoftButtons.add(showMPGScore);
-		currentSoftButtons.add(showLeaderboard);
+		//currentSoftButtons.add(showLeaderboard);
 
 		Show msg = new Show();
 		msg.setCorrelationID(autoIncCorrId++);
@@ -856,18 +865,10 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 			
 			break;
 		case PRESET_3:
-			synchronized (blah) {
-				drivingMode = DRIVING_MODE_RECKLESS;
-			}
 
-			updateDisplay("Driving Mode", "Reckless");
 			break;
 		case PRESET_4:
-			synchronized (blah) {
-				drivingMode = DRIVING_MODE_SLOW;
-			}
 
-			updateDisplay("Driving Mode", "Slow");
 			break;
 
 		case PRESET_5:
@@ -896,7 +897,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 			try {
 				proxy.sendRPCRequest(msg);
 			} catch (SyncException e) {
-				Log.e("shit", "get Vehicle Data no woikie");
+				Log.e("getVehicleData", "get Vehicle Data no woikie");
 			}
 			break;
 		case PRESET_6: // fake GoodDriving score change
@@ -911,7 +912,9 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		case PRESET_9:
 			break;
 		case PRESET_0:
-			setDrivingModeRacing();
+			
+			VehicleDataEmulatorService.getInstance().interruptTrack();
+			
 			break;
 
 		default:
@@ -1105,6 +1108,10 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		intent.putExtra("drivingState", "DRIVING");
 		intent.putExtra("odometer", vehicleData.getOdometer());
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+		
+		LockScreenManager.setHMILevelState(currentHMIStatus.getHmiLevel());
+		LockScreenManager.updateLockScreen();
+		
 
 		//DriverScoreService.getInstance().startTrip(vehicleData);
 
@@ -1118,7 +1125,8 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 		
 		//DriverScoreService.getInstance().endTrip(vehicleData);
-
+		LockScreenManager.setHMILevelState(currentHMIStatus.getHmiLevel());
+		LockScreenManager.clearLockScreen();
 	}
 
 	@Override
@@ -1262,50 +1270,50 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 	@Override
 	public void onDiagnosticMessageResponse(DiagnosticMessageResponse arg0) {
-		// TODO Auto-generated method stub
+
 		
 	}
 
 	@Override
 	public void onOnHashChange(OnHashChange arg0) {
-		// TODO Auto-generated method stub
+
 		
 	}
 
 	@Override
 	public void onOnKeyboardInput(OnKeyboardInput arg0) {
-		// TODO Auto-generated method stub
+
 		
 	}
 
 	@Override
 	public void onOnLockScreenNotification(OnLockScreenStatus arg0) {
-		// TODO Auto-generated method stub
+
 		
 	}
 
 	@Override
 	public void onOnSystemRequest(OnSystemRequest arg0) {
-		// TODO Auto-generated method stub
+
 		
 	}
 
 	@Override
 	public void onOnTouchEvent(OnTouchEvent arg0) {
-		// TODO Auto-generated method stub
+
 		
 	}
 
 	@Override
 	public void onProxyClosed(String arg0, Exception arg1,
 			SyncDisconnectedReason arg2) {
-		// TODO Auto-generated method stub
+
 		
 	}
 
 	@Override
 	public void onSystemRequestResponse(SystemRequestResponse arg0) {
-		// TODO Auto-generated method stub
+
 		
 	}
 }

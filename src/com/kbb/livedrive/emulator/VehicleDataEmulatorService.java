@@ -10,10 +10,14 @@ import java.util.concurrent.ScheduledFuture;
 import com.ford.syncV4.proxy.rpc.GPSData;
 import com.ford.syncV4.proxy.rpc.OnVehicleData;
 import com.ford.syncV4.proxy.rpc.enums.PRNDL;
+import com.kbb.livedrive.applink.AppLinkService;
+import com.kbb.livedrive.vehicledata.VehicleDetailsService;
 
 import android.app.LauncherActivity;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.IBinder;
 import android.support.v4.content.LocalBroadcastManager;
 
@@ -41,7 +45,19 @@ public class VehicleDataEmulatorService extends Service {
 	private int drivingMode = DRIVING_MODE_GOOD;
 	
 	private EmulatorTrack track;
-	private int lastTrackPoint = 0;
+	private int nextTrackPoint = 0;
+	
+	private final BroadcastReceiver drivingStateReceiver = new BroadcastReceiver(){
+		public void onReceive(android.content.Context context, Intent intent) {
+			
+			String drivingState = intent.getStringExtra("drivingState");
+			long odometer = intent.getLongExtra("odometer", 0);
+			if ("PARKED".equals(drivingState)){
+				stopRunner();
+			}
+			
+		}
+	};
 
 	
 	public static VehicleDataEmulatorService getInstance(){
@@ -52,6 +68,9 @@ public class VehicleDataEmulatorService extends Service {
 	public void onCreate() {
 		instance = this;
 		super.onCreate();
+		
+        LocalBroadcastManager lbManager = LocalBroadcastManager.getInstance(this);
+        lbManager.registerReceiver(drivingStateReceiver, new IntentFilter(AppLinkService.ACTION_VEHICLE_DRIVING_CHANGED));		
 		
 	}
 
@@ -90,47 +109,76 @@ public class VehicleDataEmulatorService extends Service {
 		
 		public void run() {
 			
-				EmulatorTrackPoint currPoint = track.getTrack().get(lastTrackPoint);
+				int currentOdometer = VehicleDetailsService.getInstance().getCurrent().getOdometer();
 				
-				lastTrackPoint ++;
+				EmulatorTrackPoint currPoint = track.getTrack().get(nextTrackPoint);
 				
-				if(track.getTrack().size() <= lastTrackPoint){  //if no more data, send Parked - end of trip
+				nextTrackPoint ++;
+				
+				if(track.getTrack().size() <= nextTrackPoint){  //if no more data, send Parked - end of trip
 					
 					Intent emulatedDataIntent = new Intent(VehicleDataEmulatorService.ACTION_EMULATED_DATA);
-					setIntentData(emulatedDataIntent, currPoint, 0, PRNDL.PARK);
+					setIntentData(emulatedDataIntent, currPoint, 0, PRNDL.PARK, currentOdometer);
 					LocalBroadcastManager.getInstance(instance).sendBroadcast(emulatedDataIntent);
-					    					
-					handle.cancel(true);
+					    	
+					stopRunner();
 				}
 				else {
-					EmulatorTrackPoint nextPoint = track.getTrack().get(lastTrackPoint);
+					EmulatorTrackPoint nextPoint = track.getTrack().get(nextTrackPoint);
 					
-					double speed = calculateSpeed(currPoint, nextPoint);
+					int distance = calculateDistance(currPoint, nextPoint);
+					int odometer = currentOdometer + distance;
+					
+					VehicleDetailsService.getInstance().getCurrent().setOdometer(odometer);
+					
+					double speed = calculateSpeed(distance, currPoint, nextPoint);
+					
+					// set intent event with current emulated VehicleData
 					Intent emulatedDataIntent = new Intent(VehicleDataEmulatorService.ACTION_EMULATED_DATA);
-					setIntentData(emulatedDataIntent, currPoint, speed, PRNDL.DRIVE);
+					
+					if(nextTrackPoint == 1) { // if we are at the first step, start in PARKED mode
+						
+						setIntentData(emulatedDataIntent, currPoint, speed, PRNDL.PARK, odometer);
+						
+					}
+					else {
+						
+						setIntentData(emulatedDataIntent, currPoint, speed, PRNDL.DRIVE, odometer);
+						
+					}
+					
 					LocalBroadcastManager.getInstance(instance).sendBroadcast(emulatedDataIntent);
 					
 					
 				}
 		}
 
-		private double calculateSpeed(EmulatorTrackPoint start, EmulatorTrackPoint end) {
+		private int calculateDistance(EmulatorTrackPoint start, EmulatorTrackPoint end){
+			
+			//TODO calculate distance between two coordinates
+			return 134;
+		}
+		
+		private double calculateSpeed(double distance, EmulatorTrackPoint start, EmulatorTrackPoint end) {
 			
 			// TODO calculate speed from travel coordinates and start/end time
 			return 100;
 			
 		}
+				
 	};
 	
 	private void luanchBackgroundWorker(){
     	
-    	handle = scheduler.scheduleAtFixedRate(dataSender, 5, 5, SECONDS);
+    	handle = scheduler.scheduleAtFixedRate(dataSender, 1, 3, SECONDS);
 	}
 	
-	private void setIntentData(Intent intent, EmulatorTrackPoint point, double speed, PRNDL prndl){
+	private void setIntentData(Intent intent, EmulatorTrackPoint point, double speed, PRNDL prndl, int odometer){
 		
 		intent.putExtra("Speed",speed);
-		intent.putExtra("Prndl",prndl);
+		intent.putExtra("Prndl",prndl.toString());
+		intent.putExtra("Odometer", odometer);
+		intent.putExtra("InstantFuelConsumption", emulateInstantFuelConsumption());
 
 		
 		intent.putExtra("LatitudeDegrees",point.getLatitude());
@@ -146,6 +194,17 @@ public class VehicleDataEmulatorService extends Service {
 		
 	}
 	
+	private double emulateInstantFuelConsumption(){
+		int cityMpg = VehicleDetailsService.getInstance().getCurrent().getCityMPG();
+		int hwyMpg = VehicleDetailsService.getInstance().getCurrent().getHwyMPG();
+		
+		double r = rand.nextDouble();
+		
+		int realTimeRange = (hwyMpg - cityMpg) * 2;
+		
+		return hwyMpg - realTimeRange * r;
+	}
+
 	private void sendRacingData() {
 		
 		if(sendTo != null) {
@@ -213,16 +272,38 @@ public class VehicleDataEmulatorService extends Service {
 		switch(trackIdx){
 			case 1:
 				track = TrackCSVParser.parseFromCsv("20141114182331.csv");
-				lastTrackPoint = 0;
+				nextTrackPoint = 0;
 				break;
 			case 2:
 				track = TrackCSVParser.parseFromCsv("20141115034353.csv");
-				lastTrackPoint = 0;
+				nextTrackPoint = 0;
 				break;
 				
 		}
 		
 		luanchBackgroundWorker(); 
 	}
+	
+	private void stopRunner() {
+		
+		if(handle != null){
+			handle.cancel(true);
+		}
+		
+	};
+	
+	public void interruptTrack(){
+		stopRunner();
+		
+		EmulatorTrackPoint currPoint = track.getTrack().get(nextTrackPoint);
+		
+		int odometer = VehicleDetailsService.getInstance().getCurrent().getOdometer();
+
+		Intent emulatedDataIntent = new Intent(VehicleDataEmulatorService.ACTION_EMULATED_DATA);
+		setIntentData(emulatedDataIntent, currPoint, 0, PRNDL.PARK, odometer);
+		LocalBroadcastManager.getInstance(instance).sendBroadcast(emulatedDataIntent);
+		
+	}
+
 
 }

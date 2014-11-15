@@ -9,7 +9,7 @@ public class VehicleDetails {
 	private String vehicleName;
 	private int	hwyMPG;
 	private int cityMPG;
-	private int odometer;
+	private int odometer = 12736;
 	
 	
 	public static VehicleDetails createDummy() {

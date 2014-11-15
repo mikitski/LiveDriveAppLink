@@ -35,6 +35,24 @@ public class LockScreenActivity extends Activity {
 			//TODO call java script to update the score display on the screen
 		};
 	};
+	
+	final BroadcastReceiver realTimeMpgScoreChangedReceiver = new BroadcastReceiver(){
+		public void onReceive(android.content.Context context, Intent intent) {
+			
+			long mpgScore = intent.getLongExtra("mpgScore", 50);
+			
+			//TODO call java script to update the score display on the screen
+		};
+	};
+	
+	final BroadcastReceiver realTimeDriverScoreChangedReceiver = new BroadcastReceiver(){
+		public void onReceive(android.content.Context context, Intent intent) {
+			
+			long driverScore = intent.getLongExtra("driverScore", 50);
+		
+			//TODO call java script to update the score display on the screen
+		};
+	};
 
 
 
