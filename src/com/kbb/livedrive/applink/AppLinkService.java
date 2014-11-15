@@ -3,6 +3,7 @@ package com.kbb.livedrive.applink;
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Random;
 import java.util.Vector;
@@ -1101,12 +1102,18 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		
 
 	}
+	
+	public Date getDateFromGps(GPSData gps){
+		return new Date(gps.getUtcYear(), gps.getUtcMonth(), gps.getUtcDay(), gps.getUtcHours(), gps.getUtcMinutes(), gps.getUtcSeconds());
+	}
 
 	private void onStartDriving(OnVehicleData vehicleData) {
 
 		Intent intent = new Intent(ACTION_VEHICLE_DRIVING_CHANGED);
 		intent.putExtra("drivingState", "DRIVING");
 		intent.putExtra("odometer", vehicleData.getOdometer());
+		intent.putExtra("time", (new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ENGLISH)).format(getDateFromGps(vehicleData.getGps())));
+		
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 		
 		LockScreenManager.setHMILevelState(currentHMIStatus.getHmiLevel());
@@ -1122,6 +1129,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		Intent intent = new Intent(ACTION_VEHICLE_DRIVING_CHANGED);
 		intent.putExtra("drivingState", "PARKED");
 		intent.putExtra("odometer", vehicleData.getOdometer());
+		intent.putExtra("time", (new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ENGLISH)).format(getDateFromGps(vehicleData.getGps())));
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 		
 		//DriverScoreService.getInstance().endTrip(vehicleData);

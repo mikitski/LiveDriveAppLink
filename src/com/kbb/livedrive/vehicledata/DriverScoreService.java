@@ -2,7 +2,12 @@ package com.kbb.livedrive.vehicledata;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -23,6 +28,7 @@ import com.kbb.livedrive.location.LocationServices;
 
 public class DriverScoreService extends Service {
 	
+
 	private static DriverScoreService instance = null;
 	
 	public static String ACTION_SCORE_CHANGED = "com.kbb.livedrive.DriverScoreService.ACTION_SCORE_CHANGED";
@@ -40,7 +46,10 @@ public class DriverScoreService extends Service {
 	private VehicleDataCache cache = new VehicleDataCache();
 
 	private int tripStartOdometer = 0;
+	private Date tripStartTime;
+	
 	private int tripEndOdometer = 0;
+	private Date tripEndTime;
 	
 	private int tripHwyMiles = 0;
 	private int tripCityMiles = 0;
@@ -53,11 +62,19 @@ public class DriverScoreService extends Service {
 			
 			String drivingState = intent.getStringExtra("drivingState");
 			int odometer = intent.getIntExtra("odometer", 0);
+			Date time = Calendar.getInstance().getTime();
+			try {
+				time = (new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ENGLISH)).parse(intent.getStringExtra("time"));
+			} catch (ParseException e) {
+				
+				e.printStackTrace();
+			}
+			
 			if("DRIVING".equals(drivingState)){
-				startTrip(odometer);
+				startTrip(odometer, time);
 			}
 			else if ("PARKED".equals(drivingState)){
-				endTrip(odometer);
+				endTrip(odometer, time);
 			}
 			
 		};
@@ -240,14 +257,13 @@ public class DriverScoreService extends Service {
 			double currLat= lastData.getGps().getLatitudeDegrees();
 			double currLong= lastData.getGps().getLongitudeDegrees();
 			
-			int sliceStartOdometer = firstData.getOdometer();
-			int sliceEndOdometer = lastData.getOdometer();
+			Date sliceStart = AppLinkService.getInstance().getDateFromGps(firstData.getGps());
+			Date sliceEnd = AppLinkService.getInstance().getDateFromGps(lastData.getGps());
 			
-			int sliceDistance = sliceEndOdometer - sliceStartOdometer;
+			long sliceTime = Math.max(sliceEnd.getTime() - sliceStart.getTime(), 0);
 			
-			int sliceStartTripDistance = Math.max(sliceStartOdometer - tripStartOdometer, 0);
-			
-			long tripDistance = sliceEndOdometer - tripStartOdometer;
+			long tripTime = Math.max(sliceEnd.getTime() - tripStartTime.getTime(), 0); 
+			long tripTimeAtStart = Math.max(tripTime - sliceTime, 0);
 			
 			String roadClass = loc.getCurrentRoadClass(currLat, currLong);
 			
@@ -262,25 +278,19 @@ public class DriverScoreService extends Service {
 			double realTimeMpgScore = 0;
 				
 			if(roadClass == "Highway"){			
-				tripHwyMiles += sliceDistance;
 				
 				realTimeMpgScore = avgFuelConsumption / currentVehicle.getHwyMPG(); // * sliceDistance/tripMiles;
 			}
 			else{
-				
-				tripCityMiles += sliceDistance;
-				
+
 				realTimeMpgScore = avgFuelConsumption / currentVehicle.getCityMPG(); // * sliceDistance/tripMiles;
-				
 			}
 			
 			realTimeMpgScore = Math.min(realTimeMpgScore * 100, 96);
 			
 			notifyRealTimeMPGScoreChanged(Math.round(realTimeMpgScore));
 			
-			//TODO send realtime MPG score change notificaton
-			
-			mpgScore = (realTimeMpgScore * sliceDistance + mpgScore * sliceStartTripDistance) / tripDistance;
+			mpgScore = (realTimeMpgScore * sliceTime + mpgScore * (tripTimeAtStart)) / tripTime;
 		} 
 		catch(Exception ex){
 			Log.e("calculateMPGScoreExternal", ex.getMessage());
@@ -336,7 +346,7 @@ public class DriverScoreService extends Service {
 	private ScheduledFuture<?> calculatorHandle;
 
 
-	public void startTrip(int odometer) {
+	public void startTrip(int odometer, Date time) {
 
 		//TODO convert current score to lifetime score (previous score is lifetime)
 		previousDriverScore = currentDriverScore;
@@ -344,6 +354,7 @@ public class DriverScoreService extends Service {
 
 		
 		tripStartOdometer = odometer;
+		tripStartTime = time;
 
 		if(calculatorHandle == null || calculatorHandle.isDone() ||calculatorHandle.isCancelled() ){
 			
@@ -354,9 +365,10 @@ public class DriverScoreService extends Service {
 		isMoving = true;
 	}
 
-	public void endTrip(int odometer) {
+	public void endTrip(int odometer, Date time) {
 		
 		tripEndOdometer = odometer;
+		tripEndTime = time;
 		
 		if(calculatorHandle != null){
 			

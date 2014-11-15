@@ -9,7 +9,7 @@ public class VehicleDetails {
 	private String vehicleName;
 	private int	hwyMPG;
 	private int cityMPG;
-	private int odometer = 12736;
+	private double odometer = 12736;
 	
 	
 	public static VehicleDetails createDummy() {
@@ -68,10 +68,15 @@ public class VehicleDetails {
 	}
 
 	public synchronized int getOdometer() {
+		return (int) Math.round(odometer);
+	}
+	
+	public synchronized double getRawOdometer() {
 		return odometer;
 	}
 
-	public synchronized void setOdometer(int odometer) {
+
+	public synchronized void setOdometer(double odometer) {
 		this.odometer = odometer;
 	}
 

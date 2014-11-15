@@ -6,6 +6,7 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import com.ford.syncV4.proxy.rpc.GPSData;
 import com.ford.syncV4.proxy.rpc.OnVehicleData;
@@ -109,7 +110,7 @@ public class VehicleDataEmulatorService extends Service {
 		
 		public void run() {
 			
-				int currentOdometer = VehicleDetailsService.getInstance().getCurrent().getOdometer();
+				double currentOdometer = VehicleDetailsService.getInstance().getCurrent().getRawOdometer();
 				
 				EmulatorTrackPoint currPoint = track.getTrack().get(nextTrackPoint);
 				
@@ -118,7 +119,7 @@ public class VehicleDataEmulatorService extends Service {
 				if(track.getTrack().size() <= nextTrackPoint){  //if no more data, send Parked - end of trip
 					
 					Intent emulatedDataIntent = new Intent(VehicleDataEmulatorService.ACTION_EMULATED_DATA);
-					setIntentData(emulatedDataIntent, currPoint, 0, PRNDL.PARK, currentOdometer);
+					setIntentData(emulatedDataIntent, currPoint, 0, PRNDL.PARK, (int) Math.round(currentOdometer));
 					LocalBroadcastManager.getInstance(instance).sendBroadcast(emulatedDataIntent);
 					    	
 					stopRunner();
@@ -126,8 +127,8 @@ public class VehicleDataEmulatorService extends Service {
 				else {
 					EmulatorTrackPoint nextPoint = track.getTrack().get(nextTrackPoint);
 					
-					int distance = calculateDistance(currPoint, nextPoint);
-					int odometer = currentOdometer + distance;
+					double distance = calculateDistance(currPoint, nextPoint);
+					double odometer = currentOdometer + distance;
 					
 					VehicleDetailsService.getInstance().getCurrent().setOdometer(odometer);
 					
@@ -138,12 +139,12 @@ public class VehicleDataEmulatorService extends Service {
 					
 					if(nextTrackPoint == 1) { // if we are at the first step, start in PARKED mode
 						
-						setIntentData(emulatedDataIntent, currPoint, speed, PRNDL.PARK, odometer);
+						setIntentData(emulatedDataIntent, currPoint, speed, PRNDL.PARK, (int) Math.round(odometer));
 						
 					}
 					else {
 						
-						setIntentData(emulatedDataIntent, currPoint, speed, PRNDL.DRIVE, odometer);
+						setIntentData(emulatedDataIntent, currPoint, speed, PRNDL.DRIVE, (int) Math.round(odometer));
 						
 					}
 					
@@ -153,16 +154,43 @@ public class VehicleDataEmulatorService extends Service {
 				}
 		}
 
-		private int calculateDistance(EmulatorTrackPoint start, EmulatorTrackPoint end){
+		
+		private double deg2rad(double deg) {
+			  return (deg * Math.PI / 180.0);
+		}
+		
+		private double rad2deg(double rad) {
+			  return (rad * 180 / Math.PI);
+		}
+
+
+		private double calculateDistance(EmulatorTrackPoint start, EmulatorTrackPoint end){
 			
-			//TODO calculate distance between two coordinates
-			return 134;
+
+			double lat1 = start.getLatitude();
+			double lon1 = start.getLongitude();
+			double lat2 = end.getLatitude();
+			double lon2 = end.getLongitude();
+			double theta = lon1 - lon2;
+
+			double dist = Math.sin(deg2rad(lat1)) * Math.sin(deg2rad(lat2)) + Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * Math.cos(deg2rad(theta));
+			
+			dist = Math.acos(dist);
+			dist = rad2deg(dist);
+			dist = dist * 60 * 1.1515;
+			return (dist);
 		}
 		
 		private double calculateSpeed(double distance, EmulatorTrackPoint start, EmulatorTrackPoint end) {
 			
 			// TODO calculate speed from travel coordinates and start/end time
-			return 100;
+			long diff = end.getTimestamp().getTime() - start.getTimestamp().getTime();
+			
+			long seconds = TimeUnit.MILLISECONDS.toSeconds(diff);
+			
+			double speed = distance / seconds * 3600;
+			
+			return speed;
 			
 		}
 				
