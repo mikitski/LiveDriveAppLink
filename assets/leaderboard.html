@@ -9,6 +9,9 @@
           width: 80%;
           height: 80%
       }
+      .wheelGray { 
+        fill: rgba(241, 241, 241, .78);
+      }
       .wheelBlue {
         fill: rgba(85, 138, 208, 0.78);
       }
@@ -18,19 +21,47 @@
       .wheelRed {
         fill: rgba(205, 32, 39, 0.78);
       }
+      #blueEmptyCircle {
+        fill: rgb(255,255,255);
+        stroke: rgba(85, 138, 208, 0.78);
+        stroke-width: 2px;
+      }
+      #redEmptyCircle {
+        fill: rgb(255,255,255);
+        stroke: rgba(205, 32, 39, 0.78);
+        stroke-width: 2px;
+      }
+      #greenEmptyCircle {
+        fill: rgb(255,255,255);
+        stroke: rgba(0, 156, 26, 0.78);
+        stroke-width: 2px;
+      }
       @font-face {
         font-family: 'OpenSans';
         src: url("OpenSans-Regular.ttf") format("truetype");
       }
       text.textRed {
         font-family: OpenSans; 
-        font-size: 270px; 
+        font-size: 212.5px;
+        font-weight: 400; 
         fill: rgba(205, 32, 39, 0.78);
       }
       text.textGreen {
         font-family: OpenSans; 
-        font-size: 270px; 
+        font-size: 212.5px; 
+        font-weight: 400; 
         fill: rgba(0, 156, 26, 0.78);
+      }
+      text.markerText {
+        font-family: OpenSans; 
+        font-size: 34px; 
+        font-weight: 600;
+        fill: rgb(255, 255, 255);
+      }
+      text.textDriverScore {
+        font-family: OpenSans; 
+        font-size: 34px;
+        font-weight: 600;
       }
     </style>
     <link rel="stylesheet" type="text/css" href="./jcarousel.responsive.css">
@@ -71,15 +102,20 @@
     </div>       
     <script>
 
+
+function placeOnCircle(centerX, centerY, radius, angleRadians) {
+  var x = centerX - (radius * Math.sin(angleRadians));
+  var y = centerY + (radius * Math.cos(angleRadians));
+  return { x: x, y: y };
+}
+
 function drawDriverScore(innerScore, outerScore, rank) {     
   var driverScore = document.getElementById("driver_score");
-  console.log(driverScore);
-      
   var didScoreGoDown = outerScore - innerScore > 0;
 
   d3.select(driverScore).select("svg").remove();
   var svg = d3.select(driverScore).append("svg")
-              .attr("width", 760).attr("height", 760);
+              .attr("width", 1000).attr("height", 760);
       
   svg.append("image")
       .attr("xlink:href", "MeterRing.svg")
@@ -93,22 +129,26 @@ function drawDriverScore(innerScore, outerScore, rank) {
   var pieResults = pie(data);
       
   var arc = d3.svg.arc();
-  arc.innerRadius(function(d) { return 311; });
+  arc.innerRadius(function(d) { return 308; });
   arc.outerRadius(function(d) { return 380; });
-  console.log(arc(pieResults[0]));
       
-  // blue = rgba(85, 138, 208, 0.78)
   d3.select(driverScore).select("svg").selectAll("g.arc")
     .data(pieResults)
     .enter()
-    .append("g").attr("class", "arc").attr("transform", "translate(382, 380) rotate(210)")
+    .append("g").attr("class", "arc").attr("transform", "translate(380, 380) rotate(210)")
     .append("path")
-    .attr("fill", function(d,i) 
-      {  
-        if (i == 0) { return d3.rgb(85, 138, 208).toString(); }
-        return d3.rgb(199,199,199).toString();
-      })
+    .classed("wheelBlue", function(d,i) { if (i == 0) { return true; } })
+    .classed("wheelGray", function(d,i) { if (i != 0) { return true; } }) 
     .attr("d", arc);
+
+  var blueEmptyPos = placeOnCircle(380, 380, 345, pieResults[0].endAngle + Math.PI / 6);  
+  svg.append("circle").attr("r", "36").attr("transform", "translate("+ blueEmptyPos.x +","+ blueEmptyPos.y +")").attr("id", "blueEmptyCircle");
+
+  svg.append("image")
+     .attr("xlink:href", "Driver_Marker.svg")
+     .attr("width", "128").attr("height", "120")
+     .attr("x", blueEmptyPos.x).attr("y", blueEmptyPos.y - 120);
+  svg.append("text").classed("markerText", true).attr("transform", "translate("+(blueEmptyPos.x+60)+","+(blueEmptyPos.y-70)+") scale(1.399,1.398)").text(outerScore);
 
   var data2 = [innerScore, (100-innerScore)];
   var pieResults2 = pie(data2);
@@ -116,28 +156,21 @@ function drawDriverScore(innerScore, outerScore, rank) {
   arcInner.innerRadius(function(d) { return 243; });
   arcInner.outerRadius(function(d) { return 300; });
       
-  // green = rgba(0, 156, 26, 0.78)
   d3.select(driverScore).select("svg").selectAll("g.arcInner")
     .data(pieResults2)
     .enter()
     .append("g").attr("class", "arcInner").attr("transform", "translate(381, 381) rotate(210)")
     .append("path")
-    .attr("fill", function(d,i) 
-      {  
-        if (i == 0) { 
-	  if (didScoreGoDown) {	
-	    return d3.rgb(255, 0, 0).toString();	    
-	  }
-          else {
-	    return d3.rgb(0, 156, 26).toString();					 
-          }
-	}
-        return d3.rgb(199,199,199).toString();
-      })
+    .classed("wheelGreen", function(d,i) { if (i == 0 && !didScoreGoDown) { return true; } })
+    .classed("wheelRed", function(d,i) { if (i == 0 && didScoreGoDown) { return true; } })
+    .classed("wheelGray", function(d,i) { if (i != 0) { return true; } }) 
     .attr("d", arcInner);
+
+  var innerEmptyPos = placeOnCircle(381, 381, 272, pieResults2[0].endAngle + Math.PI / 6);  
+  svg.append("circle").attr("r", "29").attr("transform", "translate("+ innerEmptyPos.x +","+ innerEmptyPos.y +")").attr("id", didScoreGoDown?"redEmptyCircle":"greenEmptyCircle");
       
-  d3.select(driverScore).select("svg").append("text").attr("transform", "translate(240,470)").text(innerScore).classed(didScoreGoDown?"textRed":"textGreen", true);
-  d3.select(driverScore).select("svg").append("text").attr("transform", "translate(263,530)").text("Driver Score").attr("style", "font-family:Arial; font-size: 44px");
+  d3.select(driverScore).select("svg").append("text").attr("transform", "translate(220,470) scale(1.399, 1.398)").text(innerScore).classed(didScoreGoDown?"textRed":"textGreen", true);
+  d3.select(driverScore).select("svg").append("text").attr("transform", "translate(249,530) scale(1.399, 1.398)").text("Driver Score").classed("textDriverScore", true);
       
   svg.append("image")
      .attr("xlink:href", "Driver_Marker 1.svg")
@@ -145,6 +178,7 @@ function drawDriverScore(innerScore, outerScore, rank) {
      .attr("x", 293).attr("y", 513);
 
   d3.select(driverScore).select("svg").append("text").attr("transform", "translate(442,715)").text(rank).attr("style", "font-family:Arial; font-size: 43px;");
+
 }
       
       
@@ -152,7 +186,6 @@ function drawDriverScore(innerScore, outerScore, rank) {
       function drawMpgScore(innerScore, outerScore) {
       
       var mpgScoreDiv = document.getElementById("mpg_score");
-      console.log(mpgScoreDiv);
       
       d3.select(mpgScoreDiv).select("svg").remove();
       var svg = d3.select(mpgScoreDiv).append("svg").attr("width", 760).attr("height", 760);
@@ -172,7 +205,6 @@ function drawDriverScore(innerScore, outerScore, rank) {
       var arc = d3.svg.arc();
       arc.innerRadius(function(d) { return 310; });
       arc.outerRadius(function(d) { return 380; });
-      console.log(arc(pieResults[0]));
       
       // blue = rgba(85, 138, 208, 0.78)
       d3.select(mpgScoreDiv).select("svg").selectAll("g.arc")
