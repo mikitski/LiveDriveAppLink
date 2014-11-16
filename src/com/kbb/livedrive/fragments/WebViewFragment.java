@@ -80,7 +80,7 @@ public class WebViewFragment extends BaseFragment {
 			previousScoreDisplay = String.valueOf(DriverScoreService.getInstance().getPreviousDriverScore());
 
 			//return Player's Driver score back to UI
-			leaderboardView.loadUrl(String.format("javascript:drawDriverScore(%s,%s,%s);", previousScoreDisplay, scoreDisplay, leaderboardPosition));
+			leaderboardView.loadUrl(String.format("javascript:drawDriverScore(%s,%s,%s);", scoreDisplay, previousScoreDisplay, leaderboardPosition));
 			
 			//TODO call javascript with player details for Driver leaderboard
 			
@@ -142,7 +142,7 @@ public class WebViewFragment extends BaseFragment {
 			previousScoreDisplay = String.valueOf(DriverScoreService.getInstance().getPreviousMPGScore());
 
 			//return Player's MPG score back to UI
-			leaderboardView.loadUrl(String.format("javascript:drawMpgScore(%s,%s,%s);", previousScoreDisplay, scoreDisplay, leaderboardPosition));
+			leaderboardView.loadUrl(String.format("javascript:drawMpgScore(%s,%s,%s);", scoreDisplay, previousScoreDisplay, leaderboardPosition));
 			
 			//TODO call javascript with player details for MPG leaderboard
 						
