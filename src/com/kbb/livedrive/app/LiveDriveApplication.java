@@ -126,10 +126,10 @@ public class LiveDriveApplication extends Application {
     	startService(locationIntent);
     	
 	}
-	
+    
 
 	public void stopServices() {
-    	GooglePlayService.getInstance().stopService(new Intent(this, GooglePlayService.class));
+    	//GooglePlayService.getInstance().stopService(new Intent(this, GooglePlayService.class));
     }
 
 	public void showAppVersion(Context context) {

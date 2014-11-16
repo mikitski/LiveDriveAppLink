@@ -133,14 +133,28 @@ public class GooglePlayService extends Service implements
 	@Override
 	public void onConnectionSuspended(int arg0) {
 		
+		Log.e("GooglePlayService", "Connection Suspended");
 		
 	}
 	
+	
 	public void submitDriverScore(long driverScore){
  
-		if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+		if(mGoogleApiClient != null){
+			
+			if(!mGoogleApiClient.isConnected()){
+				mGoogleApiClient.connect();
+			}
+			
+			try{
+
 		    // Call a Play Games services API method, for example:
-		    Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_good_driver), driverScore);
+				Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_good_driver), driverScore);
+			}
+			catch(Exception ex){
+				Log.e("DriverScoreService", ex.getMessage());
+			}
+
 		} else {
 		    // Alternative implementation (or warn user that they must
 		    // sign in to use this feature)
@@ -191,9 +205,20 @@ public class GooglePlayService extends Service implements
 	
 	public void submitMPGScore(long mpgScore){
 		 
-		if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+		if(mGoogleApiClient != null){
+			
+			if(!mGoogleApiClient.isConnected()){
+				mGoogleApiClient.connect();
+			}
+
+			try{			
 		    // Call a Play Games services API method, for example:
-		    Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_mpg), mpgScore);
+				Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_mpg), mpgScore);
+			}
+			catch(Exception ex){
+				Log.e("DriverScoreService", ex.getMessage());
+			}
+		
 		} else {
 		    // Alternative implementation (or warn user that they must
 		    // sign in to use this feature)

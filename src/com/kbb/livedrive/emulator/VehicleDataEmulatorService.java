@@ -198,7 +198,7 @@ public class VehicleDataEmulatorService extends Service {
 	
 	private void luanchBackgroundWorker(){
     	
-    	handle = scheduler.scheduleAtFixedRate(dataSender, 1, 3, SECONDS);
+    	handle = scheduler.scheduleAtFixedRate(dataSender, 1, 1, SECONDS);
 	}
 	
 	private void setIntentData(Intent intent, EmulatorTrackPoint point, double speed, PRNDL prndl, int odometer){

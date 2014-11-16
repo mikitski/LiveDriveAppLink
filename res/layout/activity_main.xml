@@ -3,13 +3,7 @@
     android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-    
-    <!-- Framelayout to display Fragments -->
-    <FrameLayout
-        android:id="@+id/content_frame"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
- 
+
     <!-- Listview to display slider menu -->
     <ListView
         android:id="@+id/left_drawer"
@@ -20,4 +14,13 @@
         android:divider="@android:color/transparent"
         android:dividerHeight="0dp"       
         android:background="#111"/>
+    
+    
+    <!-- Framelayout to display Fragments -->
+    <FrameLayout
+        android:id="@+id/content_frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+ 
+
 </android.support.v4.widget.DrawerLayout>

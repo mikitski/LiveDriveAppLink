@@ -118,7 +118,6 @@ public class WebViewFragment extends BaseFragment {
 		}
 	};
 
-
 	final ResultCallback<LoadPlayerScoreResult> scoresMPGScoreCallback = new ResultCallback<Leaderboards.LoadPlayerScoreResult>() {
 		
 		@Override

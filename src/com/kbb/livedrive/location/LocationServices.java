@@ -80,20 +80,22 @@ public class LocationServices extends Service{
 		//Detector config file - use to get nearest traffic detector (VDS) by lat/long
 		//http://pems.dot.ca.gov/vds_config.xml
 		
-		return 30 + rand.nextInt(45);
+		return 30 + rand.nextInt(15);
 		
 	}
 
 	public String getCurrentSunStatus(double latitude, double longitude){
 		
-		//TODO get Real Time Day/Night indicator from weather sunrise/sunset data
-		Calendar cal = Calendar.getInstance();
-		if(cal.get(Calendar.HOUR_OF_DAY) > 5 && cal.get(Calendar.HOUR_OF_DAY) < 19 ){
-			return "Day";
-		}
-		else {
-			return "Night";
-		}
+		return "Day";
+//		//TODO get Real Time Day/Night indicator from weather sunrise/sunset data
+//		Calendar cal = Calendar.getInstance();
+//		if(cal.get(Calendar.HOUR_OF_DAY) > 5 && cal.get(Calendar.HOUR_OF_DAY) < 19 ){
+//			return "Day";
+//		}
+//		else {
+//			return "Night";
+//		}
+		
 	}
 	
 	public String getWetaherConditionsdouble(double latitude, double longitude){

@@ -1,26 +1,191 @@
 <!DOCTYPE html>
 <html>
-
-    <head>
+<head>
 	<link rel="stylesheet" href="boilerplate.css">
 	<link rel="stylesheet" href="lockscreen.css">
 	<meta charset="utf-8">
-	<meta name="viewport" content="initial-scale = 1.0,maximum-scale = 1.0">
+	<!-- meta name="viewport" content="initial-scale = 1.0,maximum-scale = 1.0" -->
 	<script>var __adobewebfontsappname__ = "reflow"</script>
 	<script src="http://use.edgefonts.net/open-sans:n7,i7,n8,i8,i4,n3,i3,n4,n6,i6:all.js"></script>
-    </head>
-    <body>
+    <script type="text/javascript" src="./jquery.min.js"></script>
+        <script src="d3.min.js"></script>
+    <style>
+      .wheelBlue {
+        fill: rgba(85, 138, 208, 0.78);
+      }
+      .wheelGreen {
+        fill: rgba(0, 156, 26, 0.78);
+      }
+      .wheelRed {
+        fill: rgba(205, 32, 39, 0.78);
+      }
+      @font-face {
+        font-family: 'OpenSans';
+        src: url("OpenSans-Regular.ttf") format("truetype");
+      }
+      text.textRed {
+        font-family: OpenSans; 
+        font-size: 230px; 
+        fill: rgba(205, 32, 39, 0.78);
+      }
+      text.textGreen {
+        font-family: OpenSans; 
+        font-size: 230px; 
+        fill: rgba(0, 156, 26, 0.78);
+      }
+      text.scoreName{
+        font-family: OpenSans; 
+        font-size: 30px; 
+        fill: rgba(0, 0, 0, 0.78);
+      }
+      text.rankDisplay{
+        font-family: OpenSans; 
+        font-size: 18px; 
+        fill: rgba(0, 0, 0, 0.78);
+      }
 
+    </style>
+		
+</head>
+<body>
+<script>
+
+function drawDriverScore(innerScore, outerScore, rank) {     
+
+  var driverScoreContainer = document.getElementById("driver_score");
+  console.log(driverScoreContainer);
+  
+  drawScore(innerScore, outerScore, rank, "Driver Score", driverScoreContainer, "Driver_Marker 1.svg")
+}
+
+function drawMpgScore(innerScore, outerScore, rank) {
+
+	var mpgScoreContainer = document.getElementById("mpg_score");
+	console.log(mpgScoreContainer);
+  
+	drawScore(innerScore, outerScore, rank, "Eco Score", mpgScoreContainer, "Fuel Icon 1.svg")
+
+}
+
+
+function drawScore(innerScore, outerScore, rank, scoreName, scoreContainer, iconHref) {     
+
+      
+  var didScoreGoDown = outerScore - innerScore > 0;
+
+  d3.select(scoreContainer).select("svg").remove();
+  var svg = d3.select(scoreContainer).append("svg")
+              .attr("width", 520).attr("height", 520);
+      
+  svg.append("image")
+      .attr("xlink:href", "MeterRing.svg")
+      .attr("width", "492").attr("height", "492")
+      .attr("x", 21).attr("y", 21)
+      //.attr("cx", 260).attr("cy", 260);
+      
+  var data = [outerScore, (100-outerScore)];
+  var pie = d3.layout.pie();
+  pie.startAngle(0);
+  pie.endAngle(2*Math.PI - (Math.PI/3));
+  var pieResults = pie(data);
+      
+  var arc = d3.svg.arc();
+  arc.innerRadius(function(d) { return 212; });
+  arc.outerRadius(function(d) { return 246; });
+  console.log(arc(pieResults[0]));
+      
+  // blue = rgba(85, 138, 208, 0.78)
+  d3.select(scoreContainer).select("svg").selectAll("g.arc")
+    .data(pieResults)
+    .enter()
+    .append("g").attr("class", "arc")
+    .attr("transform", "translate(267, 267) rotate(210)")
+    .append("path")
+    .attr("fill", function(d,i) 
+      {  
+        if (i == 0) { return d3.rgb(85, 138, 208).toString(); }
+        return d3.rgb(199,199,199).toString();
+      })
+    .attr("d", arc);
+
+  var data2 = [innerScore, (100-innerScore)];
+  var pieResults2 = pie(data2);
+  var arcInner = d3.svg.arc();
+  arcInner.innerRadius(function(d) { return 175; });
+  arcInner.outerRadius(function(d) { return 205; });
+      
+  // green = rgba(0, 156, 26, 0.78)
+  d3.select(scoreContainer).select("svg").selectAll("g.arcInner")
+    .data(pieResults2)
+    .enter()
+    .append("g").attr("class", "arcInner")
+    .attr("transform", "translate(267, 267) rotate(210)")
+    .append("path")
+    .attr("fill", function(d,i) 
+      {  
+        if (i == 0) { 
+	  if (didScoreGoDown) {	
+	    return d3.rgb(255, 0, 0).toString();	    
+	  }
+          else {
+	    return d3.rgb(0, 156, 26).toString();					 
+          }
+	}
+        return d3.rgb(199,199,199).toString();
+      })
+    .attr("d", arcInner);
+      
+  d3.select(scoreContainer).select("svg")
+  		.append("text")
+		.attr("x", 270)
+  		.attr("y", 340)
+  		.attr("text-anchor", "middle")  		
+//  		.attr("transform", "translate(140,340)")
+  		.text(innerScore)
+  		.classed(didScoreGoDown?"textRed":"textGreen", true);
+  		
+  d3.select(scoreContainer).select("svg")
+  		.append("text")
+		.attr("x", 260)
+  		.attr("y", 380)
+  		.attr("text-anchor", "middle")
+//  		.attr("transform", "translate(184,380)")
+  		.text(scoreName)
+  		.classed("scoreName", true);
+      
+  svg.append("image")
+    	.attr("xlink:href", iconHref)
+	    .attr("width", "120").attr("height", "160")
+    	.attr("x", 225).attr("y", 385);
+
+  d3.select(scoreContainer).select("svg")
+  		.append("text")
+  		.attr("transform", "translate(314,498)")
+  		.text(rank)
+  		.classed("rankDisplay", true);
+}
+
+
+</script>
+    
     <div id="primaryContainer" class="primaryContainer clearfix">
-        <div id="bkg" class="clearfix">
-            <img id="LIVE_DRIVE" src="img/LIVE%20DRIVE.png" class="image" />
-            <div id="Rounded_Rectangle_1" class="clearfix">
+            <div id="live_drive_container">
+            	<img id="LIVE_DRIVE" src="img/LIVE%20DRIVE.png" class="image" />
+            </div>
+            <div id="scores">
+            	<div id="driver_score"></div>
+            	<div id="mpg_score"></div>
+            </div>
+            <div class="clearfix">
                 <p id="Vehicle_in_Motion_Game_in_Progress_">
                 <span id="textspan">Vehicle in Motion. </span><span id="textspan1">Game in Progress.</span>
                 </p>
             </div>
             <img id="FordLogo" src="img/FordLogo.png" class="image" />
-        </div>
     </div>
+<script>
+drawDriverScore(76, 76, "--");
+drawMpgScore(85,85, "--")
+</script>    
     </body>
 </html>
