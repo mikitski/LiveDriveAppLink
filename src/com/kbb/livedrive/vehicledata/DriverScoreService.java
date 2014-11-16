@@ -165,7 +165,7 @@ public class DriverScoreService extends Service {
 		double mpgScore = getRawMPGScore();
 		
 		try{
-			//driverScore = calculateDriverScoreExternalV2(data);
+			driverScore = calculateDriverScoreExternalV2(data);
 			mpgScore = calculateMPGScoreExternal(data);
 		}
 		catch(Exception e){
@@ -174,7 +174,6 @@ public class DriverScoreService extends Service {
 		
 		setDriverScore(driverScore);
 		setMPGScore(mpgScore);
-
 		
 		notifyScoresChanged();
 
@@ -204,21 +203,28 @@ public class DriverScoreService extends Service {
 		
 		LocationServices loc = LocationServices.getInstance();
 		
+		
 		double driverScore = getRawDriverScore();
 		
 		OnVehicleData lastData = data.get(data.size() - 1);
+		OnVehicleData firstData = data.get(0);
 		
 		double currLat= lastData.getGps().getLatitudeDegrees();
 		double currLong= lastData.getGps().getLongitudeDegrees();
 		
-		int sliceDistance = lastData.getOdometer() - data.get(0).getOdometer();
-		
-		
 		int currAvgSpeed = loc.getCurrentAvgSpeed(currLat, currLong);
-		
 		String currDayStatus = loc.getCurrentSunStatus(currLat, currLong);
 		
-		double currScore = 0;
+		
+		Date sliceStart = AppLinkService.getInstance().getDateFromGps(firstData.getGps());
+		Date sliceEnd = AppLinkService.getInstance().getDateFromGps(lastData.getGps());
+		
+		long sliceTime = Math.max(sliceEnd.getTime() - sliceStart.getTime(), 0);
+		
+		long tripTime = Math.max(sliceEnd.getTime() - tripStartTime.getTime(), 0); 
+		long tripTimeAtStart = Math.max(tripTime - sliceTime, 0);
+		
+		double realTimeScore = 0;
 		
 		for(int i = 0; i < data.size(); i++){
 			
@@ -227,18 +233,21 @@ public class DriverScoreService extends Service {
 			double speed = item.getSpeed();
 			
 			if(currDayStatus == "Day"){
-				currScore = currScore + 100-(50000*(Math.pow(10,0.0014*Math.pow(speed-currAvgSpeed,2)-0.0141*(speed-currAvgSpeed)+2.1095)*1/12*Math.pow(10,-8)));
+				realTimeScore += 100-(50000*(Math.pow(10,0.0014*Math.pow(speed-currAvgSpeed,2)-0.0141*(speed-currAvgSpeed)+2.1095)*1/12*Math.pow(10,-8)));
 			}
 			else{
-				currScore = currScore + 100-(50000*(Math.pow(10,0.0016*Math.pow(speed-currAvgSpeed,2)-0.0069*(speed-currAvgSpeed)+2.4605)*1/12*Math.pow(10,-8)));
+				realTimeScore += 100-(50000*(Math.pow(10,0.0016*Math.pow(speed-currAvgSpeed,2)-0.0069*(speed-currAvgSpeed)+2.4605)*1/12*Math.pow(10,-8)));
 			}
 		}
 		
-		currScore = currScore / data.size();
+		realTimeScore = realTimeScore / data.size();
 		
-		driverScore = (driverScore + currScore) / 2;
+		//TODO send real time score chagne notification
 		
-		return driverScore;
+		
+		driverScore = (realTimeScore * sliceTime + driverScore * (tripTimeAtStart)) / tripTime;
+		
+		return Math.min(driverScore, 100);
 	}
 
 	private double calculateMPGScoreExternal(List<OnVehicleData> data) {
