@@ -199,6 +199,34 @@ public class DriverScoreService extends Service {
 		return driverScore;
 	}
 	
+	private double driverScoreV1(double currentSpeed, double referenceSpeed){
+		
+		double speedDelta = Math.abs(referenceSpeed - currentSpeed);
+		
+		double newScore = 100 * (1 - 1/(1+ Math.exp(5-speedDelta/2)));
+		
+		return newScore;
+	}
+	
+	private double driverScoreV2Day(double currentSpeed, double referenceSpeed){
+	
+		double speedDelta = Math.abs(referenceSpeed - currentSpeed);
+		
+		double newScore = 100-(50000*(Math.pow(10,0.0014*Math.pow(speedDelta,2)-0.0141*(speedDelta)+2.1095)*1/12*Math.pow(10,-8)));
+		
+		return newScore;
+	}
+	
+	private double driverScoreV2Night(double currentSpeed, double referenceSpeed){
+		
+		double speedDelta = Math.abs(referenceSpeed - currentSpeed);
+		
+		double newScore = 100-(50000*(Math.pow(10,0.0016*Math.pow(speedDelta,2)-0.0069*(speedDelta)+2.4605)*1/12*Math.pow(10,-8)));
+		
+		return newScore;
+	}
+	
+	
 	private double calculateDriverScoreExternalV2(List<OnVehicleData> data) {
 		
 		LocationServices loc = LocationServices.getInstance();
@@ -235,10 +263,10 @@ public class DriverScoreService extends Service {
 			avgSpeed += speed;
 			
 			if(currDayStatus == "Day"){
-				realTimeScore += 100-(50000*(Math.pow(10,0.0014*Math.pow(Math.abs(currAvgTrafficSpeed - speed),2)-0.0141*(Math.abs(currAvgTrafficSpeed - speed))+2.1095)*1/12*Math.pow(10,-8)));
+				realTimeScore += driverScoreV1(speed, currAvgTrafficSpeed);
 			}
 			else{
-				realTimeScore += 100-(50000*(Math.pow(10,0.0016*Math.pow(Math.abs(currAvgTrafficSpeed - speed),2)-0.0069*(Math.abs(currAvgTrafficSpeed - speed))+2.4605)*1/12*Math.pow(10,-8)));
+				realTimeScore += driverScoreV2Night(speed, currAvgTrafficSpeed);
 			}
 		}
 		
