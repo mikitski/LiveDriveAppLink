@@ -135,7 +135,9 @@ public class WebViewFragment extends BaseFragment {
 
 	
         mTextView = (TextView) fragmentView.findViewById(R.id.textview);
-        mTextView.setText(getTextViewLabel());
+        
+        //TODO: populate textview lable when vehcile details are available. they are not available here
+        //mTextView.setText(getTextViewLabel());
         
 		leaderboardView = (WebView) fragmentView.findViewById(R.id.scoreswebview);
 		leaderboardView.getSettings().setJavaScriptEnabled(true);
@@ -157,8 +159,8 @@ public class WebViewFragment extends BaseFragment {
 
 	private CharSequence getTextViewLabel() {
 		//android:text="LadiesMan217|2014 Ford Flex Limited"
-        String driverName = "LadiesMan217";
-        String vehicleName = "2014 Ford Flex Limited";
+        String driverName = ProfileService.getInstance().getCurrentPlayer().getUserName();
+        String vehicleName = ProfileService.getInstance().getCurrentVehicle().getVehicleName();
         		
         SpannableString span1 = new SpannableString(driverName);
         SpannableString span2 = new SpannableString(vehicleName);

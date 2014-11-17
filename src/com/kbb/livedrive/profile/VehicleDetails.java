@@ -6,9 +6,9 @@ public class VehicleDetails {
 	private String make;
 	private String model;
 	private String modelYear;
-	private String vehicleName;
-	private int	hwyMPG;
-	private int cityMPG;
+	private String vehicleName = "2014 Ford Flex Limited";
+	private int	hwyMPG = 27;
+	private int cityMPG = 34;
 	private double odometer = 12736;
 	
 	
@@ -16,11 +16,8 @@ public class VehicleDetails {
 		
 		VehicleDetails dummy = new VehicleDetails();
 		
-		dummy.setCityMPG(27);
-		dummy.setHwyMPG(34);
 		
 		return dummy;
-		
 	}
 	
 

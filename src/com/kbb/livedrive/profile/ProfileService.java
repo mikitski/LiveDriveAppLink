@@ -32,6 +32,8 @@ public class ProfileService extends Service {
 	public static String ACTION_DRIVER_LEADERBOARD_CHANGED = "com.kbb.livedrive.ProfileService.ACTION_DRIVER_LEADERBOARD_CHANGED";
 	public static String ACTION_MPG_LEADERBOARD_CHANGED = "com.kbb.livedrive.ProfileService.ACTION_MPG_LEADERBOARD_CHANGED";
 	
+	public static String ACTION_ODOMETER_CHANGED = "com.kbb.livedrive.ProfileService.ACTION_ODOMETER_CHANGED";
+	
 	
 	
 	static{
@@ -84,7 +86,6 @@ public class ProfileService extends Service {
 		
 		SharedPreferences pref = this.getSharedPreferences("player_store", Context.MODE_PRIVATE);
 		
-		if(pref != null){
 			try{
 				player = new CurrentPlayer();
 				player.setUserName(pref.getString("userName", "LadiesMan217"));
@@ -104,7 +105,17 @@ public class ProfileService extends Service {
 			catch(Exception e){
 				Log.e("ProfileService", e.getMessage());
 			}
+		
+		pref = this.getSharedPreferences("vehicle_store", Context.MODE_PRIVATE);
+			
+		try{
+			currentVehicle = new VehicleDetails();
+			currentVehicle.setOdometer(Double.longBitsToDouble(pref.getLong("odometer", Double.doubleToRawLongBits(12736))));
 		}
+		catch(Exception e){
+			Log.e("ProfileService", e.getMessage());
+		}
+		
 	}
 	
 	private void savePlayerToPersistentStore(){
@@ -131,6 +142,18 @@ public class ProfileService extends Service {
 		}
 		
 		
+		pref = this.getSharedPreferences("vehicle_store", Context.MODE_PRIVATE);
+		
+		prefEdit = pref.edit();
+		
+		try{
+			prefEdit.putLong("odometer", Double.doubleToRawLongBits(currentVehicle.getRawOdometer()));
+			
+		}
+		finally{
+			prefEdit.commit();
+		}
+		
 
 	}
 
@@ -151,22 +174,14 @@ public class ProfileService extends Service {
 		
 		savePlayerToPersistentStore();
 		
-		//broadcast score changed notification
-		Intent intent = new Intent(ACTION_DRIVER_SCORE_CHANGED);
-		
-		intent.putExtra("driverScore", player.getLatestDriverScoreLong());
-		intent.putExtra("previousDriverScore", player.getPreviousDriverScoreLong());
-		intent.putExtra("bestDriverScore", player.getBestDriverScoreLong());
-		intent.putExtra("leaderboardPosition", player.getDriverRank());
-		
-		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+		notifyDriverScoreChanged();
 		
 		// submit to google play
 		GooglePlayService gp = GooglePlayService.getInstance();
 		gp.submitDriverScore((int)player.getLatestDriverScoreLong());
 		
 	}
-	
+
 	public void submitMpgScore(double mpgScore){
 		
 		player.setPreviousMpgScore(player.getLatestMpgScore());
@@ -177,15 +192,7 @@ public class ProfileService extends Service {
 		
 		savePlayerToPersistentStore();
 		
-		//broadcast score changed notification
-		Intent intent = new Intent(ACTION_MPG_SCORE_CHANGED);
-		
-		intent.putExtra("driverScore", player.getLatestMpgScoreLong());
-		intent.putExtra("previousDriverScore", player.getPreviousMpgScoreLong());
-		intent.putExtra("bestDriverScore", player.getBestMpgScoreLong());
-		intent.putExtra("leaderboardPosition", player.getMpgRank());
-		
-		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+		notifyMpgScoreChanged();
 
 		
 		//submit to google play
@@ -194,10 +201,8 @@ public class ProfileService extends Service {
 
 		
 	}
-	
-	public void requestDriverScoreUpdate(){
-		//send Driver Score Update
-		
+
+	private void notifyDriverScoreChanged() {
 		//broadcast score changed notification
 		Intent intent = new Intent(ACTION_DRIVER_SCORE_CHANGED);
 		
@@ -209,9 +214,19 @@ public class ProfileService extends Service {
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 	}
 	
-	public void requestMpgScoreUpdate(){
-		//send Mpg Score Update
+	private void notifyOdometerChanged(){
 
+		Intent intent = new Intent(ACTION_ODOMETER_CHANGED);
+		
+		intent.putExtra("odometer", currentVehicle.getOdometer());
+		
+		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);		
+		
+	}
+	
+	
+	private void notifyMpgScoreChanged() {
+		//broadcast score changed notification
 		Intent intent = new Intent(ACTION_MPG_SCORE_CHANGED);
 		
 		intent.putExtra("driverScore", player.getLatestMpgScoreLong());
@@ -220,8 +235,25 @@ public class ProfileService extends Service {
 		intent.putExtra("leaderboardPosition", player.getMpgRank());
 		
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+	}
+	
+	public void requestDriverScoreUpdate(){
+		//send Driver Score Update
+		
+		notifyDriverScoreChanged();
+	}
+	
+	public void requestMpgScoreUpdate(){
+		//send Mpg Score Update
+		
+		notifyMpgScoreChanged();
 		
 	}
+	
+	public void requestOdometerUpdate() {
+		notifyOdometerChanged();
+	}
+
 	
 	public void requestDriverLeaderboardUpdate(){
 		//TODO send Google Play request to get Driver Leaderboard
@@ -371,6 +403,7 @@ public class ProfileService extends Service {
 			//TODO send Leaderboard Update notification
 		}
 	};
+
 	
 		
 }
