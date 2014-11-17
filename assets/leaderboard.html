@@ -4,11 +4,8 @@
     <meta charset=utf-8>
     <style>
       .center-div {
-      	  margin-top:auto;
-      	  margin-right:auto;
-      	  margin-botton:auto;
-      	  margin-left:67px;
-          width: 80%;
+
+		width:100%
           height: 80%;
       }
       .wheelGray {
@@ -69,47 +66,70 @@
         font-weight: 600;
       }
       div.padding {
-        padding-bottom: 150px;
+        padding-bottom: 100px;
       }
+	
+	.swiper-container, .swiper-slide {
+	  width: 100%;
+	  height: 900px;
+	}
+	
+	.swiper-pager{
+		position:absolute;
+		left:0;
+		text-align:center;
+
+		width:100%;
+	}
+	.swiper-pagination-switch{
+		display:inline-block;
+		width:25px;
+		height:25px;
+		border-radius:25px;
+		background:#999;
+		box-shadow:0px 2px 4px #555 inset;
+		margin:0 25px;
+		cursor:pointer;
+	}
+	.swiper-active-switch{
+		background:#fff;
+	}
+	
+	svg{
+		display:block;
+		// margin:auto;
+		margin-left:150px;
+	}
+      
     </style>
-    <link rel="stylesheet" type="text/css" href="./jcarousel.responsive.css">
     <script src="d3.min.js"></script>
     <script type="text/javascript" src="./jquery.min.js"></script>
-    <script type="text/javascript" src="./jquery.jcarousel.min.js"></script>
-    <script type="text/javascript" src="./jcarousel.responsive.js"></script>
+	<link rel="stylesheet" href="idangerous.swiper.css">
+	<script type="text/javascript" defer src="./idangerous.swiper.js"></script>
+
+    
   </head>
   <body>
     <div class="padding">
     </div>
-    <div class="wrapper">
-      <div class="jcarousel-wrapper">
-        <div class="jcarousel">
-          <ul>
-            <li>
-              <div id="driver_score" class="center-div">
+<div class="wrapper">
+<div class="swiper-container">
+  <div class="swiper-wrapper">
+              <div id="driver_score" class="center-div swiper-slide">
               </div>
-            </li>
-            <li>
-              <div id="mpg_score" class="center-div">
+              <div id="mpg_score" class="center-div swiper-slide">
               </div>
-            </li>
-            <li>
-              <div id="driver_leaderboard" class="center-div">
-		<h1>Placeholder: driver leaderboard</h1>
+              <div id="driver_leaderboard" class="center-div swiper-slide">
+					<h1>Placeholder: driver leaderboard</h1>
               </div>
-            </li>
-            <li>
-              <div id="mpg_leaderboard" class="center-div">
-		<h1>Placeholder: mpg leaderboard</h1>
+              <div id="mpg_leaderboard" class="center-div swiper-slide">
+					<h1>Placeholder: mpg leaderboard</h1>
               </div>
-            </li>
-            </ul>
-          </div>
-          <a href="#" class="jcarousel-control-prev">&lsaquo;</a>
-          <a href="#" class="jcarousel-control-next">&rsaquo;</a>
-        <p class="jcarousel-pagination"></p>
-      </div>
-    </div>
+	</div>
+	</div>
+	<div class="swiper-pager"></div>
+	
+</div>
     <script>
 
 function placeOnCircle(centerX, centerY, radius, angleRadians) {
@@ -124,12 +144,12 @@ function genericScore(innerScore, outerScore, rank, divName, bottomSVG, text, ou
 
   d3.select(driverScore).select("svg").remove();
   var svg = d3.select(driverScore).append("svg")
-              .attr("width", 1000).attr("height", 760);
+              .attr("width", 860).attr("height", 860);
 
   svg.append("image")
       .attr("xlink:href", "MeterRing.svg")
       .attr("width", "720").attr("height", "720")
-      .attr("x", 21).attr("y", 21);
+      .attr("x", 21).attr("y", 121);
 
   var data = [outerScore, (100-outerScore)];
   var pie = d3.layout.pie();
@@ -143,13 +163,13 @@ function genericScore(innerScore, outerScore, rank, divName, bottomSVG, text, ou
   d3.select(driverScore).select("svg").selectAll("g.arc")
     .data(pieResults)
     .enter()
-    .append("g").attr("class", "arc").attr("transform", "translate(380, 380) rotate(210)")
+    .append("g").attr("class", "arc").attr("transform", "translate(380, 480) rotate(210)")
     .append("path")
     .classed(outerWheelCSS, function(d,i) { if (i == 0) { return true; } })
     .classed("wheelGray", function(d,i) { if (i != 0) { return true; } })
     .attr("d", arc);
 
-  var blueEmptyPos = placeOnCircle(380, 380, 345, pieResults[0].endAngle + Math.PI / 6);
+  var blueEmptyPos = placeOnCircle(380, 480, 345, pieResults[0].endAngle + Math.PI / 6);
   svg.append("circle").attr("r", "36").attr("transform", "translate("+ blueEmptyPos.x +","+ blueEmptyPos.y +")").attr("id", "blueEmptyCircle");
 
   svg.append("image")
@@ -167,25 +187,35 @@ function genericScore(innerScore, outerScore, rank, divName, bottomSVG, text, ou
   d3.select(driverScore).select("svg").selectAll("g.arcInner")
     .data(pieResults2)
     .enter()
-    .append("g").attr("class", "arcInner").attr("transform", "translate(381, 381) rotate(210)")
+    .append("g").attr("class", "arcInner").attr("transform", "translate(381, 481) rotate(210)")
     .append("path")
     .classed("wheelGreen", function(d,i) { if (i == 0 && !didScoreGoDown) { return true; } })
     .classed("wheelRed", function(d,i) { if (i == 0 && didScoreGoDown) { return true; } })
     .classed("wheelGray", function(d,i) { if (i != 0) { return true; } })
     .attr("d", arcInner);
 
-  var innerEmptyPos = placeOnCircle(381, 381, 272, pieResults2[0].endAngle + Math.PI / 6);
+  var innerEmptyPos = placeOnCircle(381, 481, 272, pieResults2[0].endAngle + Math.PI / 6);
   svg.append("circle").attr("r", "29").attr("transform", "translate("+ innerEmptyPos.x +","+ innerEmptyPos.y +")").attr("id", didScoreGoDown?"redEmptyCircle":"greenEmptyCircle");
 
-  d3.select(driverScore).select("svg").append("text").attr("transform", "translate(220,470) scale(1.399, 1.398)").text(innerScore).classed(didScoreGoDown?"textRed":"textGreen", true);
-  d3.select(driverScore).select("svg").append("text").attr("transform", "translate(249,530) scale(1.399, 1.398)").text(text).classed("textDriverScore", true);
+  d3.select(driverScore).select("svg").append("text")
+  .attr("transform", "translate(220,570) scale(1.399, 1.398)").text(innerScore).classed(didScoreGoDown?"textRed":"textGreen", true);
+
+  d3.select(driverScore).select("svg").append("text")
+  	//.attr("transform", "translate(249,630) scale(1.399, 1.398)")
+    .attr("transform", "translate(391,630) scale(1.399, 1.398)")
+  	.attr("text-anchor", "middle")  
+	.text(text).classed("textDriverScore", true);
+  
 
   svg.append("image")
      .attr("xlink:href", bottomSVG)
      .attr("width", "220").attr("height", "280")
-     .attr("x", 293).attr("y", 513);
+     .attr("x", 293).attr("y", 613);
 
-  d3.select(driverScore).select("svg").append("text").attr("transform", "translate(442,715)").text(rank).attr("style", "font-family:Arial; font-size: 43px;");
+     
+
+  d3.select(driverScore).select("svg").append("text")
+  .attr("transform", "translate(442,815)").text(rank).attr("style", "font-family:Arial; font-size: 43px;");
 
 }
 
@@ -197,7 +227,18 @@ function drawMpgScore(innerScore, outerScore, rank) {
   genericScore(innerScore, outerScore, rank, "mpg_score", "Fuel Icon 1.svg", "Eco Score", "wheelOuterGreen", "MPG_Marker.svg");
 }
 
- drawDriverScore(79, 76, 10);
+window.onload = function() {
+  var mySwiper = new Swiper('.swiper-container',{
+    //Your options here:
+    mode:'horizontal',
+    loop: true,
+    pagination: '.swiper-pager',
+    paginationClickable: true
+    //etc..
+  });  
+}
+
+ drawDriverScore(80, 80, 10);
  drawMpgScore(60, 70, 23);
     </script>
   </body>
