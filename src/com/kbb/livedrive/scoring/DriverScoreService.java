@@ -1,4 +1,4 @@
-package com.kbb.livedrive.vehicledata;
+package com.kbb.livedrive.scoring;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -25,13 +25,14 @@ import com.ford.syncV4.proxy.rpc.OnVehicleData;
 import com.kbb.livedrive.applink.AppLinkService;
 import com.kbb.livedrive.googleplay.GooglePlayService;
 import com.kbb.livedrive.location.LocationServices;
+import com.kbb.livedrive.profile.ProfileService;
+import com.kbb.livedrive.profile.VehicleDetails;
 
 public class DriverScoreService extends Service {
 	
 
 	private static DriverScoreService instance = null;
 	
-	public static String ACTION_SCORE_CHANGED = "com.kbb.livedrive.DriverScoreService.ACTION_SCORE_CHANGED";
 	public static String ACTION_RT_MPG_SCORE_CHANGED = "com.kbb.livedrive.DriverScoreService.ACTION_RT_MPG_SCORE_CHANGED";
 	public static String ACTION_RT_DRIVER_SCORE_CHANGED = "com.kbb.livedrive.DriverScoreService.ACTION_RT_DRIVER_SCORE_CHANGED";
 		
@@ -113,34 +114,27 @@ public class DriverScoreService extends Service {
 		currentMPGScore = score;
 	}
 	
-	public long getDriverScore(){
+	private long getDriverScore(){
 		return Math.max(Math.round(getRawDriverScore()), 50);
 	}
 	
-	public long getMPGScore(){
+	private long getMPGScore(){
 		return Math.max(Math.round(getRawMPGScore()), 50);
 		
 	}	
 	
-	public synchronized long getPreviousDriverScore(){
+	private synchronized long getPreviousDriverScore(){
 		return Math.max(Math.round(previousDriverScore), 50);
 	}
 
-	public synchronized long getPreviousMPGScore(){
+	private synchronized long getPreviousMPGScore(){
 		return Math.max(Math.round(previousMPGScore), 50);
 	}
 	
 	public void addVehicleData(OnVehicleData data){
 		cache.addVehicleData(data);
 	}
-	
-	private void notifyScoresChanged() {
-		Intent intent = new Intent(ACTION_SCORE_CHANGED);
-		intent.putExtra("driverScore", getDriverScore());
-		intent.putExtra("mpgScore", getMPGScore());
-		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-	}
-	
+		
 	private void notifyRealTimeMPGScoreChanged(long mpgScore){
 		Intent intent = new Intent(ACTION_RT_MPG_SCORE_CHANGED);
 		intent.putExtra("mpgScore", mpgScore);
@@ -174,8 +168,6 @@ public class DriverScoreService extends Service {
 		
 		setDriverScore(driverScore);
 		setMPGScore(mpgScore);
-		
-		notifyScoresChanged();
 
 	}
 	
@@ -290,7 +282,7 @@ public class DriverScoreService extends Service {
 		try{
 		
 			LocationServices loc = LocationServices.getInstance();
-			VehicleDetails currentVehicle = VehicleDetailsService.getInstance().getCurrent();
+			VehicleDetails currentVehicle = ProfileService.getInstance().getCurrentVehicle();
 			
 			OnVehicleData lastData = data.get(data.size() - 1);
 			OnVehicleData firstData = data.get(0);
@@ -391,11 +383,12 @@ public class DriverScoreService extends Service {
 
 	public void startTrip(int odometer, Date time) {
 
-		//TODO convert current score to lifetime score (previous score is lifetime)
-		previousDriverScore = currentDriverScore;
-		previousMPGScore = currentMPGScore;
-
+		previousDriverScore = ProfileService.getInstance().getCurrentPlayer().getPreviousDriverScore();
+		previousMPGScore = ProfileService.getInstance().getCurrentPlayer().getPreviousMpgScore();
 		
+		currentDriverScore = ProfileService.getInstance().getCurrentPlayer().getLatestDriverScore();
+		currentMPGScore = ProfileService.getInstance().getCurrentPlayer().getLatestMpgScore();
+
 		tripStartOdometer = odometer;
 		tripStartTime = time;
 
@@ -420,13 +413,13 @@ public class DriverScoreService extends Service {
 		
 		calculateScores();
 		
-		long mpgScore = getMPGScore();
-		long driverScore = getDriverScore();
+		double mpgScore = getRawMPGScore();
+		double driverScore = getRawDriverScore();
 		
-		GooglePlayService gp = GooglePlayService.getInstance();
+		ProfileService ps = ProfileService.getInstance();
 		
-		gp.submitDriverScore(driverScore);
-		gp.submitMPGScore(mpgScore);
+		ps.submitDriverScore(driverScore);
+		ps.submitMpgScore(mpgScore);
 		
 		isMoving = false;
 		

@@ -41,8 +41,8 @@ import com.kbb.livedrive.artifact.Location;
 import com.kbb.livedrive.emulator.IVehicleDataReceiver;
 import com.kbb.livedrive.emulator.VehicleDataEmulatorService;
 import com.kbb.livedrive.googleplay.GooglePlayService;
-import com.kbb.livedrive.vehicledata.DriverScoreService;
-import com.kbb.livedrive.vehicledata.VehicleDataCache;
+import com.kbb.livedrive.scoring.DriverScoreService;
+import com.kbb.livedrive.scoring.VehicleDataCache;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -161,7 +161,8 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		lbManager.registerReceiver(changeLocationReceiver, new IntentFilter("com.kbb.livedrive.Location"));
 		lbManager.registerReceiver(forecastReceiver, new IntentFilter("com.kbb.livedrive.Forecast"));
 		
-		lbManager.registerReceiver(scoreChangedReceiver, new IntentFilter(DriverScoreService.ACTION_SCORE_CHANGED));
+		lbManager.registerReceiver(scoreDriverChangedReceiver, new IntentFilter(DriverScoreService.ACTION_RT_DRIVER_SCORE_CHANGED));
+		lbManager.registerReceiver(scoreMpgChangedReceiver, new IntentFilter(DriverScoreService.ACTION_RT_MPG_SCORE_CHANGED));
 		lbManager.registerReceiver(emulatedDatadReceiver, new IntentFilter(VehicleDataEmulatorService.ACTION_EMULATED_DATA));
 
 		showDriverScore = new SoftButton();
@@ -242,7 +243,8 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 			LocalBroadcastManager lbManager = LocalBroadcastManager.getInstance(this);
 			lbManager.unregisterReceiver(changeLocationReceiver);
 			lbManager.unregisterReceiver(forecastReceiver);
-			lbManager.unregisterReceiver(scoreChangedReceiver);
+			lbManager.unregisterReceiver(scoreDriverChangedReceiver);
+			lbManager.unregisterReceiver(scoreMpgChangedReceiver);
 			lbManager.unregisterReceiver(emulatedDatadReceiver);
 			
 		} catch (IllegalArgumentException e) {
@@ -281,18 +283,30 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 	};
 	
 	//receiver to handle vehicle score changes
-	final BroadcastReceiver scoreChangedReceiver = new BroadcastReceiver(){
+	final BroadcastReceiver scoreDriverChangedReceiver = new BroadcastReceiver(){
 		public void onReceive(android.content.Context context, Intent intent) {
 			
 			long driverScore = intent.getLongExtra("driverScore", 50);
-			long mpgScore = intent.getLongExtra("mpgScore", 50);
 			
 			String driverScoreDisplay = DriverScoreService.getInstance().getDriverScoreDisplay();
-			String mpgScoreDisplay = DriverScoreService.getInstance().getMPGScoreDisplay();
 			
-			setDriverScoreDisplay(driverScoreDisplay, mpgScoreDisplay);
+			setDriverScoreDisplay(driverScoreDisplay);
 		};
 	};
+	
+	final BroadcastReceiver scoreMpgChangedReceiver = new BroadcastReceiver(){
+		public void onReceive(android.content.Context context, Intent intent) {
+			
+			long mpgScore = intent.getLongExtra("mpgScore", 50);
+			
+			String mpgScoreDisplay = DriverScoreService.getInstance().getMPGScoreDisplay();
+			
+			//TODO add real-time score changed notification
+			
+			//setDriverScoreDisplay(driverScoreDisplay);
+		};
+	};
+
 	
 	//receiver to handle vehicle score changes
 	final BroadcastReceiver emulatedDatadReceiver = new BroadcastReceiver(){
@@ -535,7 +549,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		}
 	}
 
-	private void setDriverScoreDisplay(String driverScore, String mpgScore) {
+	private void setDriverScoreDisplay(String driverScore) {
 		try {
 			if (driverScore == "Low" && currentDriverScoreDisplay != "Low") {
 				proxy.alert(
@@ -949,7 +963,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		
 		String scoreDisplay = DriverScoreService.getInstance().getDriverScoreDisplay();
 
-		setDriverScoreDisplay(scoreDisplay, currentMPGScoreDisplay);
+		setDriverScoreDisplay(scoreDisplay);
 	}
 
 	@Override

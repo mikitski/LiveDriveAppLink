@@ -1,10 +1,7 @@
 package com.kbb.livedrive.activity;
 
 import com.kbb.livedrive.R;
-import com.kbb.livedrive.applink.AppLinkService;
-import com.kbb.livedrive.artifact.Location;
-import com.kbb.livedrive.googleplay.GooglePlayService;
-import com.kbb.livedrive.vehicledata.DriverScoreService;
+import com.kbb.livedrive.scoring.DriverScoreService;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -14,11 +11,10 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.TextView;
+
 
 
 public class LockScreenActivity extends Activity {
@@ -27,23 +23,13 @@ public class LockScreenActivity extends Activity {
 	private final double PIC_WIDTH = 1920;
 	
 	private WebView lockscreenView;
-	
-	final BroadcastReceiver scoreChangedReceiver = new BroadcastReceiver(){
-		public void onReceive(android.content.Context context, Intent intent) {
-			
-			long driverScore = intent.getLongExtra("driverScore", 50);
-			long mpgScore = intent.getLongExtra("mpgScore", 50);
-			
-			//TODO call java script to update the score display on the screen
-		};
-	};
-	
+		
 	final BroadcastReceiver realTimeMpgScoreChangedReceiver = new BroadcastReceiver(){
 		public void onReceive(android.content.Context context, Intent intent) {
 			
 			long mpgScore = intent.getLongExtra("mpgScore", 50);
 			
-			//TODO call java script to update the score display on the screen
+			//call java script to update the score display on the screen
 			lockscreenView.loadUrl(String.format("javascript:(drawMpgScore(%s,%s,%s))", mpgScore, mpgScore, "\"--\""));
 		};
 	};
@@ -53,7 +39,7 @@ public class LockScreenActivity extends Activity {
 			
 			long driverScore = intent.getLongExtra("driverScore", 50);
 		
-			//TODO call java script to update the score display on the screen
+			//call java script to update the score display on the screen
 			lockscreenView.loadUrl(String.format("javascript:(drawDriverScore(%s,%s,%s))", driverScore, driverScore, "\"--\""));
 		};
 	};
@@ -72,7 +58,6 @@ public class LockScreenActivity extends Activity {
 		LockScreenActivity.instance = this;
 
 		LocalBroadcastManager lbManager = LocalBroadcastManager.getInstance(this);
-        lbManager.registerReceiver(scoreChangedReceiver, new IntentFilter(DriverScoreService.ACTION_SCORE_CHANGED));
         lbManager.registerReceiver(realTimeMpgScoreChangedReceiver, new IntentFilter(DriverScoreService.ACTION_RT_MPG_SCORE_CHANGED));
         lbManager.registerReceiver(realTimeDriverScoreChangedReceiver, new IntentFilter(DriverScoreService.ACTION_RT_DRIVER_SCORE_CHANGED));
 

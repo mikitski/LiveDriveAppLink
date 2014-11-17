@@ -12,7 +12,7 @@ import com.ford.syncV4.proxy.rpc.GPSData;
 import com.ford.syncV4.proxy.rpc.OnVehicleData;
 import com.ford.syncV4.proxy.rpc.enums.PRNDL;
 import com.kbb.livedrive.applink.AppLinkService;
-import com.kbb.livedrive.vehicledata.VehicleDetailsService;
+import com.kbb.livedrive.profile.ProfileService;
 
 import android.app.LauncherActivity;
 import android.app.Service;
@@ -110,7 +110,7 @@ public class VehicleDataEmulatorService extends Service {
 		
 		public void run() {
 			
-				double currentOdometer = VehicleDetailsService.getInstance().getCurrent().getRawOdometer();
+				double currentOdometer = ProfileService.getInstance().getCurrentVehicle().getRawOdometer();
 				
 				EmulatorTrackPoint currPoint = track.getTrack().get(nextTrackPoint);
 				
@@ -130,7 +130,7 @@ public class VehicleDataEmulatorService extends Service {
 					double distance = calculateDistance(currPoint, nextPoint);
 					double odometer = currentOdometer + distance;
 					
-					VehicleDetailsService.getInstance().getCurrent().setOdometer(odometer);
+					ProfileService.getInstance().getCurrentVehicle().setOdometer(odometer);
 					
 					double speed = calculateSpeed(distance, currPoint, nextPoint);
 					
@@ -223,8 +223,8 @@ public class VehicleDataEmulatorService extends Service {
 	}
 	
 	private double emulateInstantFuelConsumption(){
-		int cityMpg = VehicleDetailsService.getInstance().getCurrent().getCityMPG();
-		int hwyMpg = VehicleDetailsService.getInstance().getCurrent().getHwyMPG();
+		int cityMpg = ProfileService.getInstance().getCurrentVehicle().getCityMPG();
+		int hwyMpg = ProfileService.getInstance().getCurrentVehicle().getHwyMPG();
 		
 		double r = rand.nextDouble();
 		
@@ -325,7 +325,7 @@ public class VehicleDataEmulatorService extends Service {
 		
 		EmulatorTrackPoint currPoint = track.getTrack().get(nextTrackPoint);
 		
-		int odometer = VehicleDetailsService.getInstance().getCurrent().getOdometer();
+		int odometer = ProfileService.getInstance().getCurrentVehicle().getOdometer();
 
 		Intent emulatedDataIntent = new Intent(VehicleDataEmulatorService.ACTION_EMULATED_DATA);
 		setIntentData(emulatedDataIntent, currPoint, 0, PRNDL.PARK, odometer);

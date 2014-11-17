@@ -59,10 +59,10 @@
         <service android:name="com.kbb.livedrive.emulator.VehicleDataEmulatorService" >
         </service>        
 
-        <service android:name="com.kbb.livedrive.vehicledata.DriverScoreService" >
+        <service android:name="com.kbb.livedrive.scoring.DriverScoreService" >
         </service>        
         
-        <service android:name="com.kbb.livedrive.vehicledata.VehicleDetailsService" >
+        <service android:name="com.kbb.livedrive.profile.ProfileService" >
         </service>        
         
         <service android:name="com.kbb.livedrive.location.LocationServices">

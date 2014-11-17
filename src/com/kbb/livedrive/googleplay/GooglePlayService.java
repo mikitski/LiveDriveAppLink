@@ -71,16 +71,15 @@ public class GooglePlayService extends Service implements
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		
-		mGoogleApiClient.connect();
+		connect();
+		
+		//Hack: submit some low scores to init leaderboards
+		submitDriverScore(51);
+		submitMPGScore(51);
 		
 		return super.onStartCommand(intent, flags, startId);
 	}
 	
-	@Override
-	public void onStart(Intent intent, int startId) {
-	    mGoogleApiClient.connect();
-	};
-
 	
 	@Override
 	public boolean stopService(Intent name) {
@@ -142,9 +141,7 @@ public class GooglePlayService extends Service implements
  
 		if(mGoogleApiClient != null){
 			
-			if(!mGoogleApiClient.isConnected()){
-				mGoogleApiClient.connect();
-			}
+			connect();
 			
 			try{
 
@@ -183,9 +180,7 @@ public class GooglePlayService extends Service implements
 
 			if(mGoogleApiClient != null){
 				
-				if(!mGoogleApiClient.isConnected()){
-					mGoogleApiClient.connect();
-				}
+				connect();
 				
 				PendingResult<LoadPlayerScoreResult> pres = Games.Leaderboards
 						.loadCurrentPlayerLeaderboardScore(mGoogleApiClient,
@@ -207,10 +202,8 @@ public class GooglePlayService extends Service implements
 		 
 		if(mGoogleApiClient != null){
 			
-			if(!mGoogleApiClient.isConnected()){
-				mGoogleApiClient.connect();
-			}
-
+			connect();
+			
 			try{			
 		    // Call a Play Games services API method, for example:
 				Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_mpg), mpgScore);

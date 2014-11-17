@@ -1,4 +1,4 @@
-package com.kbb.livedrive.vehicledata;
+package com.kbb.livedrive.profile;
 
 public class VehicleDetails {
 	

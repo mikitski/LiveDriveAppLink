@@ -17,12 +17,15 @@ import com.kbb.livedrive.app.LiveDriveApplication;
 import com.kbb.livedrive.applink.AppLinkService;
 import com.kbb.livedrive.artifact.Location;
 import com.kbb.livedrive.googleplay.GooglePlayService;
-import com.kbb.livedrive.vehicledata.DriverScoreService;
+import com.kbb.livedrive.profile.ProfileService;
+import com.kbb.livedrive.scoring.DriverScoreService;
 //import com.kbb.livedrive.adapter.ForecastListAdapter;
 //import com.kbb.livedrive.weather.DayForecast;
 //import com.kbb.livedrive.weather.WeatherDataManager;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.SpannableString;
@@ -56,125 +59,60 @@ public class WebViewFragment extends BaseFragment {
 	
 	private final double PIC_WIDTH = 1920;
 	
-	final ResultCallback<LoadPlayerScoreResult> scoresDriverScoreCallback = new ResultCallback<Leaderboards.LoadPlayerScoreResult>() {
-		
-		@Override
-		public void onResult(LoadPlayerScoreResult result) {
-			
-			String scoreDisplay = "50";
-			String previousScoreDisplay = "50";
-			String leaderboardPosition = "0";
-			
-			LeaderboardScore score = result.getScore();
-			
-			if(score != null){
-				scoreDisplay = score.getDisplayScore();
-				leaderboardPosition = score.getDisplayRank();
-				
-				long rawScore = score.getRawScore();
-				
-				String iconUrl = score.getScoreHolderIconImageUrl();
-				String userName = score.getScoreHolderDisplayName();				
-			}
-			
-			previousScoreDisplay = String.valueOf(DriverScoreService.getInstance().getPreviousDriverScore());
+	private Context context;
 
-			//return Player's Driver score back to UI
-			leaderboardView.loadUrl(String.format("javascript:drawDriverScore(%s,%s,%s);", scoreDisplay, previousScoreDisplay, leaderboardPosition));
+	private BroadcastReceiver driverScoreChangedReceiver = new BroadcastReceiver(){
+		public void onReceive(android.content.Context context, Intent intent) {
 			
-			//TODO call javascript with player details for Driver leaderboard
+			long driverScore = intent.getLongExtra("driverScore", 50);
+			long previousDriverScore = intent.getLongExtra("previousDriverScore", 50);
+			long bestDriverScore = intent.getLongExtra("bestDriverScore", 50);
+			String driverRank = intent.getStringExtra("driverRank");
 			
+			//update UI on driver score change
+			leaderboardView.loadUrl(String.format("javascript:drawDriverScore(%s,%s,%s);", driverScore, previousDriverScore, driverRank));
+		}
+	};
+
+	private BroadcastReceiver mpgScoreChangedReceiver = new BroadcastReceiver(){
+		public void onReceive(android.content.Context context, Intent intent) {
+
+			long driverScore = intent.getLongExtra("driverScore", 50);
+			long previousDriverScore = intent.getLongExtra("previousDriverScore", 50);
+			long bestDriverScore = intent.getLongExtra("bestDriverScore", 50);
+			String driverRank = intent.getStringExtra("driverRank");
+			
+			//update UI on mpg score change
+			leaderboardView.loadUrl(String.format("javascript:drawMpgScore(%s,%s,%s);", driverScore, previousDriverScore, driverRank));
+
 		}
 	};
 	
-	final ResultCallback<Leaderboards.LoadScoresResult> scoresDriverLeaderboardCallback = new ResultCallback<Leaderboards.LoadScoresResult>(){
-		@Override
-		public void onResult(LoadScoresResult arg0) {
-			Leaderboard lb = arg0.getLeaderboard();
-			
-			LeaderboardScoreBuffer scoreBuffer = arg0.getScores();
-			
-			ArrayList<LeaderboardScore> scores = new ArrayList<LeaderboardScore>(scoreBuffer.getCount());
-			
-			for(int i = 0; i < scoreBuffer.getCount(); i++){
-				
-				LeaderboardScore score = scoreBuffer.get(i);
-				if(score != null){
-					
-					long rawScore = score.getRawScore();
-					String scoreDisplay = score.getDisplayScore();
-					String leaderboardPosition = score.getDisplayRank();
-					String iconUrl = score.getScoreHolderIconImageUrl();
-					String userName = score.getScoreHolderDisplayName();
-					
-					scores.add(score);
-				}
-				
-				//TODO return Driver Leaderboard back to the UI
-				// this is for the leaderboard table
-				
-			}
-			
+	private BroadcastReceiver driverRankChangedReceiver = new BroadcastReceiver(){
+		public void onReceive(android.content.Context context, Intent intent) {
+			//TODO update UI on driver rank change
 		}
 	};
 
-	final ResultCallback<LoadPlayerScoreResult> scoresMPGScoreCallback = new ResultCallback<Leaderboards.LoadPlayerScoreResult>() {
-		
-		@Override
-		public void onResult(LoadPlayerScoreResult result) {
-			
-			String scoreDisplay = "50";
-			String previousScoreDisplay = "50";
-			String leaderboardPosition = "0";
-			
-			LeaderboardScore score = result.getScore();
-			if(score != null){
-				scoreDisplay = score.getDisplayScore();
-				leaderboardPosition = score.getDisplayRank();
-				
-				long rawScore = score.getRawScore();
-				
-				String iconUrl = score.getScoreHolderIconImageUrl();
-				String userName = score.getScoreHolderDisplayName();
-
-			}
-			
-			previousScoreDisplay = String.valueOf(DriverScoreService.getInstance().getPreviousMPGScore());
-
-			//return Player's MPG score back to UI
-			leaderboardView.loadUrl(String.format("javascript:drawMpgScore(%s,%s,%s);", scoreDisplay, previousScoreDisplay, leaderboardPosition));
-			
-			//TODO call javascript with player details for MPG leaderboard
-						
+	private BroadcastReceiver mpgRankChangedReceiver = new BroadcastReceiver(){
+		public void onReceive(android.content.Context context, Intent intent) {
+			//TODO update UI on mpg rank change
 		}
 	};
+
+	private BroadcastReceiver driverLeaderboardChangedReceiver = new BroadcastReceiver(){
+		public void onReceive(android.content.Context context, Intent intent) {
+			//TODO update UI on driver leaderboard change
+		}
+	};
+
+	private BroadcastReceiver mpgLeaderboardChangedReceiver = new BroadcastReceiver(){
+		public void onReceive(android.content.Context context, Intent intent) {
+			//TODO update UI on mpg leaderboard change
+		}
+	};
+
 	
-	final ResultCallback<Leaderboards.LoadScoresResult> scoresMPGLeaderboardCallback = new ResultCallback<Leaderboards.LoadScoresResult>(){
-		@Override
-		public void onResult(LoadScoresResult arg0) {
-			Leaderboard lb = arg0.getLeaderboard();
-			
-			LeaderboardScoreBuffer scoreBuffer = arg0.getScores();
-			
-			ArrayList<LeaderboardScore> scores = new ArrayList<LeaderboardScore>(scoreBuffer.getCount());
-			
-			for(int i = 0; i < scoreBuffer.getCount(); i++){
-				
-				LeaderboardScore score = scoreBuffer.get(i);
-				if(score != null){
-
-					long rawScore = score.getRawScore();
-					String scoreDisplay = score.getDisplayScore();
-					String leaderboardPosition = score.getDisplayRank();
-					String iconUrl = score.getScoreHolderIconImageUrl();
-					String userName = score.getScoreHolderDisplayName();
-					
-					scores.add(scoreBuffer.get(i));
-				}
-			}
-			//TODO return MPG Leaderboard back to UI
-		}
-	};
 	
 	
 	
@@ -182,6 +120,19 @@ public class WebViewFragment extends BaseFragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		
 		fragmentView = inflater.inflate(R.layout.fragment_web_view, null);
+		
+		context = getActivity().getApplicationContext();
+		
+		
+		LocalBroadcastManager lb = LocalBroadcastManager.getInstance(context);
+		
+		lb.registerReceiver(driverScoreChangedReceiver, new IntentFilter(ProfileService.ACTION_DRIVER_SCORE_CHANGED));
+		lb.registerReceiver(mpgScoreChangedReceiver, new IntentFilter(ProfileService.ACTION_MPG_SCORE_CHANGED));
+		lb.registerReceiver(driverRankChangedReceiver, new IntentFilter(ProfileService.ACTION_DRIVER_PLAYER_RANK_CHANGED));
+		lb.registerReceiver(mpgRankChangedReceiver, new IntentFilter(ProfileService.ACTION_MPG_PLAYER_RANK_CHANGED));
+		lb.registerReceiver(driverLeaderboardChangedReceiver, new IntentFilter(ProfileService.ACTION_DRIVER_LEADERBOARD_CHANGED));
+		lb.registerReceiver(mpgLeaderboardChangedReceiver, new IntentFilter(ProfileService.ACTION_MPG_LEADERBOARD_CHANGED));
+
 	
         mTextView = (TextView) fragmentView.findViewById(R.id.textview);
         mTextView.setText(getTextViewLabel());
@@ -241,15 +192,19 @@ public class WebViewFragment extends BaseFragment {
 			
 			if(url.contains("file:///android_asset/leaderboard.html")){
 			
-				GooglePlayService gp = GooglePlayService.getInstance();
+				ProfileService ps = ProfileService.getInstance();
 				
-				gp.getDriverScore(scoresDriverScoreCallback);
+				ps.requestDriverScoreUpdate();
+				ps.requestMpgScoreUpdate();
 				
-				//gp.getDriverLeaderboard(scoresDriverLeaderboardCallback);
+				ps.requestDriverRankUpdate();
 				
-				gp.getMPGScore(scoresMPGScoreCallback);
+				ps.requestMpgRankUpdate();
 				
-				//gp.getMPGLeaderboard(scoresMPGLeaderboardCallback);
+				ps.requestDriverLeaderboardUpdate();
+				
+				ps.requestMpgLeaderboardUpdate();
+				
 			}
 	    }
 	};

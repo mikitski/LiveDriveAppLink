@@ -342,9 +342,9 @@ public class MainActivity extends ActivityBase implements
 	protected void onStop() {
 	    super.onStop();
 	    
-		GooglePlayService gp = GooglePlayService.getInstance();
-		if(gp != null)
-			gp.disconnect();
+//		GooglePlayService gp = GooglePlayService.getInstance();
+//		if(gp != null)
+//			gp.disconnect();
 	}
 	
     public static class TabListener<T extends Fragment> implements ActionBar.TabListener {
