@@ -68,7 +68,6 @@
       div.padding {
         padding-bottom: 100px;
       }
-<<<<<<< HEAD
 	
 	.swiper-container, .swiper-slide {
 	  width: 100%;
@@ -102,7 +101,7 @@
 		margin-left:150px;
 	}
       
-=======
+
 
       h1 
       {
@@ -143,7 +142,7 @@
         color: #009;
       }
       tbody tr:first-child {background-color: #e8edff}
->>>>>>> FETCH_HEAD
+
     </style>
     <script src="d3.min.js"></script>
     <script type="text/javascript" src="./jquery.min.js"></script>
@@ -270,7 +269,7 @@ function drawMpgScore(innerScore, outerScore, rank) {
   genericScore(innerScore, outerScore, rank, "mpg_score", "Fuel Icon 1.svg", "Eco Score", "wheelOuterGreen", "MPG_Marker.svg");
 }
 
-<<<<<<< HEAD
+
 window.onload = function() {
   var mySwiper = new Swiper('.swiper-container',{
     //Your options here:
@@ -283,7 +282,10 @@ window.onload = function() {
 }
 
  drawDriverScore(80, 80, 10);
-=======
+
+ drawMpgScore(60, 70, 23);
+
+
 function drawDriverLeaderBoardForDriver(rank, imageUrl, userName, score) {
   //TODO
 } 
@@ -333,9 +335,6 @@ function tabulate(data, columns, tableContainer) {
     return table;
 }
 
- drawDriverScore(79, 76, 10);
->>>>>>> FETCH_HEAD
- drawMpgScore(60, 70, 23);
 
  var driverData = new Array(
   { rank: 3, image: "./img/LD%20Logo%201.png", name: "LadiesMan217", score: 79 },
