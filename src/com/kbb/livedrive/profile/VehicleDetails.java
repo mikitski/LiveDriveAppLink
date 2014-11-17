@@ -7,15 +7,14 @@ public class VehicleDetails {
 	private String model;
 	private String modelYear;
 	private String vehicleName = "2014 Ford Flex Limited";
-	private int	hwyMPG = 27;
-	private int cityMPG = 34;
+	private int	hwyMPG = 34;
+	private int cityMPG = 27;
 	private double odometer = 12736;
 	
 	
 	public static VehicleDetails createDummy() {
 		
 		VehicleDetails dummy = new VehicleDetails();
-		
 		
 		return dummy;
 	}

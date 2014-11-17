@@ -226,11 +226,13 @@ public class VehicleDataEmulatorService extends Service {
 		int cityMpg = ProfileService.getInstance().getCurrentVehicle().getCityMPG();
 		int hwyMpg = ProfileService.getInstance().getCurrentVehicle().getHwyMPG();
 		
-		double r = rand.nextDouble();
+		double r = rand.nextGaussian();
 		
-		int realTimeRange = (hwyMpg - cityMpg) * 2;
+		double realTimeRange = (hwyMpg - cityMpg) ;
 		
-		return hwyMpg - realTimeRange * r;
+		double realTimeMpg = cityMpg + realTimeRange * r - realTimeRange/2;
+		
+		return realTimeMpg;
 	}
 
 	private void sendRacingData() {

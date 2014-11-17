@@ -111,32 +111,32 @@ function drawScore(innerScore, outerScore, rank, scoreName, scoreContainer, oute
     .classed("wheelGray", function(d,i) { if (i != 0) { return true; } }) 
     .attr("d", arc);
 
-  var data2 = [innerScore, (100-innerScore)];
-  var pieResults2 = pie(data2);
-  var arcInner = d3.svg.arc();
-  arcInner.innerRadius(function(d) { return 175; });
-  arcInner.outerRadius(function(d) { return 205; });
-      
-  // green = rgba(0, 156, 26, 0.78)
-  d3.select(scoreContainer).select("svg").selectAll("g.arcInner")
-    .data(pieResults2)
-    .enter()
-    .append("g").attr("class", "arcInner")
-    .attr("transform", "translate(267, 267) rotate(210)")
-    .append("path")
-    .attr("fill", function(d,i) 
-      {  
-        if (i == 0) { 
-	  if (didScoreGoDown) {	
-	    return d3.rgb(255, 0, 0).toString();	    
-	  }
-          else {
-	    return d3.rgb(0, 156, 26).toString();					 
-          }
-	}
-        return d3.rgb(199,199,199).toString();
-      })
-    .attr("d", arcInner);
+//  var data2 = [innerScore, (100-innerScore)];
+//  var pieResults2 = pie(data2);
+//  var arcInner = d3.svg.arc();
+//  arcInner.innerRadius(function(d) { return 175; });
+//  arcInner.outerRadius(function(d) { return 205; });
+//      
+//  // green = rgba(0, 156, 26, 0.78)
+//  d3.select(scoreContainer).select("svg").selectAll("g.arcInner")
+//    .data(pieResults2)
+//    .enter()
+//    .append("g").attr("class", "arcInner")
+//    .attr("transform", "translate(267, 267) rotate(210)")
+//    .append("path")
+//    .attr("fill", function(d,i) 
+//      {  
+//        if (i == 0) { 
+//	  if (didScoreGoDown) {	
+//	    return d3.rgb(255, 0, 0).toString();	    
+//	  }
+//          else {
+//	    return d3.rgb(0, 156, 26).toString();					 
+//          }
+//	}
+//        return d3.rgb(199,199,199).toString();
+//      })
+//    .attr("d", arcInner);
       
   d3.select(scoreContainer).select("svg")
   		.append("text")
