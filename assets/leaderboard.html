@@ -105,43 +105,54 @@
 
       h1 
       {
-        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
-        font-size: 28px;
-        text-align: center;
-        color: #039;
-        font-weight: bold;;
+        font-family: OpenSans;
+        color: #333333;
+        font-size: 34px; /* Approximation due to font substitution */
+        font-weight: 600;
+        transform: scale(1.398,1.398);
       }
 
       .datatable
       {
-        font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
         font-size: 18px;
         background: #fff;
         margin: 60px;
-        width: 660px;
-        height: 500px;
-        border-collapse: collapse;
-        text-align: left;
+        width: 975px;
+        height: 752px;
+        border: 4px;
+        text-align: center;
       }
       th
       {
-        font-size: 24px;
-        font-weight: normal;
-        color: #039;
+        font-family: OpenSans;
+        font-size: 42px;
+        font-weight: 700;
+        background-color: #175eac;
+        color: #ffffff;
         padding: 10px 8px;
         border-bottom: 2px solid #6678b1;
       }
       td
       {
-        border-bottom: 1px solid #ccc;
-        color: #669;
+        font-family: OpenSans;
+        font-size: 42px;
+        font-weight: 600;
+        color: #333333;
         padding: 6px 8px;
       }
-      tbody tr:hover td
-      {
-        color: #009;
+      td img {
+        width: 76px; 
+        height: 76px;
       }
-      tbody tr:first-child {background-color: #e8edff}
+      #firstRowTable {
+        background-color: rgba(49, 171, 70, 0.5);
+      }
+      tr:nth-child(even) {
+        background-color: #ededed;
+      }
+      tr:nth-child(odd) {
+        background-color: #edf3f9;
+      }
 
     </style>
     <script src="d3.min.js"></script>
@@ -162,10 +173,8 @@
               <div id="mpg_score" class="center-div swiper-slide">
               </div>
               <div id="driver_leaderboard" class="center-div swiper-slide">
-					<h1>Placeholder: driver leaderboard</h1>
               </div>
               <div id="mpg_leaderboard" class="center-div swiper-slide">
-					<h1>Placeholder: mpg leaderboard</h1>
               </div>
 	</div>
 	</div>
@@ -306,32 +315,21 @@ function tabulate(data, columns, tableContainer) {
         .data(columns)
         .enter()
         .append("th")
+        .classed("firstRowTable", true)
         .text(function(column) { return column; });
 
     // create a row for each object in the data
     var rows = tbody.selectAll("tr")
         .data(data)
         .enter()
-        .append("tr");
+        .append("tr")
+        .attr("id", function(d,i) { if (i==0) { return "firstRowTable"; } return "notUsedId"; })
+        .html(function (d) { 
+          return "<td>" + d.rank + "</td><td><img src=\"" + d.image + "\"></img> " + d.name + "</td><td>" + d.score + "</td>";
+        });
 
-    // create a cell in each row for each column
-    var cells = rows.selectAll("td")
-        .data(function(row) {
-            return columns.map(function(column) {
-                console.log(column);
-                if (column == "image") {
-                  //return {column: column, value: "<img src=\"" + row[column] + "\" style=\"width:50px;height:50px\">"};
-                  return {column: column, value: "<img src=\"" + row[column] + "\" width=\"50px\" height=\"50px\">"};
-                };
+    d3.select(tableContainer).append("h1").text("Driver Score Leaderboard");    
 
-                return {column: column, value: row[column]};
-            });
-        })
-        .enter()
-        .append("td")
-        .attr("style", "font-family: Arial, font-size: 23px")
-        .html(function(d) { return d.value; });
-    
     return table;
 }
 
@@ -350,9 +348,9 @@ function tabulate(data, columns, tableContainer) {
   { rank: 4, image: "./img/jnesis.png", name: "jnesis", score: 60 }); 
 
 // render the table
-var driverLeaderBoardTable = tabulate(driverData, ["rank", "image", "name", "score"], "#driver_leaderboard");
+var driverLeaderBoardTable = tabulate(driverData, ["rank", "name", "score"], "#driver_leaderboard");
 
-var mpgLeaderBoardTable = tabulate(mpgData, ["rank", "image", "name", "score"], "#mpg_leaderboard")
+var mpgLeaderBoardTable = tabulate(mpgData, ["rank", "name", "score"], "#mpg_leaderboard")
 
 function fixTableTitle(tableObject) {
   tableObject.selectAll("thead th")
