@@ -3,11 +3,13 @@
   <head>
     <meta charset=utf-8>
     <style>
-      .center {
-          margin-left: 10 auto;
-          margin-right: 10 auto;
+      .center-div {
+      	  margin-top:auto;
+      	  margin-right:auto;
+      	  margin-botton:auto;
+      	  margin-left:67px;
           width: 80%;
-          height: 80%
+          height: 80%;
       }
       .wheelBlue {
         fill: rgba(85, 138, 208, 0.78);
@@ -45,20 +47,20 @@
         <div class="jcarousel">
           <ul>
             <li>
-              <div id="driver_score" style="center">
+              <div id="driver_score" class="center-div">
               </div>
             </li>
             <li>
-              <div id="mpg_score" style="center">
+              <div id="mpg_score" class="center-div">
               </div>
             </li>
             <li>
-              <div id="driver_leaderboard" style="center">
+              <div id="driver_leaderboard" class="center-div">
 		<h1>Placeholder: driver leaderboard</h1>
               </div>
             </li>
             <li>
-              <div id="mpg_leaderboard" style="center">
+              <div id="mpg_leaderboard" class="center-div">
 		<h1>Placeholder: mpg leaderboard</h1>
               </div>
             </li>
@@ -72,13 +74,13 @@
     <script>
 
 function drawDriverScore(innerScore, outerScore, rank) {     
-  var driverScore = document.getElementById("driver_score");
-  console.log(driverScore);
+  var driverScoreDiv = document.getElementById("driver_score");
+  console.log(driverScoreDiv);
       
   var didScoreGoDown = outerScore - innerScore > 0;
 
-  d3.select(driverScore).select("svg").remove();
-  var svg = d3.select(driverScore).append("svg")
+  d3.select(driverScoreDiv).select("svg").remove();
+  var svg = d3.select(driverScoreDiv).append("svg")
               .attr("width", 760).attr("height", 760);
       
   svg.append("image")
@@ -98,7 +100,7 @@ function drawDriverScore(innerScore, outerScore, rank) {
   console.log(arc(pieResults[0]));
       
   // blue = rgba(85, 138, 208, 0.78)
-  d3.select(driverScore).select("svg").selectAll("g.arc")
+  d3.select(driverScoreDiv).select("svg").selectAll("g.arc")
     .data(pieResults)
     .enter()
     .append("g").attr("class", "arc").attr("transform", "translate(382, 380) rotate(210)")
@@ -117,7 +119,7 @@ function drawDriverScore(innerScore, outerScore, rank) {
   arcInner.outerRadius(function(d) { return 300; });
       
   // green = rgba(0, 156, 26, 0.78)
-  d3.select(driverScore).select("svg").selectAll("g.arcInner")
+  d3.select(driverScoreDiv).select("svg").selectAll("g.arcInner")
     .data(pieResults2)
     .enter()
     .append("g").attr("class", "arcInner").attr("transform", "translate(381, 381) rotate(210)")
@@ -136,15 +138,15 @@ function drawDriverScore(innerScore, outerScore, rank) {
       })
     .attr("d", arcInner);
       
-  d3.select(driverScore).select("svg").append("text").attr("transform", "translate(240,470)").text(innerScore).classed(didScoreGoDown?"textRed":"textGreen", true);
-  d3.select(driverScore).select("svg").append("text").attr("transform", "translate(263,530)").text("Driver Score").attr("style", "font-family:Arial; font-size: 44px");
+  d3.select(driverScoreDiv).select("svg").append("text").attr("transform", "translate(240,470)").text(innerScore).classed(didScoreGoDown?"textRed":"textGreen", true);
+  d3.select(driverScoreDiv).select("svg").append("text").attr("transform", "translate(263,530)").text("Driver Score").attr("style", "font-family:Arial; font-size: 44px");
       
   svg.append("image")
      .attr("xlink:href", "Driver_Marker 1.svg")
      .attr("width", "220").attr("height", "280")
      .attr("x", 293).attr("y", 513);
 
-  d3.select(driverScore).select("svg").append("text").attr("transform", "translate(442,715)").text(rank).attr("style", "font-family:Arial; font-size: 43px;");
+  d3.select(driverScoreDiv).select("svg").append("text").attr("transform", "translate(442,715)").text(rank).attr("style", "font-family:Arial; font-size: 43px;");
 }
       
       
