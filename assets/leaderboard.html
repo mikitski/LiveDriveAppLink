@@ -14,6 +14,9 @@
       .wheelGray {
         fill: rgba(241, 241, 241, .78);
       }
+      .wheelGray {
+        fill: rgba(241, 241, 241, .78);
+      }
       .wheelBlue {
         fill: rgba(85, 138, 208, 0.78);
       }
@@ -140,7 +143,6 @@ function genericScore(innerScore, outerScore, rank, divName, bottomSVG, text, ou
   var arc = d3.svg.arc();
   arc.innerRadius(function(d) { return 308; });
   arc.outerRadius(function(d) { return 380; });
-
   d3.select(driverScore).select("svg").selectAll("g.arc")
     .data(pieResults)
     .enter()
@@ -187,6 +189,7 @@ function genericScore(innerScore, outerScore, rank, divName, bottomSVG, text, ou
      .attr("x", 293).attr("y", 513);
 
   d3.select(driverScore).select("svg").append("text").attr("transform", "translate(442,715)").text(rank).attr("style", "font-family:Arial; font-size: 43px;");
+
 }
 
 function drawDriverScore(innerScore, outerScore, rank) {
