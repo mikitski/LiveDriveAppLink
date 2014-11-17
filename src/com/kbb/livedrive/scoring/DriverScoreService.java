@@ -138,12 +138,14 @@ public class DriverScoreService extends Service {
 	private void notifyRealTimeMPGScoreChanged(long mpgScore){
 		Intent intent = new Intent(ACTION_RT_MPG_SCORE_CHANGED);
 		intent.putExtra("mpgScore", mpgScore);
+		intent.putExtra("mpgScoreDisplay", getMPGScoreDisplay());
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 	}
 	
 	private void notifyRealTimeDriverScoreChanged(long driverScore){
 		Intent intent = new Intent(ACTION_RT_DRIVER_SCORE_CHANGED);
 		intent.putExtra("driverScore", driverScore);
+		intent.putExtra("driverScoreDisplay", getDriverScoreDisplay());		
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
 	}
@@ -334,7 +336,7 @@ public class DriverScoreService extends Service {
 		return 	mpgScore;
 	}
 	
-	public String getDriverScoreDisplay(){
+	private String getDriverScoreDisplay(){
 		
 		String display;
 		long score = getDriverScore();
@@ -347,7 +349,7 @@ public class DriverScoreService extends Service {
 		return display;
 	}
 
-	public String getMPGScoreDisplay(){
+	private String getMPGScoreDisplay(){
 		String display;
 		double score = getMPGScore();
 		
@@ -361,6 +363,9 @@ public class DriverScoreService extends Service {
 	
 	public void fakeDriverScore(double score){
 		setDriverScore(score);
+		
+		notifyRealTimeDriverScoreChanged(Math.round(score));
+		
 	}
 
 	@Override

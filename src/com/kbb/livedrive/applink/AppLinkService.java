@@ -287,8 +287,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		public void onReceive(android.content.Context context, Intent intent) {
 			
 			long driverScore = intent.getLongExtra("driverScore", 50);
-			
-			String driverScoreDisplay = DriverScoreService.getInstance().getDriverScoreDisplay();
+			String driverScoreDisplay = intent.getStringExtra("driverScoreDisplay");
 			
 			setDriverScoreDisplay(driverScoreDisplay);
 		};
@@ -299,7 +298,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 			
 			long mpgScore = intent.getLongExtra("mpgScore", 50);
 			
-			String mpgScoreDisplay = DriverScoreService.getInstance().getMPGScoreDisplay();
+			String mpgScoreDisplay = intent.getStringExtra("mpgScoreDisplay");
 			
 			//TODO add real-time score changed notification
 			
@@ -398,7 +397,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 				BaseTransportConfig transport = null;
 				
 				if (isEmulatorMode)
-					transport = new TCPTransportConfig(12345, "192.168.101.115", true);
+					transport = new TCPTransportConfig(12345, "172.16.17.103", true);
 				else
 					transport = new BTTransportConfig();
 				proxy = new SyncProxyALM(this, "Cox Automotive", false, Language.EN_US, Language.EN_US, "566020017", transport);
@@ -835,15 +834,14 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		case CUSTOM_BUTTON:
 			switch (notification.getCustomButtonName()) {
 			case SHOW_DRIVER_ID:
-				display = DriverScoreService.getInstance().getDriverScoreDisplay();
 				
-				updateDisplay("Your Driving Score is", display);
-				say("Your Driving Score is " + display);
+				updateDisplay("Your Driving Score is", currentDriverScoreDisplay);
+				say("Your Driving Score is " + currentDriverScoreDisplay);
 				break;
 			case SHOW_MPG_ID:
-				display = DriverScoreService.getInstance().getMPGScoreDisplay();
-				updateDisplay("Your MPG Score is", display);
-				say("Your MPG Score is " + display);
+				
+				updateDisplay("Your MPG Score is", currentMPGScoreDisplay);
+				say("Your MPG Score is " + currentMPGScoreDisplay);
 				break;
 			// case SHOW_LEADERBOARD_ID:
 			// display = DriverScoreService.getLeaderboard();
@@ -961,9 +959,6 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 	private void fakeDrivingScore(double score) {
 		DriverScoreService.getInstance().fakeDriverScore(score);
 		
-		String scoreDisplay = DriverScoreService.getInstance().getDriverScoreDisplay();
-
-		setDriverScoreDisplay(scoreDisplay);
 	}
 
 	@Override
