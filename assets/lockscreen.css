@@ -4,44 +4,71 @@
     margin-right: auto;
     min-height: 100%;
     width: 100%;
+    background-image:url("img/bkg.png");
+    -webkit-background-size: 100%;
+    background-size: 100%;
 }
 
-#FordLogo {
-    float: left;
-    width: auto;
+#live_drive_container{
+	
+}
+
+#LIVE_DRIVE {
     max-width: 100%;
     height: auto;
     color: rgb(0, 0, 0);
-    position: relative;
-    top: 0px;
-    left: 0px;
-    z-index: 4;
-    margin-top: 202px;
-    margin-left: 24.537037%;
+    z-index: 1;
+    margin-top: 10px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#scores{
+	clear:both;
+    margin-top:140px;
+}
+
+#driver_score{
+    float:left;
+    margin-right:0.5px;
+	/*background-color: green;*/
+	/*width:49.5%;*/
+    /*padding-bottom:49.5%;*/
+}
+
+#mpg_score{
+	float:left;
+    margin-left:0.5px;
+	/*background-color: blue;*/
+    /*width:49.5%;*/
+    /*padding-bottom:49.5%;*/
+}
+
+#FordLogo {
     clear: both;
+    max-width: 100%;
+    height: auto;
+    color: rgb(0, 0, 0);
+    z-index: 1;
+    margin-top: 280px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 #Vehicle_in_Motion_Game_in_Progress_ {
-    float: left;
-    font-size: 1em;
-    width: auto;
+    width: 100%;
     height: auto;
-    text-align: left;
+    text-align: center;
     font-weight: normal;
-    line-height: 1em;
-    position: relative;
-    top: 0px;
-    left: 0px;
-    z-index: 3;
-    margin-top: 25px;
-    margin-left: 2.847755%;
-    clear: none;
+    margin-top: 10px;
+    margin-left:auto;
+    margin-right:auto;
+    clear:both;
 }
 
 #textspan {
-    float: none;
-    font-size: 3.375em;
-    line-height: 1em;
+    font-size: 2.5em;
+    line-height: 2.5em;
     color: rgb(0, 64, 128);
     font-style: normal;
     font-weight: bold;
@@ -51,9 +78,8 @@
 }
 
 #textspan1 {
-    float: none;
-    font-size: 3.375em;
-    line-height: 1em;
+    font-size: 2.5em;
+    line-height: 2.5em;
     color: rgb(65, 156, 21);
     font-style: normal;
     font-weight: bold;
@@ -65,7 +91,7 @@
 #Rounded_Rectangle_1 {
     float: left;
     height: 98px;
-    width: 84.537037%;
+    width: 100%;
     background-color: rgb(255, 255, 255);
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
@@ -78,34 +104,5 @@
     margin-top: 733px;
     margin-left: 7.314815%;
     clear: both;
-}
-
-#LIVE_DRIVE {
-    float: left;
-    width: auto;
-    max-width: 100%;
-    height: auto;
-    color: rgb(0, 0, 0);
-    position: relative;
-    top: 0px;
-    left: 0px;
-    z-index: 1;
-    margin-top: 124px;
-    margin-left: 21.574074%;
-    clear: none;
-}
-
-#bkg {
-    float: left;
-    width: 100%;
-    height: 1920px;
-    color: rgb(0, 0, 0);
-    position: relative;
-    top: 0px;
-    left: 0px;
-    z-index: 0;
-    background-image:url("img/bkg.png");
-    -webkit-background-size: 100%;
-    background-size: 100%;
 }
 

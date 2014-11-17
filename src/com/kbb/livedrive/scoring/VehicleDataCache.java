@@ -1,4 +1,4 @@
-package com.kbb.livedrive.vehicledata;
+package com.kbb.livedrive.scoring;
 
 import java.util.ArrayList;
 import java.util.Collection;

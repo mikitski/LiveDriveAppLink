@@ -1,8 +1,13 @@
-package com.kbb.livedrive.vehicledata;
+package com.kbb.livedrive.scoring;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -20,12 +25,14 @@ import com.ford.syncV4.proxy.rpc.OnVehicleData;
 import com.kbb.livedrive.applink.AppLinkService;
 import com.kbb.livedrive.googleplay.GooglePlayService;
 import com.kbb.livedrive.location.LocationServices;
+import com.kbb.livedrive.profile.ProfileService;
+import com.kbb.livedrive.profile.VehicleDetails;
 
 public class DriverScoreService extends Service {
 	
+
 	private static DriverScoreService instance = null;
 	
-	public static String ACTION_SCORE_CHANGED = "com.kbb.livedrive.DriverScoreService.ACTION_SCORE_CHANGED";
 	public static String ACTION_RT_MPG_SCORE_CHANGED = "com.kbb.livedrive.DriverScoreService.ACTION_RT_MPG_SCORE_CHANGED";
 	public static String ACTION_RT_DRIVER_SCORE_CHANGED = "com.kbb.livedrive.DriverScoreService.ACTION_RT_DRIVER_SCORE_CHANGED";
 		
@@ -40,7 +47,10 @@ public class DriverScoreService extends Service {
 	private VehicleDataCache cache = new VehicleDataCache();
 
 	private int tripStartOdometer = 0;
+	private Date tripStartTime;
+	
 	private int tripEndOdometer = 0;
+	private Date tripEndTime;
 	
 	private int tripHwyMiles = 0;
 	private int tripCityMiles = 0;
@@ -53,11 +63,19 @@ public class DriverScoreService extends Service {
 			
 			String drivingState = intent.getStringExtra("drivingState");
 			int odometer = intent.getIntExtra("odometer", 0);
+			Date time = Calendar.getInstance().getTime();
+			try {
+				time = (new SimpleDateFormat("yyyy-MM-dd hh:mm:ss", Locale.ENGLISH)).parse(intent.getStringExtra("time"));
+			} catch (ParseException e) {
+				
+				e.printStackTrace();
+			}
+			
 			if("DRIVING".equals(drivingState)){
-				startTrip(odometer);
+				startTrip(odometer, time);
 			}
 			else if ("PARKED".equals(drivingState)){
-				endTrip(odometer);
+				endTrip(odometer, time);
 			}
 			
 		};
@@ -96,34 +114,27 @@ public class DriverScoreService extends Service {
 		currentMPGScore = score;
 	}
 	
-	public long getDriverScore(){
+	private long getDriverScore(){
 		return Math.max(Math.round(getRawDriverScore()), 50);
 	}
 	
-	public long getMPGScore(){
+	private long getMPGScore(){
 		return Math.max(Math.round(getRawMPGScore()), 50);
 		
 	}	
 	
-	public synchronized long getPreviousDriverScore(){
+	private synchronized long getPreviousDriverScore(){
 		return Math.max(Math.round(previousDriverScore), 50);
 	}
 
-	public synchronized long getPreviousMPGScore(){
+	private synchronized long getPreviousMPGScore(){
 		return Math.max(Math.round(previousMPGScore), 50);
 	}
 	
 	public void addVehicleData(OnVehicleData data){
 		cache.addVehicleData(data);
 	}
-	
-	private void notifyScoresChanged() {
-		Intent intent = new Intent(ACTION_SCORE_CHANGED);
-		intent.putExtra("driverScore", getDriverScore());
-		intent.putExtra("mpgScore", getMPGScore());
-		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-	}
-	
+		
 	private void notifyRealTimeMPGScoreChanged(long mpgScore){
 		Intent intent = new Intent(ACTION_RT_MPG_SCORE_CHANGED);
 		intent.putExtra("mpgScore", mpgScore);
@@ -132,7 +143,7 @@ public class DriverScoreService extends Service {
 	
 	private void notifyRealTimeDriverScoreChanged(long driverScore){
 		Intent intent = new Intent(ACTION_RT_DRIVER_SCORE_CHANGED);
-		intent.putExtra("mpgScore", driverScore);
+		intent.putExtra("driverScore", driverScore);
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 
 	}
@@ -148,7 +159,7 @@ public class DriverScoreService extends Service {
 		double mpgScore = getRawMPGScore();
 		
 		try{
-			//driverScore = calculateDriverScoreExternalV2(data);
+			driverScore = calculateDriverScoreExternalV2(data);
 			mpgScore = calculateMPGScoreExternal(data);
 		}
 		catch(Exception e){
@@ -157,9 +168,6 @@ public class DriverScoreService extends Service {
 		
 		setDriverScore(driverScore);
 		setMPGScore(mpgScore);
-
-		
-		notifyScoresChanged();
 
 	}
 	
@@ -183,43 +191,86 @@ public class DriverScoreService extends Service {
 		return driverScore;
 	}
 	
+	private double driverScoreV1(double currentSpeed, double referenceSpeed){
+		
+		double speedDelta = Math.abs(referenceSpeed - currentSpeed);
+		
+		double newScore = 100 * (1 - 1/(1+ Math.exp(5-speedDelta/2)));
+		
+		return newScore;
+	}
+	
+	private double driverScoreV2Day(double currentSpeed, double referenceSpeed){
+	
+		double speedDelta = Math.abs(referenceSpeed - currentSpeed);
+		
+		double newScore = 100-(50000*(Math.pow(10,0.0014*Math.pow(speedDelta,2)-0.0141*(speedDelta)+2.1095)*1/12*Math.pow(10,-8)));
+		
+		return newScore;
+	}
+	
+	private double driverScoreV2Night(double currentSpeed, double referenceSpeed){
+		
+		double speedDelta = Math.abs(referenceSpeed - currentSpeed);
+		
+		double newScore = 100-(50000*(Math.pow(10,0.0016*Math.pow(speedDelta,2)-0.0069*(speedDelta)+2.4605)*1/12*Math.pow(10,-8)));
+		
+		return newScore;
+	}
+	
+	
 	private double calculateDriverScoreExternalV2(List<OnVehicleData> data) {
 		
 		LocationServices loc = LocationServices.getInstance();
 		
+		
 		double driverScore = getRawDriverScore();
 		
 		OnVehicleData lastData = data.get(data.size() - 1);
+		OnVehicleData firstData = data.get(0);
 		
 		double currLat= lastData.getGps().getLatitudeDegrees();
 		double currLong= lastData.getGps().getLongitudeDegrees();
 		
-		int sliceDistance = lastData.getOdometer() - data.get(0).getOdometer();
-		
-		
-		int currAvgSpeed = loc.getCurrentAvgSpeed(currLat, currLong);
-		
+		int currAvgTrafficSpeed = loc.getCurrentAvgSpeed(currLat, currLong);
 		String currDayStatus = loc.getCurrentSunStatus(currLat, currLong);
 		
-		double currScore = 0;
+		
+		Date sliceStart = AppLinkService.getInstance().getDateFromGps(firstData.getGps());
+		Date sliceEnd = AppLinkService.getInstance().getDateFromGps(lastData.getGps());
+		
+		long sliceTime = Math.max(sliceEnd.getTime() - sliceStart.getTime(), 0);
+		
+		long tripTime = Math.max(sliceEnd.getTime() - tripStartTime.getTime(), 0); 
+		long tripTimeAtStart = Math.max(tripTime - sliceTime, 0);
+		
+		double realTimeScore = 0;
+		double avgSpeed = 0;
 		
 		for(int i = 0; i < data.size(); i++){
 			
 			OnVehicleData item = data.get(i);
 			
 			double speed = item.getSpeed();
+			avgSpeed += speed;
 			
 			if(currDayStatus == "Day"){
-				currScore = currScore + 100-(50000*(Math.pow(10,0.0014*Math.pow(speed-currAvgSpeed,2)-0.0141*(speed-currAvgSpeed)+2.1095)*1/12*Math.pow(10,-8)));
+				realTimeScore += driverScoreV1(speed, currAvgTrafficSpeed);
 			}
 			else{
-				currScore = currScore + 100-(50000*(Math.pow(10,0.0016*Math.pow(speed-currAvgSpeed,2)-0.0069*(speed-currAvgSpeed)+2.4605)*1/12*Math.pow(10,-8)));
+				realTimeScore += driverScoreV2Night(speed, currAvgTrafficSpeed);
 			}
 		}
 		
-		currScore = currScore / data.size();
+		avgSpeed = avgSpeed / data.size();
+		realTimeScore = Math.max(Math.min(realTimeScore / data.size(), 96), 50);
 		
-		driverScore = (driverScore + currScore) / 2;
+		driverScore = (realTimeScore * sliceTime + driverScore * (tripTimeAtStart)) / tripTime;
+		driverScore = Math.min(driverScore, 100);
+		
+		notifyRealTimeDriverScoreChanged(Math.round(driverScore));
+		
+		Log.i("SriveScore", String.format("speed: %s; avgTrafficSpeed: %s; realTimeScore: %s; sliceTime: %s; tripTime: %s; tripScore: %s", avgSpeed, currAvgTrafficSpeed, realTimeScore, sliceTime, tripTime, driverScore));
 		
 		return driverScore;
 	}
@@ -231,7 +282,7 @@ public class DriverScoreService extends Service {
 		try{
 		
 			LocationServices loc = LocationServices.getInstance();
-			VehicleDetails currentVehicle = VehicleDetailsService.getInstance().getCurrent();
+			VehicleDetails currentVehicle = ProfileService.getInstance().getCurrentVehicle();
 			
 			OnVehicleData lastData = data.get(data.size() - 1);
 			OnVehicleData firstData = data.get(0);
@@ -240,14 +291,13 @@ public class DriverScoreService extends Service {
 			double currLat= lastData.getGps().getLatitudeDegrees();
 			double currLong= lastData.getGps().getLongitudeDegrees();
 			
-			int sliceStartOdometer = firstData.getOdometer();
-			int sliceEndOdometer = lastData.getOdometer();
+			Date sliceStart = AppLinkService.getInstance().getDateFromGps(firstData.getGps());
+			Date sliceEnd = AppLinkService.getInstance().getDateFromGps(lastData.getGps());
 			
-			int sliceDistance = sliceEndOdometer - sliceStartOdometer;
+			long sliceTime = Math.max(sliceEnd.getTime() - sliceStart.getTime(), 0);
 			
-			int sliceStartTripDistance = Math.max(sliceStartOdometer - tripStartOdometer, 0);
-			
-			long tripDistance = sliceEndOdometer - tripStartOdometer;
+			long tripTime = Math.max(sliceEnd.getTime() - tripStartTime.getTime(), 0); 
+			long tripTimeAtStart = Math.max(tripTime - sliceTime, 0);
 			
 			String roadClass = loc.getCurrentRoadClass(currLat, currLong);
 			
@@ -262,31 +312,26 @@ public class DriverScoreService extends Service {
 			double realTimeMpgScore = 0;
 				
 			if(roadClass == "Highway"){			
-				tripHwyMiles += sliceDistance;
 				
 				realTimeMpgScore = avgFuelConsumption / currentVehicle.getHwyMPG(); // * sliceDistance/tripMiles;
 			}
 			else{
-				
-				tripCityMiles += sliceDistance;
-				
+
 				realTimeMpgScore = avgFuelConsumption / currentVehicle.getCityMPG(); // * sliceDistance/tripMiles;
-				
 			}
 			
-			realTimeMpgScore = Math.min(realTimeMpgScore * 100, 96);
+			realTimeMpgScore = Math.max(Math.min(realTimeMpgScore * 100, 96), 50);
+						
+			mpgScore = (realTimeMpgScore * sliceTime + mpgScore * (tripTimeAtStart)) / tripTime;
+			mpgScore = Math.min(mpgScore, 100);
 			
-			notifyRealTimeMPGScoreChanged(Math.round(realTimeMpgScore));
-			
-			//TODO send realtime MPG score change notificaton
-			
-			mpgScore = (realTimeMpgScore * sliceDistance + mpgScore * sliceStartTripDistance) / tripDistance;
+			notifyRealTimeMPGScoreChanged(Math.round(mpgScore));
 		} 
 		catch(Exception ex){
 			Log.e("calculateMPGScoreExternal", ex.getMessage());
 		}
 		
-		return Math.min(mpgScore, 100);		
+		return 	mpgScore;
 	}
 	
 	public String getDriverScoreDisplay(){
@@ -336,14 +381,16 @@ public class DriverScoreService extends Service {
 	private ScheduledFuture<?> calculatorHandle;
 
 
-	public void startTrip(int odometer) {
+	public void startTrip(int odometer, Date time) {
 
-		//TODO convert current score to lifetime score (previous score is lifetime)
-		previousDriverScore = currentDriverScore;
-		previousMPGScore = currentMPGScore;
-
+		previousDriverScore = ProfileService.getInstance().getCurrentPlayer().getPreviousDriverScore();
+		previousMPGScore = ProfileService.getInstance().getCurrentPlayer().getPreviousMpgScore();
 		
+		currentDriverScore = ProfileService.getInstance().getCurrentPlayer().getLatestDriverScore();
+		currentMPGScore = ProfileService.getInstance().getCurrentPlayer().getLatestMpgScore();
+
 		tripStartOdometer = odometer;
+		tripStartTime = time;
 
 		if(calculatorHandle == null || calculatorHandle.isDone() ||calculatorHandle.isCancelled() ){
 			
@@ -354,9 +401,10 @@ public class DriverScoreService extends Service {
 		isMoving = true;
 	}
 
-	public void endTrip(int odometer) {
+	public void endTrip(int odometer, Date time) {
 		
 		tripEndOdometer = odometer;
+		tripEndTime = time;
 		
 		if(calculatorHandle != null){
 			
@@ -365,13 +413,13 @@ public class DriverScoreService extends Service {
 		
 		calculateScores();
 		
-		long mpgScore = getMPGScore();
-		long driverScore = getDriverScore();
+		double mpgScore = getRawMPGScore();
+		double driverScore = getRawDriverScore();
 		
-		GooglePlayService gp = GooglePlayService.getInstance();
+		ProfileService ps = ProfileService.getInstance();
 		
-		gp.submitDriverScore(driverScore);
-		gp.submitMPGScore(mpgScore);
+		ps.submitDriverScore(driverScore);
+		ps.submitMpgScore(mpgScore);
 		
 		isMoving = false;
 		

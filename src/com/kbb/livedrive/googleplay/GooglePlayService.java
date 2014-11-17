@@ -71,16 +71,15 @@ public class GooglePlayService extends Service implements
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		
-		mGoogleApiClient.connect();
+		connect();
+		
+		//Hack: submit some low scores to init leaderboards
+		submitDriverScore(51);
+		submitMPGScore(51);
 		
 		return super.onStartCommand(intent, flags, startId);
 	}
 	
-	@Override
-	public void onStart(Intent intent, int startId) {
-	    mGoogleApiClient.connect();
-	};
-
 	
 	@Override
 	public boolean stopService(Intent name) {
@@ -133,14 +132,26 @@ public class GooglePlayService extends Service implements
 	@Override
 	public void onConnectionSuspended(int arg0) {
 		
+		Log.e("GooglePlayService", "Connection Suspended");
 		
 	}
 	
+	
 	public void submitDriverScore(long driverScore){
  
-		if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+		if(mGoogleApiClient != null){
+			
+			connect();
+			
+			try{
+
 		    // Call a Play Games services API method, for example:
-		    Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_good_driver), driverScore);
+				Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_good_driver), driverScore);
+			}
+			catch(Exception ex){
+				Log.e("DriverScoreService", ex.getMessage());
+			}
+
 		} else {
 		    // Alternative implementation (or warn user that they must
 		    // sign in to use this feature)
@@ -169,9 +180,7 @@ public class GooglePlayService extends Service implements
 
 			if(mGoogleApiClient != null){
 				
-				if(!mGoogleApiClient.isConnected()){
-					mGoogleApiClient.connect();
-				}
+				connect();
 				
 				PendingResult<LoadPlayerScoreResult> pres = Games.Leaderboards
 						.loadCurrentPlayerLeaderboardScore(mGoogleApiClient,
@@ -191,9 +200,18 @@ public class GooglePlayService extends Service implements
 	
 	public void submitMPGScore(long mpgScore){
 		 
-		if (mGoogleApiClient != null && mGoogleApiClient.isConnected()) {
+		if(mGoogleApiClient != null){
+			
+			connect();
+			
+			try{			
 		    // Call a Play Games services API method, for example:
-		    Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_mpg), mpgScore);
+				Games.Leaderboards.submitScore(mGoogleApiClient, getString(R.string.leaderboard_mpg), mpgScore);
+			}
+			catch(Exception ex){
+				Log.e("DriverScoreService", ex.getMessage());
+			}
+		
 		} else {
 		    // Alternative implementation (or warn user that they must
 		    // sign in to use this feature)

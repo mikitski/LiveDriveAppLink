@@ -5,8 +5,8 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.kbb.livedrive.applink.AppLinkService;
 import com.kbb.livedrive.googleplay.GooglePlayService;
 import com.kbb.livedrive.location.LocationServices;
-import com.kbb.livedrive.vehicledata.DriverScoreService;
-import com.kbb.livedrive.vehicledata.VehicleDetailsService;
+import com.kbb.livedrive.profile.ProfileService;
+import com.kbb.livedrive.scoring.DriverScoreService;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -107,7 +107,7 @@ public class LiveDriveApplication extends Application {
 	}
         
     private void startVehicleDetailsService() {
-    	Intent vehicleDetailsIntent = new Intent(this, VehicleDetailsService.class);
+    	Intent vehicleDetailsIntent = new Intent(this, ProfileService.class);
     	startService(vehicleDetailsIntent);
 	}
 
@@ -126,10 +126,10 @@ public class LiveDriveApplication extends Application {
     	startService(locationIntent);
     	
 	}
-	
+    
 
 	public void stopServices() {
-    	GooglePlayService.getInstance().stopService(new Intent(this, GooglePlayService.class));
+    	//GooglePlayService.getInstance().stopService(new Intent(this, GooglePlayService.class));
     }
 
 	public void showAppVersion(Context context) {

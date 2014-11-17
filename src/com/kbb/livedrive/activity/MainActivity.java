@@ -148,8 +148,8 @@ public class MainActivity extends ActivityBase implements
 			app.startServices();
 		}
 
-		Fragment fragment = new WebViewFragment();
-		getFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
+		//Fragment fragment = new WebViewFragment();
+		//getFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
 		
 		// Init Drawer list
         drawerTitle = getTitle();
@@ -342,9 +342,9 @@ public class MainActivity extends ActivityBase implements
 	protected void onStop() {
 	    super.onStop();
 	    
-		GooglePlayService gp = GooglePlayService.getInstance();
-		if(gp != null)
-			gp.disconnect();
+//		GooglePlayService gp = GooglePlayService.getInstance();
+//		if(gp != null)
+//			gp.disconnect();
 	}
 	
     public static class TabListener<T extends Fragment> implements ActionBar.TabListener {
@@ -378,7 +378,8 @@ public class MainActivity extends ActivityBase implements
         public void onTabSelected(Tab tab, FragmentTransaction ft) {
             if (mFragment == null) {
                 mFragment = Fragment.instantiate(mActivity, mClass.getName(), mArgs);
-                ft.add(android.R.id.content, mFragment, mTag);
+                //ft.add(android.R.id.content, mFragment, mTag);
+                ft.add(R.id.content_frame, mFragment, mTag);
             } else {
                 ft.show(mFragment);
             }
