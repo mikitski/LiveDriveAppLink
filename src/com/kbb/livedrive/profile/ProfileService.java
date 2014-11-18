@@ -88,7 +88,7 @@ public class ProfileService extends Service {
 		
 			try{
 				player = new CurrentPlayer();
-				player.setUserName(pref.getString("userName", "LadiesMan217"));
+				player.setUserName("LiveDrive2014"); //pref.getString("userName", "LiveDrive2014"));
 				player.setImageUrl(pref.getString("imageUrl", ""));
 				
 				player.setBestDriverScore(Double.longBitsToDouble(pref.getLong("bestDriverScore", Double.doubleToRawLongBits(76))));
@@ -209,7 +209,7 @@ public class ProfileService extends Service {
 		intent.putExtra("driverScore", player.getLatestDriverScoreLong());
 		intent.putExtra("previousDriverScore", player.getPreviousDriverScoreLong());
 		intent.putExtra("bestDriverScore", player.getBestDriverScoreLong());
-		intent.putExtra("leaderboardPosition", player.getDriverRank());
+		intent.putExtra("driverRank", player.getDriverRank());
 		
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 	}
@@ -229,10 +229,10 @@ public class ProfileService extends Service {
 		//broadcast score changed notification
 		Intent intent = new Intent(ACTION_MPG_SCORE_CHANGED);
 		
-		intent.putExtra("driverScore", player.getLatestMpgScoreLong());
-		intent.putExtra("previousDriverScore", player.getPreviousMpgScoreLong());
-		intent.putExtra("bestDriverScore", player.getBestMpgScoreLong());
-		intent.putExtra("leaderboardPosition", player.getMpgRank());
+		intent.putExtra("mpgScore", player.getLatestMpgScoreLong());
+		intent.putExtra("previousMpgScore", player.getPreviousMpgScoreLong());
+		intent.putExtra("bestMpgScore", player.getBestMpgScoreLong());
+		intent.putExtra("mpgRank", player.getMpgRank());
 		
 		LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
 	}

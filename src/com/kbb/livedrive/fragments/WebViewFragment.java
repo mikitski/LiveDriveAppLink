@@ -78,10 +78,10 @@ public class WebViewFragment extends BaseFragment {
 	private BroadcastReceiver mpgScoreChangedReceiver = new BroadcastReceiver(){
 		public void onReceive(android.content.Context context, Intent intent) {
 
-			long driverScore = intent.getLongExtra("driverScore", 50);
-			long previousDriverScore = intent.getLongExtra("previousDriverScore", 50);
-			long bestDriverScore = intent.getLongExtra("bestDriverScore", 50);
-			String driverRank = intent.getStringExtra("driverRank");
+			long driverScore = intent.getLongExtra("mpgScore", 50);
+			long previousDriverScore = intent.getLongExtra("previousMpgScore", 50);
+			long bestDriverScore = intent.getLongExtra("bestMpgScore", 50);
+			String driverRank = intent.getStringExtra("mpgRank");
 			
 			//update UI on mpg score change
 			leaderboardView.loadUrl(String.format("javascript:drawMpgScore(%s,%s,%s);", driverScore, previousDriverScore, driverRank));
@@ -160,7 +160,6 @@ public class WebViewFragment extends BaseFragment {
 	}
 
 	private CharSequence getTextViewLabel() {
-		//android:text="LadiesMan217|2014 Ford Flex Limited"
         String driverName = ProfileService.getInstance().getCurrentPlayer().getUserName();
         String vehicleName = ProfileService.getInstance().getCurrentVehicle().getVehicleName();
         		
@@ -196,6 +195,8 @@ public class WebViewFragment extends BaseFragment {
 			
 			if(url.contains("file:///android_asset/leaderboard.html")){
 			
+				mTextView.setText(getTextViewLabel());
+			
 				ProfileService ps = ProfileService.getInstance();
 				
 				ps.requestDriverScoreUpdate();
@@ -208,6 +209,8 @@ public class WebViewFragment extends BaseFragment {
 				ps.requestDriverLeaderboardUpdate();
 				
 				ps.requestMpgLeaderboardUpdate();
+				
+				
 				
 			}
 	    }

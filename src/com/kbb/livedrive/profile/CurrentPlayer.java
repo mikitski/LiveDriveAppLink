@@ -104,7 +104,7 @@ public class CurrentPlayer extends Player {
 	public static CurrentPlayer createDummy(){
 		
 		CurrentPlayer player = new CurrentPlayer();
-		player.setUserName("LadiesMan217");
+		player.setUserName("LiveDrive2014");
 		player.setImageUrl("");
 		
 		player.setBestDriverScore(76);

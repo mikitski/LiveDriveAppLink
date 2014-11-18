@@ -128,7 +128,21 @@ public class LocationServices extends Service{
 		//Detector config file - use to get nearest traffic detector (VDS) by lat/long
 		//http://pems.dot.ca.gov/vds_config.xml
 		
-		return 45 + 5 - rand.nextInt(10);
+		String roadClass = "Street";
+		
+		try{
+			roadClass = LocationServices.getInstance().getCurrentRoadClass(latitude, longitude);
+		}
+		catch (Exception ex){
+			Log.e("getCurrentAvgSpeed", ex.getMessage());
+		}
+		
+		int baseSpeed = 45;
+		
+		if(roadClass == "Highway")
+			baseSpeed = 70;
+		
+		return baseSpeed + 5 - rand.nextInt(10);
 		
 	}
 

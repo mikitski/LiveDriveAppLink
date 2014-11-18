@@ -133,7 +133,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 	private Location currentLocation = null; // Stores the current location
 
-	private boolean isEmulatorMode = false;
+	private boolean isEmulatorMode = true;
 	private boolean isSimulatedData = true;
 
 	private SoftButton showDriverScore = null;
@@ -300,7 +300,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 			
 			String mpgScoreDisplay = intent.getStringExtra("mpgScoreDisplay");
 			
-			//TODO add real-time score changed notification
+			// add real-time score changed notification
 			
 			setMpgScoreDisplay(mpgScoreDisplay);
 		};
@@ -397,7 +397,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 				BaseTransportConfig transport = null;
 				
 				if (isEmulatorMode)
-					transport = new TCPTransportConfig(12345, "172.16.17.103", true);
+					transport = new TCPTransportConfig(12345, "192.168.0.50", true);
 				else
 					transport = new BTTransportConfig();
 				proxy = new SyncProxyALM(this, "Cox Automotive", false, Language.EN_US, Language.EN_US, "566020017", transport);
@@ -565,6 +565,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		}
 
 		currentDriverScoreDisplay = driverScore;
+		
 		updateDisplay("Driver Score ", currentDriverScoreDisplay);
 
 	}
@@ -576,13 +577,13 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 						"Your Eco score dropped. Accelerating smoother may help conserve fuel",
 						true, autoIncCorrId++);
 				
-				updateDisplay("Eco Score ", currentMPGScoreDisplay);
+				updateDisplay("Eco Score ", mpgScore);
 			}
 			if (currentMPGScoreDisplay == "Low" && mpgScore != "Low") {
 				proxy.alert(
 						"Your Driving Economy is improving!",
 						true, autoIncCorrId++);
-				updateDisplay("Eco Score ", currentMPGScoreDisplay);
+				updateDisplay("Eco Score ", mpgScore);
 			}
 		} catch (SyncException e) {
 			Log.e("SyncException", e.getMessage());
@@ -901,53 +902,27 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 			
 			break;
 		case PRESET_3:
-			say("your driver score dropped");
+			VehicleDataEmulatorService.getInstance().loadTrack(3);
 			break;
 		case PRESET_4:
-			say("your driver score improved");
+			VehicleDataEmulatorService.getInstance().loadTrack(4);
 
 			break;
 
 		case PRESET_5:
-			GetVehicleData msg = new GetVehicleData();
-			msg.setCorrelationID(autoIncCorrId++);
-
-			// Location functional group
-			msg.setSpeed(true);
-			msg.setGps(true);
-
-			// VechicleInfo functional group
-			msg.setFuelLevel(true);
-			msg.setFuelLevel_State(true);
-			msg.setInstantFuelConsumption(true);
-			msg.setExternalTemperature(true);
-			msg.setTirePressure(true);
-			msg.setOdometer(true);
-			msg.setVin(true);
-
-			// DrivingCharacteristics functional group
-			msg.setBeltStatus(false);
-			msg.setDriverBraking(false);
-			msg.setPrndl(true);
-			msg.setRpm(true);
-
-			try {
-				proxy.sendRPCRequest(msg);
-			} catch (SyncException e) {
-				Log.e("getVehicleData", "get Vehicle Data no woikie");
-			}
+			VehicleDataEmulatorService.getInstance().loadTrack(5);
 			break;
 		case PRESET_6: // fake GoodDriving score change
-			fakeDrivingScore(77.8);
+			VehicleDataEmulatorService.getInstance().loadTrack(6);
 			break;
 		case PRESET_7:
-			fakeDrivingScore(65.5);
-			break;
-		case PRESET_8:
 			fakeDrivingScore(42.3);
 			break;
-		case PRESET_9:
+		case PRESET_8:
+			fakeDrivingScore(65.5);
 			break;
+		case PRESET_9:
+			fakeDrivingScore(77.8);
 		case PRESET_0:
 			
 			VehicleDataEmulatorService.getInstance().interruptTrack();

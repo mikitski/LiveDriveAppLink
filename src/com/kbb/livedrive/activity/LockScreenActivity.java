@@ -1,6 +1,7 @@
 package com.kbb.livedrive.activity;
 
 import com.kbb.livedrive.R;
+import com.kbb.livedrive.profile.ProfileService;
 import com.kbb.livedrive.scoring.DriverScoreService;
 
 import android.app.Activity;
@@ -60,7 +61,10 @@ public class LockScreenActivity extends Activity {
 		LocalBroadcastManager lbManager = LocalBroadcastManager.getInstance(this);
         lbManager.registerReceiver(realTimeMpgScoreChangedReceiver, new IntentFilter(DriverScoreService.ACTION_RT_MPG_SCORE_CHANGED));
         lbManager.registerReceiver(realTimeDriverScoreChangedReceiver, new IntentFilter(DriverScoreService.ACTION_RT_DRIVER_SCORE_CHANGED));
+        lbManager.registerReceiver(realTimeMpgScoreChangedReceiver, new IntentFilter(ProfileService.ACTION_MPG_SCORE_CHANGED));
+        lbManager.registerReceiver(realTimeDriverScoreChangedReceiver, new IntentFilter(ProfileService.ACTION_DRIVER_SCORE_CHANGED));
 
+        
     	lockscreenView = (WebView) findViewById(R.id.lockscreenView);
     	lockscreenView.getSettings().setJavaScriptEnabled(true);
     	lockscreenView.setWebViewClient(Client);
@@ -113,8 +117,12 @@ public class LockScreenActivity extends Activity {
 	    public void onPageFinished(WebView view, String url) {	
 			
 			if(url.equals("file:///android_asset/lockscreen.html")){
-				lockscreenView.loadUrl(String.format("javascript:(drawDriverScore(%s,%s,%s))", 74, 74, "\"--\""));
-				lockscreenView.loadUrl(String.format("javascript:(drawMpgScore(%s,%s,%s))", 86, 86, "\"--\""));
+				
+				ProfileService.getInstance().requestDriverScoreUpdate();
+				ProfileService.getInstance().requestMpgScoreUpdate();
+				
+				//lockscreenView.loadUrl(String.format("javascript:(drawDriverScore(%s,%s,%s))", 74, 74, "\"--\""));
+				//lockscreenView.loadUrl(String.format("javascript:(drawMpgScore(%s,%s,%s))", 86, 86, "\"--\""));
 			}
 			
 	    }

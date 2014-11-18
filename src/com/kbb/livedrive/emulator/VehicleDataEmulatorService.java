@@ -12,6 +12,7 @@ import com.ford.syncV4.proxy.rpc.GPSData;
 import com.ford.syncV4.proxy.rpc.OnVehicleData;
 import com.ford.syncV4.proxy.rpc.enums.PRNDL;
 import com.kbb.livedrive.applink.AppLinkService;
+import com.kbb.livedrive.location.LocationServices;
 import com.kbb.livedrive.profile.ProfileService;
 
 import android.app.LauncherActivity;
@@ -206,7 +207,7 @@ public class VehicleDataEmulatorService extends Service {
 		intent.putExtra("Speed",speed);
 		intent.putExtra("Prndl",prndl.toString());
 		intent.putExtra("Odometer", odometer);
-		intent.putExtra("InstantFuelConsumption", emulateInstantFuelConsumption());
+		intent.putExtra("InstantFuelConsumption", emulateInstantFuelConsumption(point.getLatitude(), point.getLongitude()));
 
 		
 		intent.putExtra("LatitudeDegrees",point.getLatitude());
@@ -222,15 +223,29 @@ public class VehicleDataEmulatorService extends Service {
 		
 	}
 	
-	private double emulateInstantFuelConsumption(){
+	private double emulateInstantFuelConsumption(double latitude, double longitude){
+		
 		int cityMpg = ProfileService.getInstance().getCurrentVehicle().getCityMPG();
 		int hwyMpg = ProfileService.getInstance().getCurrentVehicle().getHwyMPG();
+		
+		String roadClass="Street";
+		
+		if(nextTrackPoint % 10 == 0){
+			roadClass = LocationServices.getInstance().getCurrentRoadClass(latitude, longitude);
+			
+		}
+		
+		double baseMpg = cityMpg;
+		
+		if(roadClass == "Highway"){
+			baseMpg = hwyMpg;
+		}
 		
 		double r = rand.nextGaussian();
 		
 		double realTimeRange = (hwyMpg - cityMpg) ;
 		
-		double realTimeMpg = cityMpg + realTimeRange * r - realTimeRange/2;
+		double realTimeMpg = baseMpg + realTimeRange * r - realTimeRange/2;
 		
 		return realTimeMpg;
 	}
@@ -306,6 +321,22 @@ public class VehicleDataEmulatorService extends Service {
 				break;
 			case 2:
 				track = TrackCSVParser.parseFromCsv("20141115034353.csv");
+				nextTrackPoint = 0;
+				break;
+			case 3:
+				track = TrackCSVParser.parseFromCsv("20141117135602.csv");
+				nextTrackPoint = 0;
+				break;
+			case 4:
+				track = TrackCSVParser.parseFromCsv("20141117235602.csv");
+				nextTrackPoint = 0;
+				break;
+			case 5:
+				track = TrackCSVParser.parseFromCsv("20141117235702.csv");
+				nextTrackPoint = 0;
+				break;
+			case 6:
+				track = TrackCSVParser.parseFromCsv("20141117235802.csv");
 				nextTrackPoint = 0;
 				break;
 				
