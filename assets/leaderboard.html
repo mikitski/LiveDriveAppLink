@@ -105,15 +105,14 @@
       {
         font-family: OpenSans;
         color: #333333;
-        font-size: 34px; /* Approximation due to font substitution */
+        font-size: 42px; /* Approximation due to font substitution */
         font-weight: 600;
-        transform: scale(1.398,1.398);
         text-align: center;
         margin-top: -52px;
         padding-top: 20px;
       }
       h1 img {
-        margin-bottom: -20px;
+        margin-bottom: -30px;
       }
 
       .datatable
@@ -342,9 +341,9 @@ function tabulate(data, columns, tableContainer) {
     d3.select(tableContainer).append("h1").html(
       function() {
         if (tableContainer.indexOf("driver_leaderboard") > -1) {
-          return "<img src=\"./Driver_Marker%201.svg\" width=67 height=72>&nbsp;Driver Score Leaderboard";
+          return "<img src=\"./Driver_Marker%201.svg\" width=87 height=92>&nbsp;Driver Score Leaderboard";
         } else if (tableContainer.indexOf("mpg_leaderboard") > -1) {
-          return "<img src=\"./Fuel%20Icon%201.svg\" width=67 height=72>&nbsp;Eco Score Leaderboard";
+          return "<img src=\"./Fuel%20Icon%201.svg\" width=87 height=92>&nbsp;Eco Score Leaderboard";
         }
       });    
 
