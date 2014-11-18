@@ -117,11 +117,9 @@
 
       .datatable
       {
-        font-size: 18px;
         background: #fff;
         margin: 60px;
         width: 975px;
-        height: 752px;
         border: 4px;
         text-align: center;
       }
@@ -155,13 +153,20 @@
         text-align: left;
       }
       tr:nth-child(even) {
+        height: 104px;
         background-color: #ededed;
       }
       tr:nth-child(odd) {
+        height: 104px;
         background-color: #edf3f9;
       }
-      #numberCircle {
+      .numberCircle {
+        line-height: 82px;
+        margin-left: auto; 
+        margin-right: auto;
         border-radius: 50%;
+        width: 82px;
+        height: 82px;
         background-color: #ffffff;
     }
     </style>
@@ -335,7 +340,7 @@ function tabulate(data, columns, tableContainer) {
         .append("tr")
         .attr("id", function(d,i) { if (i==0) { return "firstRowTable"; } return "notUsedId"; })
         .html(function (d) { 
-          return "<td>" + d.rank + "</td><td id=\"left-aligned-leaderboard\"><img src=\"" + d.image + "\"></img> " + d.name + "</td><td>" + d.score + "</td>";
+          return "<td><div class=\"numberCircle\">" + d.rank + "</div></td><td id=\"left-aligned-leaderboard\"><img src=\"" + d.image + "\"></img> " + d.name + "</td><td>" + d.score + "</td>";
         });
 
     d3.select(tableContainer).append("h1").html(
@@ -356,14 +361,20 @@ function tabulate(data, columns, tableContainer) {
   { rank: 3, image: "./img/LD%20Logo%201.png", name: "LadiesMan217", score: 79 },
   { rank: 1, image: "./img/mikitski.png", name: "mikitski", score: 91 },
   { rank: 2, image: "./img/mrcarlosrendon.jpeg", name: "mrcarlosrendon", score: 85 },
-  { rank: 4, image: "./img/jnesis.png", name: "jnesis", score: 65 }); 
+  { rank: 4, image: "./img/jnesis.png", name: "jnesis", score: 75 },
+  { rank: 5, image: "./img/jnesis.png", name: "abracadabra", score: 74 },
+  { rank: 6, image: "./img/jnesis.png", name: "fiona", score: 65 }
+); 
 
 
   var mpgData = new Array(
   { rank: 3, image: "./img/LD%20Logo%201.png", name: "LadiesMan217", score: 60 },
   { rank: 1, image: "./img/mikitski.png", name: "mikitski", score: 91 },
   { rank: 2, image: "./img/mrcarlosrendon.jpeg", name: "mrcarlosrendon", score: 85 },
-  { rank: 4, image: "./img/jnesis.png", name: "jnesis", score: 60 }); 
+  { rank: 4, image: "./img/jnesis.png", name: "jnesis", score: 60 },
+  { rank: 5, image: "./img/jnesis.png", name: "abracadabra", score: 55 },
+  { rank: 6, image: "./img/jnesis.png", name: "fiona", score: 54 }
+); 
 
 // render the table
 var driverLeaderBoardTable = tabulate(driverData, ["rank", "name", "score"], "#driver_leaderboard");
