@@ -258,6 +258,7 @@ public class DriverScoreService extends Service {
 			
 			if(currDayStatus == "Day"){
 				realTimeScore += driverScoreV1(speed, currAvgTrafficSpeed);
+				//realTimeScore += driverScoreV2Day(speed, currAvgTrafficSpeed);
 			}
 			else{
 				realTimeScore += driverScoreV2Night(speed, currAvgTrafficSpeed);
@@ -272,7 +273,7 @@ public class DriverScoreService extends Service {
 		
 		notifyRealTimeDriverScoreChanged(Math.round(driverScore));
 		
-		Log.i("SriveScore", String.format("speed: %s; avgTrafficSpeed: %s; realTimeScore: %s; sliceTime: %s; tripTime: %s; tripScore: %s", avgSpeed, currAvgTrafficSpeed, realTimeScore, sliceTime, tripTime, driverScore));
+		Log.i("DriverScore", String.format("nobs: %s; avgSpd: %s; avgEnvSpd: %s; rtScore: %s; sliceTm: %s; tripTm: %s; tripScore: %s", data.size(), avgSpeed, currAvgTrafficSpeed, realTimeScore, sliceTime, tripTime, driverScore));
 		
 		return driverScore;
 	}
@@ -312,15 +313,18 @@ public class DriverScoreService extends Service {
 			avgFuelConsumption = avgFuelConsumption / data.size();
 			
 			double realTimeMpgScore = 0;
+			double referenceMpg = 25;
 				
-			if(roadClass == "Highway"){			
+			if(roadClass == "Highway"){
 				
-				realTimeMpgScore = avgFuelConsumption / currentVehicle.getHwyMPG(); // * sliceDistance/tripMiles;
+				referenceMpg = currentVehicle.getHwyMPG(); // * sliceDistance/tripMiles;
 			}
 			else{
 
-				realTimeMpgScore = avgFuelConsumption / currentVehicle.getCityMPG(); // * sliceDistance/tripMiles;
+				referenceMpg = currentVehicle.getCityMPG(); // * sliceDistance/tripMiles;
 			}
+			
+			realTimeMpgScore = avgFuelConsumption / referenceMpg;
 			
 			realTimeMpgScore = Math.max(Math.min(realTimeMpgScore * 100, 96), 50);
 						
@@ -328,6 +332,9 @@ public class DriverScoreService extends Service {
 			mpgScore = Math.min(mpgScore, 100);
 			
 			notifyRealTimeMPGScoreChanged(Math.round(mpgScore));
+
+			Log.i("MpgScore", String.format("nobs: %s; avgMpg: %s; refMpg: %s; rtScore: %s; sliceTm: %s; tripTm: %s; tripScore: %s", data.size(), avgFuelConsumption, referenceMpg, realTimeMpgScore, sliceTime, tripTime, mpgScore));
+			
 		} 
 		catch(Exception ex){
 			Log.e("calculateMPGScoreExternal", ex.getMessage());
@@ -341,7 +348,7 @@ public class DriverScoreService extends Service {
 		String display;
 		long score = getDriverScore();
 		
-		if(score < 50)
+		if(score < 60)
 			display = "Low";
 		else 
 			display = String.valueOf(score);
@@ -353,7 +360,7 @@ public class DriverScoreService extends Service {
 		String display;
 		double score = getMPGScore();
 		
-		if(score < 50)
+		if(score < 60)
 			display = "Low";
 		else 
 			display = String.valueOf(score);
@@ -399,7 +406,7 @@ public class DriverScoreService extends Service {
 
 		if(calculatorHandle == null || calculatorHandle.isDone() ||calculatorHandle.isCancelled() ){
 			
-			calculatorHandle = scheduler.scheduleAtFixedRate(scoreCalculator, 30, 30, SECONDS);
+			calculatorHandle = scheduler.scheduleAtFixedRate(scoreCalculator, 15, 15, SECONDS);
 			
 		}
 		

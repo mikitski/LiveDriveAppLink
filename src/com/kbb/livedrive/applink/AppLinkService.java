@@ -133,7 +133,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 	private Location currentLocation = null; // Stores the current location
 
-	private boolean isEmulatorMode = true;
+	private boolean isEmulatorMode = false;
 	private boolean isSimulatedData = true;
 
 	private SoftButton showDriverScore = null;
@@ -174,7 +174,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 		showMPGScore = new SoftButton();
 		showMPGScore.setSoftButtonID(SHOW_MPG_ID);
-		showMPGScore.setText("MPG");
+		showMPGScore.setText("Eco");
 		showMPGScore.setType(SoftButtonType.SBT_TEXT);
 		showMPGScore.setIsHighlighted(true);
 		showMPGScore.setSystemAction(SystemAction.DEFAULT_ACTION);
@@ -302,7 +302,7 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 			
 			//TODO add real-time score changed notification
 			
-			//setDriverScoreDisplay(driverScoreDisplay);
+			setMpgScoreDisplay(mpgScoreDisplay);
 		};
 	};
 
@@ -552,12 +552,12 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 		try {
 			if (driverScore == "Low" && currentDriverScoreDisplay != "Low") {
 				proxy.alert(
-						"Your recent driving pattern lead to loosing 5 sponts on your Driving Score leaderboeard",
+						"Your driving score dropped. Please watch your speed",
 						true, autoIncCorrId++);
 			}
 			if (currentDriverScoreDisplay == "Low" && driverScore != "Low") {
 				proxy.alert(
-						"Your driving is improving! You gained 15 spots on you Driving Score eaderboard",
+						"Your driving is improving!",
 						true, autoIncCorrId++);
 			}
 		} catch (SyncException e) {
@@ -569,6 +569,29 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 
 	}
 
+	private void setMpgScoreDisplay(String mpgScore) {
+		try {
+			if (mpgScore == "Low" && currentMPGScoreDisplay != "Low") {
+				proxy.alert(
+						"Your Eco score dropped. Accelerating smoother may help conserve fuel",
+						true, autoIncCorrId++);
+				
+				updateDisplay("Eco Score ", currentMPGScoreDisplay);
+			}
+			if (currentMPGScoreDisplay == "Low" && mpgScore != "Low") {
+				proxy.alert(
+						"Your Driving Economy is improving!",
+						true, autoIncCorrId++);
+				updateDisplay("Eco Score ", currentMPGScoreDisplay);
+			}
+		} catch (SyncException e) {
+			Log.e("SyncException", e.getMessage());
+		}
+
+		currentMPGScoreDisplay = mpgScore;
+	}
+	
+	
 	private void subscribeButtons() {
 		try {
 			proxy.subscribeButton(ButtonName.PRESET_1, autoIncCorrId++); // driving mode good
@@ -840,8 +863,8 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 				break;
 			case SHOW_MPG_ID:
 				
-				updateDisplay("Your MPG Score is", currentMPGScoreDisplay);
-				say("Your MPG Score is " + currentMPGScoreDisplay);
+				updateDisplay("Your Eco Score is", currentMPGScoreDisplay);
+				say("Your Eco Score is " + currentMPGScoreDisplay);
 				break;
 			// case SHOW_LEADERBOARD_ID:
 			// display = DriverScoreService.getLeaderboard();
@@ -878,9 +901,10 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 			
 			break;
 		case PRESET_3:
-
+			say("your driver score dropped");
 			break;
 		case PRESET_4:
+			say("your driver score improved");
 
 			break;
 
@@ -1094,11 +1118,17 @@ public class AppLinkService extends Service implements IProxyListenerALM,
 				onStartDriving(vehicleData);
 			}
 		}
+		else if (vehicleData.getSpeed() != null){
+			isMoving = true;
+			onStartDriving(vehicleData);
+		}
 
 		prevVehicleData = vehicleData;
+		
+		GPSData gps = vehicleData.getGps();
 
 		if (stateChange
-				|| (vehicleData.getSpeed() != null && (Math.abs(vehicleData.getGps().getUtcSeconds() - prevDataLogSeconds) >= LOG_INTERVAL))) {
+				|| (vehicleData.getSpeed() != null && gps != null & (Math.abs(gps.getUtcSeconds() - prevDataLogSeconds) >= LOG_INTERVAL))) {
 			
 			prevDataLogSeconds = vehicleData.getGps().getUtcSeconds();
 			DriverScoreService.getInstance().addVehicleData(vehicleData);
