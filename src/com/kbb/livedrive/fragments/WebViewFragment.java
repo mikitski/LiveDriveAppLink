@@ -41,6 +41,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.AdapterView;
@@ -141,6 +142,7 @@ public class WebViewFragment extends BaseFragment {
         
 		leaderboardView = (WebView) fragmentView.findViewById(R.id.scoreswebview);
 		leaderboardView.getSettings().setJavaScriptEnabled(true);
+		leaderboardView.getSettings().setCacheMode(WebSettings.LOAD_NO_CACHE); // disables cache
 		leaderboardView.setWebViewClient(Client);
 		
 		leaderboardView.setPadding(0, 0, 0, 0);
