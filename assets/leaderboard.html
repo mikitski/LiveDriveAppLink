@@ -101,8 +101,6 @@
 		margin-left:150px;
 	}
       
-
-
       h1 
       {
         font-family: OpenSans;
@@ -110,6 +108,8 @@
         font-size: 34px; /* Approximation due to font substitution */
         font-weight: 600;
         transform: scale(1.398,1.398);
+        text-align: center;
+        margin-top: -40px;
       }
 
       .datatable
@@ -147,13 +147,19 @@
       #firstRowTable {
         background-color: rgba(49, 171, 70, 0.5);
       }
+      #left-aligned-leaderboard {
+        text-align: left;
+      }
       tr:nth-child(even) {
         background-color: #ededed;
       }
       tr:nth-child(odd) {
         background-color: #edf3f9;
       }
-
+      #numberCircle {
+        border-radius: 50%;
+        background-color: #ffffff;
+    }
     </style>
     <script src="d3.min.js"></script>
     <script type="text/javascript" src="./jquery.min.js"></script>
@@ -325,11 +331,19 @@ function tabulate(data, columns, tableContainer) {
         .append("tr")
         .attr("id", function(d,i) { if (i==0) { return "firstRowTable"; } return "notUsedId"; })
         .html(function (d) { 
-          return "<td>" + d.rank + "</td><td><img src=\"" + d.image + "\"></img> " + d.name + "</td><td>" + d.score + "</td>";
+          return "<td>" + d.rank + "</td><td id=\"left-aligned-leaderboard\"><img src=\"" + d.image + "\"></img> " + d.name + "</td><td>" + d.score + "</td>";
         });
 
-    d3.select(tableContainer).append("h1").text("Driver Score Leaderboard");    
+    d3.select(tableContainer).append("h1").html(
+      function() {
+        if (tableContainer.indexOf("driver_leaderboard") > -1) {
+          return "<img src=\"./Driver_Marker%201.svg\" width=40 height=40>&nbsp;Driver Score Leaderboard";
+        } else if (tableContainer.indexOf("mpg_leaderboard") > -1) {
+          return "<img src=\"./Fuel%20Icon%201.svg\" width=40 height=40>&nbsp;Eco Score Leaderboard";
+        }
+      });    
 
+    //"Driver Score Leaderboard"
     return table;
 }
 
