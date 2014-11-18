@@ -71,7 +71,7 @@
 	
 	.swiper-container, .swiper-slide {
 	  width: 100%;
-	  height: 900px;
+	  height: 1000px;
 	}
 	
 	.swiper-pager{
@@ -83,16 +83,16 @@
 	}
 	.swiper-pagination-switch{
 		display:inline-block;
-		width:25px;
-		height:25px;
-		border-radius:25px;
-		background:#999;
-		box-shadow:0px 2px 4px #555 inset;
+		width:30px;
+		height:30px;
+		border-radius:30px;
+		background: #bec5cb;
+		//box-shadow:0px 2px 4px #555 inset;
 		margin:0 25px;
 		cursor:pointer;
 	}
 	.swiper-active-switch{
-		background:#fff;
+		background: #175eac;
 	}
 	
 	svg{
@@ -109,7 +109,11 @@
         font-weight: 600;
         transform: scale(1.398,1.398);
         text-align: center;
-        margin-top: -40px;
+        margin-top: -52px;
+        padding-top: 20px;
+      }
+      h1 img {
+        margin-bottom: -20px;
       }
 
       .datatable
@@ -143,6 +147,7 @@
       td img {
         width: 76px; 
         height: 76px;
+        margin-bottom: -20px;
       }
       #firstRowTable {
         background-color: rgba(49, 171, 70, 0.5);
@@ -337,9 +342,9 @@ function tabulate(data, columns, tableContainer) {
     d3.select(tableContainer).append("h1").html(
       function() {
         if (tableContainer.indexOf("driver_leaderboard") > -1) {
-          return "<img src=\"./Driver_Marker%201.svg\" width=40 height=40>&nbsp;Driver Score Leaderboard";
+          return "<img src=\"./Driver_Marker%201.svg\" width=67 height=72>&nbsp;Driver Score Leaderboard";
         } else if (tableContainer.indexOf("mpg_leaderboard") > -1) {
-          return "<img src=\"./Fuel%20Icon%201.svg\" width=40 height=40>&nbsp;Eco Score Leaderboard";
+          return "<img src=\"./Fuel%20Icon%201.svg\" width=67 height=72>&nbsp;Eco Score Leaderboard";
         }
       });    
 
