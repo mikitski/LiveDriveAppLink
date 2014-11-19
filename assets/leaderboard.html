@@ -309,7 +309,7 @@ window.onload = function() {
 
 // drawMpgScore(60, 70, 23);
 
-
+/*
 function drawDriverLeaderBoardForDriver(rank, imageUrl, userName, score) {
   //TODO
 } 
@@ -317,7 +317,9 @@ function drawDriverLeaderBoardForDriver(rank, imageUrl, userName, score) {
 function drawDriverLeadBoardForOtherDrivers(otherDriverInfo) {
   //TODO
 }
+*/
 
+/* Generate leader board table */
 function tabulate(data, columns, tableContainer) {
 
     var table = d3.select(tableContainer).append("table").attr("class", "datatable");
@@ -356,7 +358,15 @@ function tabulate(data, columns, tableContainer) {
     return table;
 }
 
+/* Convert first character of the table column title to upper case */
+function fixTableTitle(tableObject) {
+  tableObject.selectAll("thead th")
+      .text(function(column) {
+          return column.charAt(0).toUpperCase() + column.substr(1);
+      });
+}
 
+/*
  var driverData = new Array(
   { rank: 3, image: "./img/LD%20Logo%201.png", name: "LiveDrive2014", score: 79 },
   { rank: 1, image: "./img/mikitski.png", name: "mikitski", score: 91 },
@@ -364,8 +374,7 @@ function tabulate(data, columns, tableContainer) {
   { rank: 4, image: "./img/jnesis.png", name: "jnesis", score: 75 },
   { rank: 5, image: "./img/jnesis.png", name: "abracadabra", score: 74 },
   { rank: 6, image: "./img/jnesis.png", name: "fiona", score: 65 }
-); 
-
+);
 
   var mpgData = new Array(
   { rank: 3, image: "./img/LD%20Logo%201.png", name: "LiveDrive2014", score: 60 },
@@ -375,28 +384,92 @@ function tabulate(data, columns, tableContainer) {
   { rank: 5, image: "./img/jnesis.png", name: "abracadabra", score: 55 },
   { rank: 6, image: "./img/jnesis.png", name: "fiona", score: 54 }
 ); 
+*/ 
 
-// render the table
-var driverLeaderBoardTable = tabulate(driverData, ["rank", "name", "score"], "#driver_leaderboard");
 
-var mpgLeaderBoardTable = tabulate(mpgData, ["rank", "name", "score"], "#mpg_leaderboard")
+// Driver leader board score of the player
+var myDriverScore = '{"rank": 3, "image": "./img/LD%20Logo%201.png", "name": "LiveDrive2014", "score": 79}';
 
-function fixTableTitle(tableObject) {
-  tableObject.selectAll("thead th")
-      .text(function(column) {
-          return column.charAt(0).toUpperCase() + column.substr(1);
-      });
+// Driver leader board score of other players
+var otherDriverScores = '[{"rank": 1, "image": "./img/mikitski.png", "name": "mikitski", "score": 91 },\
+{ "rank": 2, "image": "./img/mrcarlosrendon.jpeg", "name": "mrcarlosrendon", "score": 85 },\
+{ "rank": 4, "image": "./img/jnesis.png", "name": "jnesis", "score": 75 },\
+{ "rank": 5, "image": "./img/jnesis.png", "name": "abracadabra", "score": 74 },\
+{ "rank": 6, "image": "./img/jnesis.png", "name": "fiona", "score": 65}]';
+
+function drawDriverLeaderBoard(myScore, otherScores) {
+  var driverData = getLeaderBoardData(myScore, otherScores);
+  var driverLeaderBoardTable = tabulate(driverData, ["rank", "name", "score"], "#driver_leaderboard");
+
+  fixTableTitle(driverLeaderBoardTable);
+}    
+
+
+function drawDriverLeaderBoardForMyScore(score) {
+    myDriverScore = score;
+    
+    drawDriverLeaderBoard(myDriverScore, otherDriverScores);
 }
 
-fixTableTitle(driverLeaderBoardTable);
-fixTableTitle(mpgLeaderBoardTable);
+function drawDriverLeaderBoardForOtherScores(scores) {
+  otherDriverScores = scores;
+    
+  drawDriverLeaderBoard(myDriverScore, otherDriverScores);
+}
 
- var otherDriverInfo = '{ "otherDrivers" : [' +
-                          '{1, "./image/mikitski.png", "mikitski", 91},' +
-                          '{2, "./image/mrcarlosrendon.jpeg", "mrcarlosrendon", 85},' +
-                          '{4, "./image/jnesis.png", "jnesis", 65},' +
-                        ']}';
- // drawDriverLeadBoardForOtherDrivers(otherDriverInfo);
+
+function getLeaderBoardData(me, others) {
+    var allPlayers = [];
+    
+    allPlayers.push(JSON.parse(me));
+
+    otherPlayersArray = JSON.parse(others);
+
+    for (var i = 0; i < otherPlayersArray.length; i++) {
+        allPlayers.push(otherPlayersArray[i]);
+    }
+    
+    return allPlayers;
+};
+
+drawDriverLeaderBoardForMyScore(myDriverScore);
+
+drawDriverLeaderBoardForOtherScores(otherDriverScores);
+
+// MPG/Eco score of the driver
+var myEcoScore = '{ "rank": 3, "image": "./img/LD%20Logo%201.png", "name": "LiveDrive2014", "score": 60 }';
+
+// MPG/Eco score of other players
+var otherEcoScores = '[{ "rank": 1, "image": "./img/mikitski.png", "name": "mikitski", "score": 91 },\
+{ "rank": 2, "image": "./img/mrcarlosrendon.jpeg", "name": "mrcarlosrendon", "score": 85 },\
+{ "rank": 4, "image": "./img/jnesis.png", "name": "jnesis", "score": 60 },\
+{ "rank": 5, "image": "./img/jnesis.png", "name": "abracadabra", "score": 55 },\
+{ "rank": 6, "image": "./img/jnesis.png", "name": "fiona", "score": 54 }]';
+
+
+function drawEcoLeaderBoard(myScore, otherScores) {
+  var mpgData = getLeaderBoardData(myScore, otherScores);
+  var mpgLeaderBoardTable = tabulate(mpgData, ["rank", "name", "score"], "#mpg_leaderboard");
+
+  fixTableTitle(mpgLeaderBoardTable);
+}    
+
+
+function drawEcoLeaderBoardForMyScore(score) {
+    myEcoScore = score;
+    
+    drawEcoLeaderBoard(myEcoScore, otherEcoScores);
+}
+
+function drawEcoLeaderBoardForOtherScores(scores) {
+  otherEcoScores = scores;
+    
+  drawDriverLeaderBoard(myEcoScore, otherEcoScores);
+}
+
+drawEcoLeaderBoardForMyScore(myEcoScore);
+
+drawEcoLeaderBoardForOtherScores(otherEcoScores);
     </script>
   </body>
 </html>
